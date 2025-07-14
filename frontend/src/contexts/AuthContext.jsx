@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { authAPI } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -15,14 +15,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Configure axios defaults
-  const API_BASE_URL = 'http://localhost:8000';
-  axios.defaults.baseURL = API_BASE_URL;
-
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       // Verify token and get user info
       validateToken();
     } else {
@@ -32,12 +27,11 @@ export const AuthProvider = ({ children }) => {
 
   const validateToken = async () => {
     try {
-      const response = await axios.get('/auth/user/');
+      const response = await authAPI.profile();
       setUser(response.data);
     } catch (error) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      delete axios.defaults.headers.common['Authorization'];
     } finally {
       setLoading(false);
     }
@@ -45,12 +39,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await axios.post('/auth/signin/', credentials);
+      const response = await authAPI.login(credentials);
       const { access, refresh, user: userData } = response.data;
       
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
       setUser(userData);
       return { success: true };
@@ -64,12 +57,11 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('/auth/signup/', userData);
+      const response = await authAPI.register(userData);
       const { access, refresh, user: newUser } = response.data;
       
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
       setUser(newUser);
       return { success: true };
@@ -84,7 +76,6 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   };
 

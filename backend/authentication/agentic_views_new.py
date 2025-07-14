@@ -3,12 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
-from django.core.cache import cache
 from .models import Issue, User
-from .vector_service import get_vector_service
+from .vector_service import vector_service
 from .chatbot_service import chatbot_service
 import logging
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -23,39 +21,24 @@ class ProductsView(APIView):
             category = request.GET.get('category', '')
             limit = int(request.GET.get('limit', 500))
             
-            # Create cache key based on parameters
-            cache_key = f"products_{hashlib.md5(f'{search}_{category}_{limit}'.encode()).hexdigest()}"
-            
-            # Try to get from cache first
-            cached_result = cache.get(cache_key)
-            if cached_result:
-                logger.info(f"Returning cached products for key: {cache_key}")
-                return Response(cached_result)
-            
             if search:
                 # Use vector search for search queries
-                products = get_vector_service().search_products(search, k=limit, category_filter=category if category else None)
+                products = vector_service.search_products(search, k=limit, category_filter=category if category else None)
             elif category:
                 # Get products by category
-                products = get_vector_service().get_products_by_category(category, limit=limit)
+                products = vector_service.get_products_by_category(category, limit=limit)
             else:
                 # Get all products
-                products = get_vector_service().get_all_products(limit=limit)
+                products = vector_service.get_all_products(limit=limit)
             
             # Get categories for filtering
-            categories = get_vector_service().get_categories()
+            categories = vector_service.get_categories()
             
-            result = {
+            return Response({
                 'products': products,
                 'categories': categories,
                 'total': len(products)
-            }
-            
-            # Cache the result for 5 minutes
-            cache.set(cache_key, result, 300)
-            logger.info(f"Cached products result for key: {cache_key}")
-            
-            return Response(result)
+            })
             
         except Exception as e:
             logger.error(f"Error fetching products: {e}")
@@ -69,7 +52,7 @@ class ProductDetailView(APIView):
     def get(self, request, product_id):
         """Get specific product details"""
         try:
-            product = get_vector_service().get_product_by_id(product_id)
+            product = vector_service.get_product_by_id(product_id)
             
             if not product:
                 return Response({
@@ -77,7 +60,7 @@ class ProductDetailView(APIView):
                 }, status=status.HTTP_404_NOT_FOUND)
             
             # Get similar products
-            similar_products = get_vector_service().search_products(
+            similar_products = vector_service.search_products(
                 product['text_content'], 
                 k=5, 
                 category_filter=product['category']
@@ -233,7 +216,7 @@ class CategoriesView(APIView):
     def get(self, request):
         """Get all product categories"""
         try:
-            categories = get_vector_service().get_categories()
+            categories = vector_service.get_categories()
             return Response({
                 'categories': categories
             })

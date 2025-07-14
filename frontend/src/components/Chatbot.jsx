@@ -1,6 +1,88 @@
 import React, { useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
-import axios from 'axios';
+import { MessageCircle, X, Send, Plus, Trash2 } from 'lucide-react';
+import { chatbotAPI } from '../utils/api';
+
+// Function to render markdown links and direct URLs
+const renderMessageWithLinks = (text) => {
+  // First handle markdown links [text](url)
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  // Then handle direct URLs (http://localhost:5173/products/:id)
+  const urlRegex = /(https?:\/\/localhost:5173\/products\/\d+)/g;
+  
+  let processedText = text;
+  const parts = [];
+  let lastIndex = 0;
+  
+  // First process direct URLs
+  let match;
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before the URL
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    
+    // Add the clickable URL
+    parts.push(
+      <a
+        key={match.index}
+        href={match[1]}
+        className="text-blue-600 hover:text-blue-800 underline cursor-pointer font-medium"
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.href = match[1];
+        }}
+      >
+        {match[1]}
+      </a>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  
+  // If no URLs were found, process markdown links
+  if (parts.length === 0) {
+    lastIndex = 0;
+    while ((match = linkRegex.exec(text)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      
+      // Add the link
+      parts.push(
+        <a
+          key={match.index}
+          href={match[2]}
+          className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            if (match[2].includes('/products/')) {
+              window.location.href = match[2];
+            } else {
+              window.open(match[2], '_blank');
+            }
+          }}
+        >
+          {match[2]}
+        </a>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+  }
+  
+  return parts.length > 1 ? parts : text;
+};
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +96,22 @@ const Chatbot = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const clearChat = () => {
+    setMessages([
+      {
+        id: 1,
+        text: "Hello! I'm your AI assistant. How can I help you with our products today?",
+        isBot: true,
+        timestamp: new Date()
+      }
+    ]);
+  };
+
+  const newChat = () => {
+    clearChat();
+    setIsOpen(true);
+  };
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -30,9 +128,7 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/chatbot/', {
-        message: inputMessage
-      });
+      const response = await chatbotAPI.sendMessage(inputMessage);
 
       const botMessage = {
         id: Date.now() + 1,
@@ -64,6 +160,17 @@ const Chatbot = () => {
 
   return (
     <>
+      {/* New Chat Button (only when chatbot is closed) */}
+      {!isOpen && (
+        <button
+          onClick={newChat}
+          className="fixed bottom-24 right-6 w-12 h-12 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-lg transition-all duration-300 flex items-center justify-center z-50"
+          title="New Chat"
+        >
+          <Plus size={20} />
+        </button>
+      )}
+
       {/* Chat Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -76,28 +183,39 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-96 bg-white rounded-lg shadow-2xl border z-50 flex flex-col">
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl border z-50 flex flex-col">
           {/* Header */}
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg">
-            <h3 className="font-semibold">AI Assistant</h3>
-            <p className="text-blue-100 text-sm">Ask me about our products!</p>
+          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold">AI Assistant</h3>
+              <p className="text-blue-100 text-sm">Ask me about our products!</p>
+            </div>
+            <button
+              onClick={clearChat}
+              className="bg-blue-500 hover:bg-blue-400 p-2 rounded-lg transition-colors"
+              title="Clear Chat"
+            >
+              <Trash2 size={18} />
+            </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[480px]">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
               >
                 <div
-                  className={`max-w-xs p-3 rounded-lg ${
+                  className={`max-w-[280px] p-3 rounded-lg ${
                     message.isBot
                       ? 'bg-gray-100 text-gray-800'
                       : 'bg-blue-600 text-white'
                   }`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <div className="text-sm whitespace-pre-wrap">
+                    {message.isBot ? renderMessageWithLinks(message.text) : message.text}
+                  </div>
                   <p className={`text-xs mt-1 ${
                     message.isBot ? 'text-gray-500' : 'text-blue-100'
                   }`}>

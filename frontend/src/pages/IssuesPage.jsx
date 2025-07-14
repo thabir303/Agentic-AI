@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { issuesAPI } from '../utils/api';
 
 const IssuesPage = () => {
   const [issues, setIssues] = useState([]);
@@ -15,8 +15,8 @@ const IssuesPage = () => {
   const fetchIssues = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/auth/admin/issues/');
-      setIssues(response.data);
+      const response = await issuesAPI.getIssues();
+      setIssues(response.data.issues || []);
     } catch (err) {
       setError('Failed to fetch issues');
       console.error('Error fetching issues:', err);
@@ -27,7 +27,7 @@ const IssuesPage = () => {
 
   const markAsResolved = async (issueId) => {
     try {
-      await axios.patch(`/auth/admin/issues/${issueId}/`, { status: 'resolved' });
+      await issuesAPI.resolveIssue(issueId);
       setIssues(issues.map(issue => 
         issue.id === issueId ? { ...issue, status: 'resolved' } : issue
       ));
@@ -39,7 +39,7 @@ const IssuesPage = () => {
   const deleteIssue = async (issueId) => {
     if (window.confirm('Are you sure you want to delete this issue?')) {
       try {
-        await axios.delete(`/auth/admin/issues/${issueId}/`);
+        await issuesAPI.deleteIssue(issueId);
         setIssues(issues.filter(issue => issue.id !== issueId));
       } catch (err) {
         console.error('Error deleting issue:', err);

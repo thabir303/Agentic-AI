@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, ShoppingCart, Tag } from 'lucide-react';
-import axios from 'axios';
+import { Search, Filter, Tag } from 'lucide-react';
+import { productsAPI } from '../utils/api';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -9,76 +9,73 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState('');
-
-  const categories = [
+  const [categories, setCategories] = useState([
     'All Categories',
-    'Smartphones',
-    'Laptops',
     'Electronics',
-    'Furniture',
+    'Home & Kitchen', 
     'Clothing',
     'Books',
-    'Accessories',
-    'Home Appliances'
-  ];
+    'Toys & Games'
+  ]);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, selectedCategory]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Since we don't have a products API, we'll simulate with the CSV data
-      // In a real app, this would be: const response = await axios.get('/api/products/');
       
-      // Simulated products data - in real app this would come from your Django API
-      const simulatedProducts = Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        product_name: `Product ${i + 1}`,
-        description: `This is a great product with amazing features and quality construction. Perfect for your needs.`,
-        price: (Math.random() * 1000 + 50).toFixed(2),
-        category: categories[Math.floor(Math.random() * (categories.length - 1)) + 1],
-        link: `http://localhost:5173/products/${i + 1}`,
-        image: `https://images.unsplash.com/photo-${1500000000000 + i}?w=300&h=300&fit=crop&auto=format`
-      }));
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (searchTerm) params.append('search', searchTerm);
+      if (selectedCategory && selectedCategory !== 'All Categories') {
+        params.append('category', selectedCategory);
+      }
+      params.append('limit', '1500');
       
-      setProducts(simulatedProducts);
+      const response = await productsAPI.getProducts(Object.fromEntries(params));
+      setProducts(response.data.products || []);
+      
+      // Update categories if available
+      if (response.data.categories) {
+        setCategories(['All Categories', ...response.data.categories]);
+      }
+      
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Note: Filtering is now done server-side, but keeping price filter for client-side
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || selectedCategory === 'All Categories' || 
-                           product.category === selectedCategory;
+    if (!priceRange) return true;
     
-    let matchesPrice = true;
-    if (priceRange) {
-      const price = parseFloat(product.price);
-      switch (priceRange) {
-        case 'under-100':
-          matchesPrice = price < 100;
-          break;
-        case '100-500':
-          matchesPrice = price >= 100 && price <= 500;
-          break;
-        case '500-1000':
-          matchesPrice = price >= 500 && price <= 1000;
-          break;
-        case 'over-1000':
-          matchesPrice = price > 1000;
-          break;
-        default:
-          matchesPrice = true;
-      }
+    const price = parseFloat(product.price);
+    switch (priceRange) {
+      case 'under-100':
+        return price < 100;
+      case '100-500':
+        return price >= 100 && price <= 500;
+      case '500-1000':
+        return price >= 500 && price <= 1000;
+      case 'over-1000':
+        return price > 1000;
+      default:
+        return true;
     }
-    
-    return matchesSearch && matchesCategory && matchesPrice;
   });
 
   if (loading) {
@@ -160,39 +157,35 @@ const ProductsPage = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {filteredProducts.map(product => (
             <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-              <div className="aspect-square bg-gray-200 relative">
-                <img
-                  src={`https://picsum.photos/300/300?random=${product.id}`}
-                  alt={product.product_name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=Product+${product.id}`;
-                  }}
-                />
-                <div className="absolute top-2 right-2">
-                  <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 line-clamp-2">
+                    {product.name || product.product_name}
+                  </h3>
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full ml-2 whitespace-nowrap">
+                    ID: {product.id}
+                  </span>
+                </div>
+                
+                <div className="mb-3">
+                  <span className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded-full">
                     {product.category}
                   </span>
                 </div>
-              </div>
-              
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-                  {product.product_name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                   {product.description}
                 </p>
+                
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-xl font-bold text-green-600">
                     ${product.price}
                   </span>
                   <Link
                     to={`/products/${product.id}`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
-                    <ShoppingCart size={16} />
-                    <span>View</span>
+                    View Details
                   </Link>
                 </div>
               </div>
