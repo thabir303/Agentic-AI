@@ -1,0 +1,1501 @@
+product_id,product_name,description,price,category
+1,Wireless Bluetooth Earbuds,High-quality earbuds with noise cancellation and 20-hour battery life,59.99,Electronics
+2,Stainless Steel Mixing Bowl Set,Set of 5 durable mixing bowls for baking and cooking,24.99,Home & Kitchen
+3,Classic Denim Jacket,Timeless blue denim jacket with button closure,45.5,Clothing
+4,Sci-Fi Adventure Novel,Engaging 400-page novel about interstellar exploration,12.99,Books
+5,Remote Control Car,Fast RC car with rechargeable battery for kids,29.99,Toys & Games
+6,4K Smart LED TV 55-Inch,Ultra HD television with streaming apps and voice control,399.99,Electronics
+7,Ceramic Non-Stick Frying Pan,10-inch pan with heat-resistant handle,19.99,Home & Kitchen
+8,Men's Running Shoes,Breathable sneakers with cushioned soles for comfort,69.99,Clothing
+9,Cookbook for Beginners,Step-by-step recipes for home cooking,15.99,Books
+10,Building Block Set,500-piece colorful blocks for creative play,22.5,Toys & Games
+11,Wireless Gaming Mouse,Ergonomic mouse with customizable RGB lighting,39.99,Electronics
+12,Glass Food Storage Containers,Set of 3 BPA-free containers with airtight lids,27.99,Home & Kitchen
+13,Women's Yoga Pants,Stretchy high-waisted leggings for workouts,34.99,Clothing
+14,Historical Fiction Novel,Compelling story set in 19th-century Europe,14.99,Books
+15,Board Game Strategy,Family-friendly strategy game for 2-4 players,29.99,Toys & Games
+16,Portable Power Bank,10000mAh charger with fast-charging USB-C,24.99,Electronics
+17,Wooden Cutting Board,Hardwood board for chopping and serving,18.99,Home & Kitchen
+18,Kids' Graphic T-Shirt,Soft cotton shirt with fun animal print,12.99,Clothing
+19,Self-Help Book,Guide to mindfulness and stress reduction,11.99,Books
+20,Interactive Robot Toy,Programmable robot with voice commands,49.99,Toys & Games
+21,Smart Home Speaker,Voice-activated speaker with Wi-Fi and Bluetooth,79.99,Electronics
+22,Cast Iron Skillet,12-inch skillet for versatile cooking,34.99,Home & Kitchen
+23,Men's Leather Belt,Classic black leather belt with metal buckle,22.99,Clothing
+24,Mystery Thriller Novel,Gripping 350-page crime story,13.99,Books
+25,Puzzle Game 1000 Pieces,Scenic landscape puzzle for adults,19.99,Toys & Games
+26,Fitness Tracker Watch,Water-resistant tracker with heart rate monitor,49.99,Electronics
+27,Silicone Baking Mat,Non-stick mat for easy baking,14.99,Home & Kitchen
+28,Women's Summer Dress,Lightweight floral dress for casual wear,39.99,Clothing
+29,Children's Picture Book,Colorful storybook for ages 3-6,9.99,Books
+30,Action Figure Set,Collectible superhero figures with accessories,24.99,Toys & Games
+31,Wireless Keyboard,Compact keyboard with long battery life,29.99,Electronics
+32,Stainless Steel Water Bottle,Insulated 32oz bottle for hot/cold drinks,19.99,Home & Kitchen
+33,Men's Athletic Shorts,Breathable shorts for sports and casual wear,24.99,Clothing
+34,Science Non-Fiction Book,Exploration of modern physics concepts,16.99,Books
+35,Card Game for Families,Fun card game for all ages,14.99,Toys & Games
+36,Bluetooth Headphones,Over-ear headphones with 30-hour battery,89.99,Electronics
+37,Kitchen Knife Set,Set of 6 high-carbon steel knives,49.99,Home & Kitchen
+38,Women's Winter Scarf,Soft wool scarf in neutral tones,19.99,Clothing
+39,Fantasy Novel Series,First book in an epic fantasy trilogy,14.99,Books
+40,Remote Control Drone,Drone with HD camera for beginners,59.99,Toys & Games
+41,Smart Thermostat,Wi-Fi enabled thermostat for home automation,99.99,Electronics
+42,Ceramic Dinner Plate Set,Set of 4 modern white plates,34.99,Home & Kitchen
+43,Men's Dress Shirt,Fitted cotton shirt for formal occasions,39.99,Clothing
+44,Biography Book,Inspiring life story of a historical figure,17.99,Books
+45,Building Toy Kit,Engineering-focused toy set for kids,29.99,Toys & Games
+46,Wireless Security Camera,1080p camera with night vision,49.99,Electronics
+47,Electric Kettle,1.7L kettle with auto shut-off,24.99,Home & Kitchen
+48,Women's Ankle Boots,Leather boots with low heel,59.99,Clothing
+49,Poetry Collection,Anthology of modern poetry,11.99,Books
+50,Plush Toy Animal,Soft stuffed bear for young children,14.99,Toys & Games
+51,Portable Bluetooth Speaker,Waterproof speaker with 12-hour battery,39.99,Electronics
+52,Bamboo Utensil Set,Set of 6 eco-friendly cooking utensils,12.99,Home & Kitchen
+53,Men's Hooded Sweatshirt,Cozy fleece hoodie for casual wear,29.99,Clothing
+54,True Crime Book,Investigative story of a famous case,15.99,Books
+55,Interactive Puzzle Toy,Brain-teasing toy for kids,19.99,Toys & Games
+56,Smart Light Bulb,Color-changing LED bulb with app control,19.99,Electronics
+57,Non-Slip Oven Mitts,Heat-resistant mitts for safe cooking,14.99,Home & Kitchen
+58,Women's Cardigan Sweater,Soft knit cardigan for layering,34.99,Clothing
+59,Romance Novel,Heartwarming love story,12.99,Books
+60,RC Helicopter,Toy helicopter with easy controls,29.99,Toys & Games
+61,Wireless Charger,Fast-charging pad for smartphones,19.99,Electronics
+62,Glass Pitcher,2L pitcher with lid for beverages,22.99,Home & Kitchen
+63,Men's Casual Sneakers,Comfortable sneakers for everyday wear,49.99,Clothing
+64,Cooking Technique Book,Advanced culinary techniques for home chefs,18.99,Books
+65,Board Game Trivia,Trivia game for 2-6 players,24.99,Toys & Games
+66,Action Camera,4K camera for outdoor adventures,79.99,Electronics
+67,Ceramic Mug Set,Set of 4 colorful mugs,19.99,Home & Kitchen
+68,Women's Crossbody Bag,Stylish leather bag with adjustable strap,39.99,Clothing
+69,Young Adult Novel,Coming-of-age story for teens,13.99,Books
+70,Construction Toy Set,200-piece set for building models,27.99,Toys & Games
+71,Wireless Earphones,Sweat-resistant earphones for workouts,34.99,Electronics
+72,Stainless Steel Colander,Durable colander for straining pasta,14.99,Home & Kitchen
+73,Men's Polo Shirt,Classic cotton polo for casual wear,24.99,Clothing
+74,Travel Guide Book,Comprehensive guide to European destinations,16.99,Books
+75,Magnetic Building Tiles,Colorful tiles for creative construction,29.99,Toys & Games
+76,Smart Doorbell Camera,Video doorbell with motion detection,99.99,Electronics
+77,Silicone Spatula Set,Set of 4 heat-resistant spatulas,12.99,Home & Kitchen
+78,Women's Athletic Top,Breathable top for running and yoga,29.99,Clothing
+79,Classic Literature Novel,Timeless novel from the 18th century,10.99,Books
+80,Card Game for Kids,Simple card game for young players,12.99,Toys & Games
+81,Portable Hard Drive,1TB external drive with USB 3.0,59.99,Electronics
+82,Wooden Salad Bowl,Large bowl for serving salads,24.99,Home & Kitchen
+83,Men's Winter Jacket,Insulated jacket for cold weather,79.99,Clothing
+84,Business Strategy Book,Insights on modern business practices,19.99,Books
+85,Remote Control Boat,Toy boat for pool or lake play,34.99,Toys & Games
+86,Wireless Router,Dual-band router for fast internet,69.99,Electronics
+87,Glass Baking Dish,9x13 inch dish for casseroles,19.99,Home & Kitchen
+88,Women's Sneakers,Lightweight sneakers for casual wear,49.99,Clothing
+89,Memoir Book,Personal story of overcoming challenges,15.99,Books
+90,Science Experiment Kit,Educational kit for kids aged 8+,24.99,Toys & Games
+91,Smart Plug,Wi-Fi enabled plug for home automation,19.99,Electronics
+92,Stainless Steel Toaster,2-slice toaster with multiple settings,34.99,Home & Kitchen
+93,Men's Chino Pants,Slim-fit pants for versatile wear,39.99,Clothing
+94,Art History Book,Overview of art movements through history,22.99,Books
+95,Plush Dinosaur Toy,Soft toy for young children,14.99,Toys & Games
+96,Fitness Smart Scale,Scale with body composition analysis,49.99,Electronics
+97,Cast Iron Dutch Oven,5-quart oven for slow cooking,59.99,Home & Kitchen
+98,Women's Leather Jacket,Stylish jacket for cool weather,89.99,Clothing
+99,Adventure Novel,Thrilling story of wilderness survival,13.99,Books
+100,Building Robot Kit,STEM-focused robot-building set,39.99,Toys & Games
+101,Wireless Gaming Headset,Surround sound headset with mic,79.99,Electronics
+102,Bamboo Cutting Board Set,Set of 3 boards for food prep,29.99,Home & Kitchen
+103,Men's Swim Trunks,Quick-dry trunks for beach or pool,24.99,Clothing
+104,Psychology Book,Introduction to cognitive psychology,17.99,Books
+105,Interactive Globe,Educational globe with AR features,49.99,Toys & Games
+106,Portable Projector,Compact projector for home entertainment,99.99,Electronics
+107,Silicone Baking Mold,Flexible mold for cakes and muffins,14.99,Home & Kitchen
+108,Women's Denim Shorts,Comfortable shorts for summer wear,29.99,Clothing
+109,Crime Fiction Novel,Fast-paced detective story,12.99,Books
+110,Toy Train Set,Wooden train set with tracks,34.99,Toys & Games
+111,Smart Watch,Fitness tracker with touchscreen display,69.99,Electronics
+112,Stainless Steel Coffee Maker,12-cup coffee maker with timer,49.99,Home & Kitchen
+113,Men's Flannel Shirt,Warm shirt for casual wear,34.99,Clothing
+114,Health and Wellness Book,Guide to balanced living,15.99,Books
+115,Remote Control Plane,Toy plane with easy controls,29.99,Toys & Games
+116,Wireless Webcam,HD webcam for video calls,39.99,Electronics
+117,Glass Mixing Bowl,Single 2-quart bowl for mixing,12.99,Home & Kitchen
+118,Women's Tunic Top,Flowy top for casual outfits,29.99,Clothing
+119,Graphic Novel,Illustrated story for young adults,14.99,Books
+120,Building Block Tower,Stacking game for kids,19.99,Toys & Games
+121,Portable Air Purifier,Compact purifier for small rooms,59.99,Electronics
+122,Ceramic Pie Dish,9-inch dish for baking pies,19.99,Home & Kitchen
+123,Men's Cargo Pants,Durable pants with multiple pockets,39.99,Clothing
+124,Technology Book,Exploration of AI advancements,18.99,Books
+125,Plush Unicorn Toy,Soft toy for young children,14.99,Toys & Games
+126,Wireless Charging Station,Multi-device charger for phones and watches,49.99,Electronics
+127,Stainless Steel Stock Pot,8-quart pot for soups and stews,39.99,Home & Kitchen
+128,Women's Raincoat,Waterproof coat with hood,59.99,Clothing
+129,Historical Biography,Life story of a famous inventor,16.99,Books
+130,Action Figure Playset,Themed playset with multiple figures,29.99,Toys & Games
+131,Smart Home Hub,Central hub for smart device control,89.99,Electronics
+132,Wooden Spoon Set,Set of 4 spoons for cooking,9.99,Home & Kitchen
+133,Men's Knit Sweater,Cozy sweater for cool weather,44.99,Clothing
+134,Science Fiction Anthology,Collection of short sci-fi stories,15.99,Books
+135,Toy Kitchen Set,Pretend-play kitchen for kids,49.99,Toys & Games
+136,Wireless Earbuds Case,Protective case for earbuds,14.99,Electronics
+137,Glass Measuring Cup,4-cup capacity with clear markings,12.99,Home & Kitchen
+138,Women's Athletic Shoes,Supportive shoes for running,59.99,Clothing
+139,Personal Finance Book,Guide to budgeting and investing,13.99,Books
+140,Board Game Adventure,Cooperative game for 2-4 players,29.99,Toys & Games
+141,Portable Speakerphone,Bluetooth speakerphone for calls,39.99,Electronics
+142,Non-Stick Baking Sheet,Large sheet for cookies and pastries,14.99,Home & Kitchen
+143,Men's Windbreaker,Lightweight jacket for outdoor use,49.99,Clothing
+144,Self-Improvement Book,Strategies for personal growth,14.99,Books
+145,Plush Puppy Toy,Soft toy for young children,14.99,Toys & Games
+146,Smart Door Lock,Keyless entry lock with app control,99.99,Electronics
+147,Ceramic Canister Set,Set of 3 for kitchen storage,29.99,Home & Kitchen
+148,Women's Blouse,Lightweight blouse for work or casual,34.99,Clothing
+149,Adventure Travel Book,Stories from global explorations,16.99,Books
+150,Toy Car Track Set,Racing track with toy cars,34.99,Toys & Games
+151,Wireless Mouse Pad,Mouse pad with built-in charging,24.99,Electronics
+152,Stainless Steel Whisk,Heavy-duty whisk for mixing,9.99,Home & Kitchen
+153,Men's Running Jacket,Water-resistant jacket for workouts,59.99,Clothing
+154,Philosophy Book,Introduction to philosophical concepts,15.99,Books
+155,Interactive Storybook,Book with sound effects for kids,19.99,Toys & Games
+156,Smart Ceiling Fan,Fan with remote and app control,99.99,Electronics
+157,Glass Storage Jar,1-quart jar with airtight lid,12.99,Home & Kitchen
+158,Women's Sandals,Comfortable sandals for summer,29.99,Clothing
+159,Culinary History Book,History of global cuisines,17.99,Books
+160,Building Block Castle,Themed castle-building set,39.99,Toys & Games
+161,Wireless Gaming Controller,Controller for PC and consoles,49.99,Electronics
+162,Ceramic Serving Platter,Large platter for entertaining,24.99,Home & Kitchen
+163,Men's Dress Shoes,Polished leather shoes for formal wear,69.99,Clothing
+164,Fantasy Adventure Novel,Second book in a fantasy series,14.99,Books
+165,Remote Control Tank,Toy tank with realistic sounds,29.99,Toys & Games
+166,Portable Monitor,15.6-inch USB-C monitor,99.99,Electronics
+167,Silicone Pastry Brush,Brush for baking and grilling,9.99,Home & Kitchen
+168,Women's Hoodie,Soft hoodie with front pocket,39.99,Clothing
+169,True Crime Anthology,Collection of real crime stories,15.99,Books
+170,Toy Doctor Kit,Pretend-play medical kit for kids,24.99,Toys & Games
+171,Smart Light Strip,5-meter LED strip with app control,29.99,Electronics
+172,Stainless Steel Grater,Multi-purpose grater for cheese and vegetables,12.99,Home & Kitchen
+173,Men's Casual Jacket,Lightweight jacket for everyday wear,49.99,Clothing
+174,Science Experiment Book,Experiments for young scientists,13.99,Books
+175,Plush Elephant Toy,Soft toy for young children,14.99,Toys & Games
+176,Wireless Dash Cam,1080p camera for vehicle recording,59.99,Electronics
+177,Glass Salad Bowl,Large bowl with elegant design,19.99,Home & Kitchen
+178,Women's Knit Top,Soft top for casual outfits,29.99,Clothing
+179,Historical Novel,Story set in ancient civilizations,14.99,Books
+180,Toy Farm Set,Playset with animals and barn,34.99,Toys & Games
+181,Smart Smoke Detector,Wi-Fi enabled detector with alerts,49.99,Electronics
+182,Ceramic Teapot,1L teapot with infuser,24.99,Home & Kitchen
+183,Men's Athletic Socks,Pack of 5 moisture-wicking socks,14.99,Clothing
+184,Psychology Self-Help Book,Guide to mental wellness,15.99,Books
+185,Building Block Vehicle,Vehicle-themed building set,29.99,Toys & Games
+186,Wireless Bluetooth Adapter,Adapter for non-Bluetooth devices,19.99,Electronics
+187,Stainless Steel Measuring Spoons,Set of 6 for precise measurements,9.99,Home & Kitchen
+188,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+189,Memoir Anthology,Collection of personal essays,16.99,Books
+190,Remote Control Submarine,Toy submarine for pool play,34.99,Toys & Games
+191,Smart Thermometer,Bluetooth-enabled thermometer,39.99,Electronics
+192,Wooden Rolling Pin,Durable pin for baking,14.99,Home & Kitchen
+193,Men's Graphic Tee,Cotton shirt with bold print,19.99,Clothing
+194,Fiction Novel,Contemporary story of family dynamics,13.99,Books
+195,Toy Tool Set,Pretend-play tools for kids,24.99,Toys & Games
+196,Wireless Soundbar,Compact soundbar for TV audio,79.99,Electronics
+197,Glass Cake Stand,10-inch stand for desserts,19.99,Home & Kitchen
+198,Women's Leggings,High-waisted leggings for casual wear,29.99,Clothing
+199,Science History Book,History of scientific discoveries,17.99,Books
+200,Plush Lion Toy,Soft toy for young children,14.99,Toys & Games
+201,Smart Fitness Band,Tracker with sleep monitoring,49.99,Electronics
+202,Ceramic Soup Bowl,Set of 4 deep bowls,24.99,Home & Kitchen
+203,Men's Denim Jeans,Slim-fit jeans for everyday wear,39.99,Clothing
+204,Classic Mystery Novel,Detective story from the 20th century,12.99,Books
+205,Interactive Dinosaur Toy,Toy with sound and motion,29.99,Toys & Games
+206,Wireless Car Charger,Phone mount with charging,34.99,Electronics
+207,Stainless Steel Peeler,Ergonomic peeler for vegetables,9.99,Home & Kitchen
+208,Women's Sweater Dress,Cozy dress for fall and winter,49.99,Clothing
+209,Travel Memoir,Stories from a world traveler,15.99,Books
+210,Toy Construction Set,Heavy-duty vehicle building kit,34.99,Toys & Games
+211,Smart LED Lamp,Desk lamp with adjustable brightness,39.99,Electronics
+212,Silicone Ice Tray,Flexible tray for large ice cubes,12.99,Home & Kitchen
+213,Men's Running Shorts,Breathable shorts with liner,24.99,Clothing
+214,Self-Development Book,Guide to achieving goals,14.99,Books
+215,Board Game Puzzle,Strategy puzzle game for adults,29.99,Toys & Games
+216,Wireless Noise Canceller,Headphones with active noise cancellation,99.99,Electronics
+217,Glass Water Pitcher,1.5L pitcher with filter,19.99,Home & Kitchen
+218,Women's Flannel Pajamas,Soft pajama set for lounging,34.99,Clothing
+219,Historical Fiction Series,Third book in a historical saga,14.99,Books
+220,Toy Spaceship,Light-up spaceship toy for kids,24.99,Toys & Games
+221,Smart Power Strip,Wi-Fi enabled strip with 4 outlets,39.99,Electronics
+222,Ceramic Vase,Decorative vase for home decor,24.99,Home & Kitchen
+223,Men's Leather Wallet,Slim wallet with RFID protection,29.99,Clothing
+224,Science Fiction Novel,Epic tale of space colonization,15.99,Books
+225,Plush Panda Toy,Soft toy for young children,14.99,Toys & Games
+226,Wireless Fitness Earbuds,Sweat-proof earbuds for workouts,49.99,Electronics
+227,Stainless Steel Roasting Pan,Large pan for oven roasting,34.99,Home & Kitchen
+228,Women's Tote Bag,Spacious bag for daily use,39.99,Clothing
+229,Art Technique Book,Guide to watercolor painting,16.99,Books
+230,Toy Fire Truck,Interactive truck with lights and sounds,29.99,Toys & Games
+231,Smart Home Camera,Indoor camera with two-way audio,59.99,Electronics
+232,Bamboo Coaster Set,Set of 6 coasters for drinks,12.99,Home & Kitchen
+233,Men's Beanie,Warm knit beanie for winter,14.99,Clothing
+234,Personal Growth Book,Strategies for building confidence,13.99,Books
+235,Building Block City,City-themed building set,39.99,Toys & Games
+236,Wireless Trackpad,Touchpad for laptops and PCs,39.99,Electronics
+237,Glass Tumbler Set,Set of 4 for hot or cold drinks,19.99,Home & Kitchen
+238,Women's Athletic Jacket,Lightweight jacket for sports,49.99,Clothing
+239,Classic Novel Collection,Set of 3 timeless novels,29.99,Books
+240,Toy Race Car Set,Track set with two cars,34.99,Toys & Games
+241,Smart Water Bottle,Hydration tracker with app,39.99,Electronics
+242,Ceramic Cookie Jar,Airtight jar for snacks,19.99,Home & Kitchen
+243,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+244,Science Book for Kids,Fun experiments for young learners,12.99,Books
+245,Plush Giraffe Toy,Soft toy for young children,14.99,Toys & Games
+246,Wireless VR Headset,Virtual reality headset for gaming,99.99,Electronics
+247,Stainless Steel Blender,High-power blender for smoothies,59.99,Home & Kitchen
+248,Women's Slip-On Shoes,Comfortable shoes for daily wear,39.99,Clothing
+249,Adventure Fiction Novel,Story of a daring expedition,14.99,Books
+250,Interactive Pet Toy,Toy with motion for cats,19.99,Toys & Games
+251,Smart Air Fryer,4-quart fryer with app control,79.99,Electronics
+252,Wooden Spice Rack,12-jar rack for kitchen organization,24.99,Home & Kitchen
+253,Men's Bomber Jacket,Stylish jacket for cool weather,59.99,Clothing
+254,Leadership Book,Guide to effective leadership,16.99,Books
+255,Toy Helicopter Set,Helicopter with landing pad,29.99,Toys & Games
+256,Wireless Phone Stand,Adjustable stand with charging,29.99,Electronics
+257,Glass Oil Dispenser,Bottle for cooking oils,14.99,Home & Kitchen
+258,Women's Chiffon Blouse,Lightweight blouse for work,34.99,Clothing
+259,Mystery Novel Series,First book in a detective series,13.99,Books
+260,Building Block Farm,Farm-themed building set,34.99,Toys & Games
+261,Smart Coffee Maker,Wi-Fi enabled coffee machine,69.99,Electronics
+262,Ceramic Plant Pot,6-inch pot for indoor plants,14.99,Home & Kitchen
+263,Men's Athletic Hoodie,Sweat-wicking hoodie for workouts,39.99,Clothing
+264,Travel Photography Book,Stunning photos from around the world,19.99,Books
+265,Plush Monkey Toy,Soft toy for young children,14.99,Toys & Games
+266,Wireless Keyboard Mouse Combo,Ergonomic set for productivity,49.99,Electronics
+267,Stainless Steel Can Opener,Durable opener with soft grip,12.99,Home & Kitchen
+268,Women's Denim Jacket,Casual jacket with stretch,49.99,Clothing
+269,Science Fiction Series,Second book in a sci-fi saga,15.99,Books
+270,Toy Pirate Ship,Interactive ship with figures,34.99,Toys & Games
+271,Smart Doorbell,Video doorbell with HD camera,99.99,Electronics
+272,Bamboo Cutting Board,Large board with juice groove,19.99,Home & Kitchen
+273,Men's Casual Boots,Leather boots for everyday wear,59.99,Clothing
+274,Self-Help Anthology,Collection of motivational essays,14.99,Books
+275,Board Game Mystery,Detective-themed game for 2-6 players,29.99,Toys & Games
+276,Wireless Earbuds Pro,High-fidelity earbuds with case,69.99,Electronics
+277,Glass Food Prep Bowls,Set of 4 stackable bowls,24.99,Home & Kitchen
+278,Women's Wool Coat,Classic coat for winter,89.99,Clothing
+279,Historical Adventure Novel,Tale of exploration in the 17th century,14.99,Books
+280,Toy Space Station,Space-themed playset for kids,39.99,Toys & Games
+281,Smart Floodlight,Outdoor light with motion sensor,79.99,Electronics
+282,Ceramic Butter Dish,Dish with lid for butter storage,14.99,Home & Kitchen
+283,Men's Track Pants,Comfortable pants for workouts,34.99,Clothing
+284,Cooking for Kids,Recipes for young chefs,12.99,Books
+285,Plush Tiger Toy,Soft toy for young children,14.99,Toys & Games
+286,Wireless Mini Projector,Portable projector for presentations,89.99,Electronics
+287,Stainless Steel Mixing Spoons,Set of 3 spoons for cooking,12.99,Home & Kitchen
+288,Women's Running Shoes,Breathable shoes with cushioning,59.99,Clothing
+289,Science Fiction Thriller,Fast-paced novel about AI,15.99,Books
+290,Toy Construction Crane,Interactive crane for play,29.99,Toys & Games
+291,Smart Pet Feeder,App-controlled feeder for pets,99.99,Electronics
+292,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+293,Men's Henley Shirt,Long-sleeve cotton shirt,29.99,Clothing
+294,Biography of a Scientist,Life of a famous physicist,16.99,Books
+295,Interactive Robot Dog,Toy dog with voice control,49.99,Toys & Games
+296,Wireless Charging Dock,Multi-device dock for phones,49.99,Electronics
+297,Ceramic Mixing Bowl,Single 3-quart bowl,19.99,Home & Kitchen
+298,Women's Fleece Jacket,Cozy jacket for outdoor use,49.99,Clothing
+299,Classic Poetry Book,Collection of famous poems,13.99,Books
+300,Toy Airport Playset,Airport set with planes and figures,34.99,Toys & Games
+301,Smart Thermostat Pro,Advanced thermostat with voice control,129.99,Electronics
+302,Glass Coffee Mug,Set of 2 insulated mugs,19.99,Home & Kitchen
+303,Men's Slim-Fit Jeans,Stretch jeans for modern style,39.99,Clothing
+304,Adventure Non-Fiction,Stories of extreme sports,15.99,Books
+305,Plush Bear Toy,Soft toy for young children,14.99,Toys & Games
+306,Wireless Action Cam,Waterproof camera for sports,79.99,Electronics
+307,Stainless Steel Ladle,Deep ladle for soups and sauces,12.99,Home & Kitchen
+308,Women's Maxi Dress,Elegant dress for summer,49.99,Clothing
+309,Mystery Suspense Novel,Thrilling crime story,14.99,Books
+310,Toy Train Station,Train set with station and tracks,39.99,Toys & Games
+311,Smart Light Panel,Wall-mounted LED panel with app,99.99,Electronics
+312,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+313,Men's Puffer Jacket,Insulated jacket for winter,69.99,Clothing
+314,Psychology for Beginners,Introduction to human behavior,13.99,Books
+315,Building Block Space,Space-themed building set,34.99,Toys & Games
+316,Wireless Microphone,Clip-on mic for recording,49.99,Electronics
+317,Ceramic Dinnerware Set,Set of 4 plates and bowls,49.99,Home & Kitchen
+318,Women's Athletic Shorts,Lightweight shorts for workouts,29.99,Clothing
+319,Fantasy Novel Trilogy,Final book in a fantasy series,15.99,Books
+320,Toy Castle Playset,Castle with knights and dragons,39.99,Toys & Games
+321,Smart Video Doorbell,Doorbell with 4K camera,129.99,Electronics
+322,Glass Carafe,1L carafe for wine or water,19.99,Home & Kitchen
+323,Men's Cardigan Sweater,Warm sweater for layering,44.99,Clothing
+324,Science History Novel,Story of a famous discovery,14.99,Books
+325,Plush Zebra Toy,Soft toy for young children,14.99,Toys & Games
+326,Wireless Gaming Keyboard,RGB keyboard for gaming,69.99,Electronics
+327,Stainless Steel Skimmer,Skimmer for frying and boiling,12.99,Home & Kitchen
+328,Women's Winter Boots,Insulated boots for snow,59.99,Clothing
+329,Self-Help Guide,Guide to time management,13.99,Books
+330,Toy Safari Set,Animal-themed playset,34.99,Toys & Games
+331,Smart Speaker Mini,Compact speaker with voice assistant,49.99,Electronics
+332,Wooden Cheese Board,Board with knife set,24.99,Home & Kitchen
+333,Men's Athletic Shoes,Supportive shoes for sports,59.99,Clothing
+334,Historical Memoir,Personal story from the 20th century,15.99,Books
+335,Interactive Puzzle Game,Brain teaser for adults,29.99,Toys & Games
+336,Wireless Fitness Tracker,Tracker with GPS and heart rate,79.99,Electronics
+337,Ceramic Baking Dish,8x8 inch dish for baking,19.99,Home & Kitchen
+338,Women's Puffer Vest,Lightweight vest for layering,39.99,Clothing
+339,Science Fiction Anthology,Short stories from top authors,14.99,Books
+340,Toy Robot Kit,Build-your-own robot set,39.99,Toys & Games
+341,Smart Indoor Camera,360-degree camera with app,59.99,Electronics
+342,Glass Prep Bowl Set,Set of 6 small bowls,14.99,Home & Kitchen
+343,Men's Crew Socks,Pack of 6 cotton socks,14.99,Clothing
+344,Cooking Technique Guide,Advanced recipes for home cooks,16.99,Books
+345,Plush Rhino Toy,Soft toy for young children,14.99,Toys & Games
+346,Wireless Headphone Stand,Stand with built-in charger,39.99,Electronics
+347,Stainless Steel Tongs,Locking tongs for cooking,12.99,Home & Kitchen
+348,Women's Trench Coat,Classic coat for rainy days,69.99,Clothing
+349,Adventure Novel Series,Second book in an adventure series,14.99,Books
+350,Toy Police Car,Interactive car with lights and sounds,24.99,Toys & Games
+351,Smart Humidifier,Wi-Fi enabled humidifier,79.99,Electronics
+352,Bamboo Drawer Organizer,Organizer for kitchen utensils,19.99,Home & Kitchen
+353,Men's V-Neck Sweater,Lightweight sweater for layering,39.99,Clothing
+354,Psychology of Success,Guide to achieving goals,15.99,Books
+355,Building Block Train,Train-themed building set,34.99,Toys & Games
+356,Wireless Portable Scanner,Compact scanner for documents,99.99,Electronics
+357,Ceramic Salt Shaker,Set of 2 shakers for seasoning,12.99,Home & Kitchen
+358,Women's Slippers,Cozy slippers for home,24.99,Clothing
+359,Classic Adventure Novel,Tale of a daring journey,13.99,Books
+360,Toy Space Rocket,Rocket with astronaut figures,29.99,Toys & Games
+361,Smart Light Switch,Wall-mounted switch with app,39.99,Electronics
+362,Glass Mixing Pitcher,2L pitcher for cocktails,19.99,Home & Kitchen
+363,Men's Running Vest,Lightweight vest for workouts,34.99,Clothing
+364,Science for Teens,Guide to scientific concepts,14.99,Books
+365,Plush Penguin Toy,Soft toy for young children,14.99,Toys & Games
+366,Wireless Noise Cancelling Earbuds,High-end earbuds with ANC,99.99,Electronics
+367,Stainless Steel Colander Set,Set of 2 colanders for straining,24.99,Home & Kitchen
+368,Women's Knit Scarf,Soft scarf for winter,19.99,Clothing
+369,Historical Fiction Anthology,Short stories set in different eras,15.99,Books
+370,Toy Farm Tractor,Tractor with animal figures,29.99,Toys & Games
+371,Smart Pet Camera,Camera with treat dispenser,79.99,Electronics
+372,Wooden Napkin Holder,Holder for dining table,14.99,Home & Kitchen
+373,Men's Leather Gloves,Warm gloves for winter,29.99,Clothing
+374,Self-Help for Teens,Guide to building confidence,13.99,Books
+375,Interactive Board Game,Strategy game for families,34.99,Toys & Games
+376,Wireless VR Controller,Controller for VR gaming,49.99,Electronics
+377,Ceramic Coaster Set,Set of 4 absorbent coasters,14.99,Home & Kitchen
+378,Women's Athletic Pants,Sweat-wicking pants for workouts,39.99,Clothing
+379,Science Fiction Classic,Timeless novel about alien contact,14.99,Books
+380,Toy Construction Site,Playset with vehicles and workers,39.99,Toys & Games
+381,Smart Air Purifier,HEPA filter purifier with app,99.99,Electronics
+382,Glass Dessert Bowl,Set of 4 bowls for sweets,19.99,Home & Kitchen
+383,Men's Rain Jacket,Waterproof jacket with hood,59.99,Clothing
+384,Business Leadership Book,Strategies for team management,16.99,Books
+385,Plush Koala Toy,Soft toy for young children,14.99,Toys & Games
+386,Wireless Desk Charger,Charger for multiple devices,49.99,Electronics
+387,Stainless Steel Garlic Press,Durable press for mincing garlic,12.99,Home & Kitchen
+388,Women's Button-Up Shirt,Crisp shirt for work or casual,34.99,Clothing
+389,Adventure Biography,Life of an explorer,15.99,Books
+390,Toy Ambulance,Interactive vehicle with lights,24.99,Toys & Games
+391,Smart LED Bulb Set,Set of 4 color-changing bulbs,59.99,Electronics
+392,Bamboo Placemat Set,Set of 4 mats for dining,19.99,Home & Kitchen
+393,Men's Fleece Vest,Lightweight vest for layering,39.99,Clothing
+394,Science Fiction Novella,Short story about time travel,12.99,Books
+395,Building Block Pirate Ship,Pirate-themed building set,34.99,Toys & Games
+396,Wireless Audio Receiver,Adapter for wireless audio,39.99,Electronics
+397,Ceramic Espresso Cup,Set of 4 small cups,14.99,Home & Kitchen
+398,Women's Chelsea Boots,Leather boots for fall,59.99,Clothing
+399,Personal Finance Guide,Guide to saving and investing,14.99,Books
+400,Toy Helicopter Pad,Helicopter with landing pad,29.99,Toys & Games
+401,Smart Wall Outlet,Wi-Fi enabled outlet with USB,49.99,Electronics
+402,Glass Water Bottle,1L bottle with silicone sleeve,19.99,Home & Kitchen
+403,Men's Athletic Tank,Moisture-wicking tank for workouts,24.99,Clothing
+404,Classic Literature Anthology,Collection of short stories,15.99,Books
+405,Plush Owl Toy,Soft toy for young children,14.99,Toys & Games
+406,Wireless Gaming Mouse Pad,Large pad with RGB lighting,39.99,Electronics
+407,Stainless Steel Pizza Cutter,Sharp cutter for pizza and dough,12.99,Home & Kitchen
+408,Women's Wrap Dress,Elegant dress for evenings,49.99,Clothing
+409,Science Non-Fiction,Exploration of quantum physics,16.99,Books
+410,Toy Space Shuttle,Shuttle with astronaut figures,34.99,Toys & Games
+411,Smart Wi-Fi Router,High-speed router for home,99.99,Electronics
+412,Wooden Trivet,Heat-resistant trivet for pots,14.99,Home & Kitchen
+413,Men's Casual Shirt,Lightweight shirt for daily wear,34.99,Clothing
+414,Historical Non-Fiction,Story of a major war,15.99,Books
+415,Interactive Puzzle Toy,Brain teaser for kids,24.99,Toys & Games
+416,Wireless Fitness Headphones,Sweat-resistant headphones,59.99,Electronics
+417,Ceramic Salad Plate,Set of 4 plates for salads,24.99,Home & Kitchen
+418,Women's Parka,Insulated parka for winter,79.99,Clothing
+419,Fantasy Short Stories,Collection of magical tales,14.99,Books
+420,Toy Fire Station,Playset with fire trucks,39.99,Toys & Games
+421,Smart Security System,Home security kit with sensors,129.99,Electronics
+422,Glass Storage Canister,1.5L canister for dry goods,19.99,Home & Kitchen
+423,Men's Wool Socks,Pack of 4 warm socks,19.99,Clothing
+424,Self-Help Motivation,Guide to staying motivated,13.99,Books
+425,Plush Cheetah Toy,Soft toy for young children,14.99,Toys & Games
+426,Wireless Portable Speaker,Speaker with 360-degree sound,69.99,Electronics
+427,Stainless Steel Spatula,Heavy-duty spatula for cooking,12.99,Home & Kitchen
+428,Women's Flannel Shirt,Plaid shirt for casual wear,34.99,Clothing
+429,Adventure Novel Trilogy,Third book in an adventure series,15.99,Books
+430,Toy Airport Terminal,Terminal with planes and figures,39.99,Toys & Games
+431,Smart Fitness Scale,Scale with app connectivity,59.99,Electronics
+432,Bamboo Utensil Holder,Holder for kitchen tools,14.99,Home & Kitchen
+433,Men's Denim Shirt,Stylish shirt for casual wear,39.99,Clothing
+434,Science for Kids,Fun science experiments,12.99,Books
+435,Building Block Zoo,Zoo-themed building set,34.99,Toys & Games
+436,Wireless Webcam Pro,4K webcam for streaming,79.99,Electronics
+437,Ceramic Measuring Cup,Set of 4 colorful cups,19.99,Home & Kitchen
+438,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+439,Classic Mystery Anthology,Collection of detective stories,14.99,Books
+440,Toy Race Track,Track with looping cars,29.99,Toys & Games
+441,Smart Light Bulb Pro,Advanced bulb with voice control,39.99,Electronics
+442,Glass Mixing Bowl Set,Set of 3 bowls for prep,24.99,Home & Kitchen
+443,Men's Cargo Shorts,Comfortable shorts with pockets,34.99,Clothing
+444,Travel Guide Europe,Guide to top destinations,15.99,Books
+445,Plush Wolf Toy,Soft toy for young children,14.99,Toys & Games
+446,Wireless Noise Cancelling Headphones,High-end headphones with ANC,129.99,Electronics
+447,Stainless Steel Griddle,Large griddle for pancakes,34.99,Home & Kitchen
+448,Women's Midi Skirt,Flowy skirt for casual wear,39.99,Clothing
+449,Science Fiction Epic,Novel about interstellar war,16.99,Books
+450,Toy Construction Truck,Interactive truck with tools,29.99,Toys & Games
+451,Smart Pet Door,App-controlled door for pets,99.99,Electronics
+452,Wooden Cutting Board Set,Set of 2 boards for prep,24.99,Home & Kitchen
+453,Men's Athletic Jacket,Lightweight jacket for sports,49.99,Clothing
+454,Personal Growth Anthology,Collection of inspiring stories,14.99,Books
+455,Interactive Robot Toy,Programmable robot for kids,49.99,Toys & Games
+456,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+457,Ceramic Pitcher,1.5L pitcher for serving,19.99,Home & Kitchen
+458,Women's Cardigan,Lightweight cardigan for layering,34.99,Clothing
+459,Historical Adventure Series,First book in a historical series,15.99,Books
+460,Toy Safari Jeep,Jeep with animal figures,29.99,Toys & Games
+461,Smart Ceiling Light,LED light with app control,79.99,Electronics
+462,Glass Baking Pan,9x9 inch pan for baking,19.99,Home & Kitchen
+463,Men's Chino Shorts,Classic shorts for summer,34.99,Clothing
+464,Science Non-Fiction Series,Book on space exploration,16.99,Books
+465,Plush Leopard Toy,Soft toy for young children,14.99,Toys & Games
+466,Wireless Gaming Earbuds,Gaming earbuds with low latency,59.99,Electronics
+467,Stainless Steel Mixing Bowl,Single 5-quart bowl,19.99,Home & Kitchen
+468,Women's Athletic Skirt,Skirt for tennis and running,39.99,Clothing
+469,Mystery Thriller Series,Second book in a thriller series,14.99,Books
+470,Toy Space Rover,Rover with astronaut figures,34.99,Toys & Games
+471,Smart Home Speaker Pro,Speaker with advanced voice control,99.99,Electronics
+472,Bamboo Salad Bowl,Large bowl for serving,24.99,Home & Kitchen
+473,Men's Fleece Jacket,Warm jacket for outdoor use,49.99,Clothing
+474,Self-Help Success,Guide to career success,13.99,Books
+475,Building Block Castle,Castle-themed building set,39.99,Toys & Games
+476,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+477,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+478,Women's Denim Jeans,Slim-fit jeans for daily wear,44.99,Clothing
+479,Classic Fantasy Novel,Epic tale of magic and adventure,15.99,Books
+480,Toy Fire Engine,Interactive engine with ladder,29.99,Toys & Games
+481,Smart Thermometer Pro,Medical-grade thermometer with app,59.99,Electronics
+482,Glass Tumbler,Single tumbler for drinks,9.99,Home & Kitchen
+483,Men's Dress Jacket,Fitted jacket for formal wear,79.99,Clothing
+484,Science History Anthology,Stories of famous scientists,16.99,Books
+485,Plush Hippo Toy,Soft toy for young children,14.99,Toys & Games
+486,Wireless Mini Keyboard,Compact keyboard for travel,39.99,Electronics
+487,Stainless Steel Fork Set,Set of 6 forks for dining,14.99,Home & Kitchen
+488,Women's Sweater,Cozy sweater for fall,39.99,Clothing
+489,Adventure Fiction Series,Third book in an adventure series,14.99,Books
+490,Toy Police Station,Playset with police cars,34.99,Toys & Games
+491,Smart Wi-Fi Plug,Plug with energy monitoring,29.99,Electronics
+492,Wooden Serving Board,Board for cheese and snacks,19.99,Home & Kitchen
+493,Men's Running Shoes,Lightweight shoes for running,59.99,Clothing
+494,Psychology Anthology,Collection of essays on behavior,15.99,Books
+495,Interactive Science Kit,Science experiments for kids,29.99,Toys & Games
+496,Wireless Soundbar Pro,Soundbar with surround sound,99.99,Electronics
+497,Ceramic Cake Pan,9-inch pan for cakes,19.99,Home & Kitchen
+498,Women's Rain Boots,Waterproof boots for rain,49.99,Clothing
+499,Classic Literature Series,Second book in a classic series,14.99,Books
+500,Toy Rocket Launcher,Rocket with launch pad,34.99,Toys & Games
+501,Smart Door Sensor,Sensor for home security,39.99,Electronics
+502,Glass Wine Decanter,1L decanter for wine,24.99,Home & Kitchen
+503,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+504,Science Fiction Collection,Short stories about AI,15.99,Books
+505,Plush Crocodile Toy,Soft toy for young children,14.99,Toys & Games
+506,Wireless Action Camera Pro,4K camera with stabilization,99.99,Electronics
+507,Stainless Steel Spoon Set,Set of 6 spoons for dining,14.99,Home & Kitchen
+508,Women's Tank Top,Breathable top for workouts,24.99,Clothing
+509,Historical Fiction Novel,Story set in the Renaissance,14.99,Books
+510,Toy Construction Bulldozer,Bulldozer with moving parts,29.99,Toys & Games
+511,Smart Light Bulb Mini,Compact bulb with app control,29.99,Electronics
+512,Bamboo Cutting Board,Medium board for chopping,14.99,Home & Kitchen
+513,Men's Polo Shirt,Classic polo for casual wear,34.99,Clothing
+514,Self-Help Productivity,Guide to efficient work habits,13.99,Books
+515,Building Block Airport,Airport-themed building set,39.99,Toys & Games
+516,Wireless Earbuds Case,Waterproof case for earbuds,19.99,Electronics
+517,Ceramic Serving Bowl,Large bowl for family meals,24.99,Home & Kitchen
+518,Women's Athletic Top,Moisture-wicking top for sports,29.99,Clothing
+519,Fantasy Adventure Novel,Story of a magical quest,15.99,Books
+520,Toy Train Engine,Interactive engine with sounds,29.99,Toys & Games
+521,Smart Smoke Alarm,Alarm with app notifications,59.99,Electronics
+522,Glass Measuring Pitcher,1L pitcher with markings,19.99,Home & Kitchen
+523,Men's Casual Pants,Comfortable pants for daily wear,39.99,Clothing
+524,Science Non-Fiction Book,Book on climate science,16.99,Books
+525,Plush Kangaroo Toy,Soft toy for young children,14.99,Toys & Games
+526,Wireless Gaming Headset Pro,Headset with noise cancellation,99.99,Electronics
+527,Stainless Steel Mixing Bowl Set,Set of 3 bowls for prep,29.99,Home & Kitchen
+528,Women's Winter Scarf,Warm scarf for cold weather,24.99,Clothing
+529,Mystery Novel Anthology,Collection of suspense stories,14.99,Books
+530,Toy Safari Animals,Set of animal figures,24.99,Toys & Games
+531,Smart Thermostat Mini,Compact thermostat with app,79.99,Electronics
+532,Wooden Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+533,Men's Hoodie,Cozy hoodie with drawstrings,39.99,Clothing
+534,Personal Finance Series,Guide to financial planning,15.99,Books
+535,Interactive Puzzle Set,Puzzle for family fun,29.99,Toys & Games
+536,Wireless Bluetooth Tracker,Tracker for keys and bags,29.99,Electronics
+537,Ceramic Dinner Plate,Single plate for dining,12.99,Home & Kitchen
+538,Women's Leggings,Stretchy leggings for casual wear,29.99,Clothing
+539,Classic Adventure Series,First book in an adventure series,14.99,Books
+540,Toy Construction Site,Playset with cranes and trucks,39.99,Toys & Games
+541,Smart LED Strip,3-meter strip with color options,39.99,Electronics
+542,Glass Storage Jar Set,Set of 3 jars for pantry,24.99,Home & Kitchen
+543,Men's Athletic Socks,Pack of 6 performance socks,19.99,Clothing
+544,Science Fiction Novel,Story of alien exploration,15.99,Books
+545,Plush Dolphin Toy,Soft toy for young children,14.99,Toys & Games
+546,Wireless Mini Speaker,Portable speaker with clip,29.99,Electronics
+547,Stainless Steel Knife Block,Block for knife storage,24.99,Home & Kitchen
+548,Women's Blazer,Fitted blazer for work,59.99,Clothing
+549,Historical Biography Series,Life of a famous leader,16.99,Books
+550,Toy Farm Barn,Barn with animal figures,34.99,Toys & Games
+551,Smart Security Camera,Outdoor camera with night vision,79.99,Electronics
+552,Bamboo Coaster Set,Set of 6 coasters for drinks,14.99,Home & Kitchen
+553,Men's Running Pants,Sweat-wicking pants for running,39.99,Clothing
+554,Self-Help Confidence,Guide to building self-esteem,13.99,Books
+555,Building Block Space Station,Space-themed building set,39.99,Toys & Games
+556,Wireless Noise Cancelling Earbuds Pro,Advanced earbuds with ANC,129.99,Electronics
+557,Ceramic Coffee Mug,Single mug with handle,12.99,Home & Kitchen
+558,Women's Athletic Shoes,Supportive shoes for workouts,59.99,Clothing
+559,Fantasy Novel Series,Second book in a fantasy trilogy,15.99,Books
+560,Toy Race Car,Car with remote control,29.99,Toys & Games
+561,Smart Light Panel Pro,Large panel with app control,99.99,Electronics
+562,Glass Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+563,Men's Dress Shirt,Fitted shirt for formal wear,39.99,Clothing
+564,Science History Book,History of medical advancements,16.99,Books
+565,Plush Giraffe Toy,Soft toy for young children,14.99,Toys & Games
+566,Wireless Gaming Mouse Pro,High-precision mouse for gaming,59.99,Electronics
+567,Stainless Steel Measuring Cups,Set of 4 cups for baking,14.99,Home & Kitchen
+568,Women's Winter Jacket,Insulated jacket for snow,79.99,Clothing
+569,Adventure Novel,Story of a mountain expedition,14.99,Books
+570,Toy Airport Runway,Runway with planes and figures,34.99,Toys & Games
+571,Smart Pet Monitor,Camera with pet tracking,79.99,Electronics
+572,Wooden Cutting Board,Large board with handle,19.99,Home & Kitchen
+573,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+574,Psychology Self-Help Series,Guide to stress management,15.99,Books
+575,Interactive Robot Kit,Programmable robot for kids,49.99,Toys & Games
+576,Wireless Charging Station Pro,Station for multiple devices,59.99,Electronics
+577,Ceramic Pie Plate,9-inch plate for pies,19.99,Home & Kitchen
+578,Women's Denim Skirt,Casual skirt for daily wear,34.99,Clothing
+579,Classic Mystery Novel,Detective story from the 19th century,13.99,Books
+580,Toy Construction Loader,Loader with moving parts,29.99,Toys & Games
+581,Smart Air Conditioner,Window unit with app control,199.99,Electronics
+582,Glass Pitcher Set,Set of 2 pitchers for drinks,24.99,Home & Kitchen
+583,Men's Casual Sneakers,Comfortable sneakers for daily wear,49.99,Clothing
+584,Science Fiction Anthology,Collection of futuristic stories,15.99,Books
+585,Plush Elephant Toy,Soft toy for young children,14.99,Toys & Games
+586,Wireless Bluetooth Earphones,Sweat-resistant earphones,39.99,Electronics
+587,Stainless Steel Baking Sheet,Large sheet for baking,19.99,Home & Kitchen
+588,Women's Sweater,Cozy sweater for winter,39.99,Clothing
+589,Historical Fiction Series,Third book in a historical series,14.99,Books
+590,Toy Fire Truck Set,Set with trucks and figures,34.99,Toys & Games
+591,Smart Light Switch Pro,Advanced switch with voice control,49.99,Electronics
+592,Bamboo Serving Platter,Large platter for entertaining,24.99,Home & Kitchen
+593,Men's Running Jacket,Water-resistant jacket for running,59.99,Clothing
+594,Self-Help Wellness,Guide to healthy living,13.99,Books
+595,Building Block City,City-themed building set,39.99,Toys & Games
+596,Wireless Webcam,HD webcam for video calls,39.99,Electronics
+597,Ceramic Soup Mug,Large mug for soups,12.99,Home & Kitchen
+598,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+599,Fantasy Adventure Series,First book in a fantasy series,15.99,Books
+600,Toy Space Explorer,Explorer with space figures,29.99,Toys & Games
+601,Smart Home Hub Pro,Advanced hub for smart devices,129.99,Electronics
+602,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+603,Men's Leather Belt,Classic belt with buckle,24.99,Clothing
+604,Science Non-Fiction Anthology,Collection of science essays,16.99,Books
+605,Plush Panda Toy,Soft toy for young children,14.99,Toys & Games
+606,Wireless Fitness Tracker Pro,Tracker with advanced metrics,79.99,Electronics
+607,Stainless Steel Colander,Large colander for straining,19.99,Home & Kitchen
+608,Women's Parka,Insulated parka for winter,89.99,Clothing
+609,Mystery Thriller Novel,Fast-paced crime novel,14.99,Books
+610,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+611,Smart LED Bulb Set,Set of 4 bulbs with app,59.99,Electronics
+612,Wooden Salad Servers,Set of 2 servers for salads,14.99,Home & Kitchen
+613,Men's Athletic Shoes,Supportive shoes for sports,59.99,Clothing
+614,Historical Biography,Life of a famous artist,16.99,Books
+615,Interactive Puzzle Game,Brain teaser for adults,29.99,Toys & Games
+616,Wireless Noise Cancelling Headphones Pro,High-end headphones with ANC,149.99,Electronics
+617,Ceramic Dinnerware Set,Set of 4 plates and bowls,49.99,Home & Kitchen
+618,Women's Running Shorts,Lightweight shorts for running,29.99,Clothing
+619,Classic Fantasy Anthology,Collection of magical stories,15.99,Books
+620,Toy Airport Terminal,Terminal with planes and figures,39.99,Toys & Games
+621,Smart Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+622,Glass Mixing Bowl,Single 2-quart bowl,14.99,Home & Kitchen
+623,Men's Dress Shoes,Polished leather shoes,69.99,Clothing
+624,Science Fiction Series,Third book in a sci-fi series,15.99,Books
+625,Plush Tiger Toy,Soft toy for young children,14.99,Toys & Games
+626,Wireless Gaming Controller Pro,Advanced controller for gaming,59.99,Electronics
+627,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+628,Women's Winter Coat,Insulated coat with hood,89.99,Clothing
+629,Adventure Non-Fiction,Stories of outdoor adventures,16.99,Books
+630,Toy Safari Set,Animal-themed playset,34.99,Toys & Games
+631,Smart Thermostat,Advanced thermostat with app,99.99,Electronics
+632,Bamboo Cutting Board,Large board with groove,19.99,Home & Kitchen
+633,Men's Casual Jacket,Lightweight jacket for daily wear,49.99,Clothing
+634,Self-Help Productivity,Guide to time management,13.99,Books
+635,Building Block Pirate Ship,Pirate-themed building set,39.99,Toys & Games
+636,Wireless Action Camera,Waterproof camera for sports,79.99,Electronics
+637,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+638,Women's Athletic Jacket,Lightweight jacket for workouts,49.99,Clothing
+639,Classic Mystery Series,First book in a detective series,14.99,Books
+640,Toy Construction Site,Playset with vehicles,39.99,Toys & Games
+641,Smart Light Strip Pro,5-meter strip with voice control,49.99,Electronics
+642,Glass Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+643,Men's Running Shorts,Quick-dry shorts for running,29.99,Clothing
+644,Science History Book,History of technological advances,16.99,Books
+645,Plush Lion Toy,Soft toy for young children,14.99,Toys & Games
+646,Wireless Earbuds Pro,High-fidelity earbuds with case,69.99,Electronics
+647,Stainless Steel Baking Pan,9x13 inch pan for baking,24.99,Home & Kitchen
+648,Women's Sweater Dress,Cozy dress for winter,49.99,Clothing
+649,Fantasy Novel,Story of a magical kingdom,15.99,Books
+650,Toy Fire Station,Playset with fire trucks,34.99,Toys & Games
+651,Smart Pet Feeder,App-controlled feeder for pets,99.99,Electronics
+652,Wooden Spice Rack,12-jar rack for spices,24.99,Home & Kitchen
+653,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+654,Personal Finance Guide,Guide to budgeting,14.99,Books
+655,Interactive Robot Toy,Programmable robot for kids,49.99,Toys & Games
+656,Wireless Charging Dock,Multi-device dock for phones,49.99,Electronics
+657,Ceramic Plant Pot,6-inch pot for plants,14.99,Home & Kitchen
+658,Women's Denim Jeans,Slim-fit jeans for daily wear,44.99,Clothing
+659,Historical Fiction Novel,Story set in the Middle Ages,15.99,Books
+660,Toy Space Station,Space-themed playset,39.99,Toys & Games
+661,Smart Ceiling Fan,Fan with remote control,99.99,Electronics
+662,Glass Water Pitcher,1.5L pitcher with filter,19.99,Home & Kitchen
+663,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+664,Science Non-Fiction,Book on artificial intelligence,16.99,Books
+665,Plush Zebra Toy,Soft toy for young children,14.99,Toys & Games
+666,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+667,Stainless Steel Colander,Large colander for pasta,19.99,Home & Kitchen
+668,Women's Parka,Insulated parka for winter,89.99,Clothing
+669,Mystery Thriller Novel,Fast-paced crime novel,14.99,Books
+670,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+671,Smart Light Bulb,Color-changing bulb with app,29.99,Electronics
+672,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+673,Men's Athletic Shoes,Supportive shoes for sports,59.99,Clothing
+674,Self-Help Motivation,Guide to staying motivated,13.99,Books
+675,Building Block Castle,Castle-themed building set,39.99,Toys & Games
+676,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+677,Ceramic Dinner Plate,Single plate for dining,12.99,Home & Kitchen
+678,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+679,Classic Fantasy Novel,Epic tale of magic and adventure,15.99,Books
+680,Toy Fire Truck,Interactive truck with lights,29.99,Toys & Games
+681,Smart Thermometer,Bluetooth thermometer for health,49.99,Electronics
+682,Glass Food Storage,Single container with lid,14.99,Home & Kitchen
+683,Men's Casual Shirt,Lightweight shirt for daily wear,34.99,Clothing
+684,Science Fiction Series,Second book in a sci-fi series,15.99,Books
+685,Plush Tiger Toy,Soft toy for young children,14.99,Toys & Games
+686,Wireless Gaming Mouse,High-precision mouse for gaming,49.99,Electronics
+687,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+688,Women's Winter Coat,Insulated coat with hood,89.99,Clothing
+689,Adventure Non-Fiction,Stories of extreme adventures,16.99,Books
+690,Toy Safari Set,Animal-themed playset,34.99,Toys & Games
+691,Smart Light Switch,Wall-mounted switch with app,39.99,Electronics
+692,Wooden Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+693,Men's Running Shorts,Quick-dry shorts for running,29.99,Clothing
+694,Psychology Self-Help,Guide to stress management,13.99,Books
+695,Interactive Puzzle Game,Brain teaser for adults,29.99,Toys & Games
+696,Wireless Noise Cancelling Earbuds,High-end earbuds with ANC,99.99,Electronics
+697,Ceramic Mug,Single mug for coffee,12.99,Home & Kitchen
+698,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+699,Fantasy Adventure Series,First book in a fantasy series,15.99,Books
+700,Toy Space Explorer,Explorer with space figures,29.99,Toys & Games
+701,Smart Home Hub,Central hub for smart devices,99.99,Electronics
+702,Glass Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+703,Men's Dress Shoes,Polished leather shoes,69.99,Clothing
+704,Science Non-Fiction Anthology,Collection of science essays,16.99,Books
+705,Plush Panda Toy,Soft toy for young children,14.99,Toys & Games
+706,Wireless Fitness Tracker,Tracker with heart rate monitor,59.99,Electronics
+707,Stainless Steel Baking Sheet,Large sheet for baking,19.99,Home & Kitchen
+708,Women's Sweater,Cozy sweater for winter,39.99,Clothing
+709,Historical Fiction Novel,Story set in the Renaissance,14.99,Books
+710,Toy Construction Site,Playset with vehicles,39.99,Toys & Games
+711,Smart LED Bulb,Color-changing bulb with app,29.99,Electronics
+712,Bamboo Cutting Board,Large board with groove,19.99,Home & Kitchen
+713,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+714,Self-Help Productivity,Guide to time management,13.99,Books
+715,Building Block Pirate Ship,Pirate-themed building set,39.99,Toys & Games
+716,Wireless Action Camera,Waterproof camera for sports,79.99,Electronics
+717,Ceramic Dinner Plate,Single plate for dining,12.99,Home & Kitchen
+718,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+719,Classic Mystery Series,First book in a detective series,14.99,Books
+720,Toy Fire Station,Playset with fire trucks,34.99,Toys & Games
+721,Smart Thermostat,Advanced thermostat with app,99.99,Electronics
+722,Glass Food Storage,Single container with lid,14.99,Home & Kitchen
+723,Men's Casual Jacket,Lightweight jacket for daily wear,49.99,Clothing
+724,Science Fiction Novel,Story of alien exploration,15.99,Books
+725,Plush Lion Toy,Soft toy for young children,14.99,Toys & Games
+726,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+727,Stainless Steel Colander,Large colander for pasta,19.99,Home & Kitchen
+728,Women's Parka,Insulated parka for winter,89.99,Clothing
+729,Mystery Thriller Novel,Fast-paced crime novel,14.99,Books
+730,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+731,Smart Light Bulb,Color-changing bulb with app,29.99,Electronics
+732,Wooden Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+733,Men's Athletic Shoes,Supportive shoes for sports,59.99,Clothing
+734,Self-Help Motivation,Guide to staying motivated,13.99,Books
+735,Building Block Castle,Castle-themed building set,39.99,Toys & Games
+736,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+737,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+738,Women's Winter Coat,Insulated coat with hood,89.99,Clothing
+739,Fantasy Novel Series,Second book in a fantasy trilogy,15.99,Books
+740,Toy Fire Truck,Interactive truck with lights,29.99,Toys & Games
+741,Smart Thermometer,Bluetooth thermometer for health,49.99,Electronics
+742,Glass Mixing Bowl,Single 2-quart bowl,14.99,Home & Kitchen
+743,Men's Dress Shirt,Fitted shirt for formal wear,39.99,Clothing
+744,Science Non-Fiction,Book on artificial intelligence,16.99,Books
+745,Plush Tiger Toy,Soft toy for young children,14.99,Toys & Games
+746,Wireless Gaming Mouse,High-precision mouse for gaming,49.99,Electronics
+747,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+748,Women's Sweater,Cozy sweater for winter,39.99,Clothing
+749,Historical Fiction Series,Third book in a historical series,14.99,Books
+750,Toy Safari Set,Animal-themed playset,34.99,Toys & Games
+751,Smart Light Switch,Wall-mounted switch with app,39.99,Electronics
+752,Bamboo Cutting Board,Large board with groove,19.99,Home & Kitchen
+753,Men's Running Shorts,Quick-dry shorts for running,29.99,Clothing
+754,Psychology Self-Help,Guide to stress management,13.99,Books
+755,Interactive Puzzle Game,Brain teaser for adults,29.99,Toys & Games
+756,Wireless Noise Cancelling Earbuds,High-end earbuds with ANC,99.99,Electronics
+757,Ceramic Dinner Plate,Single plate for dining,12.99,Home & Kitchen
+758,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+759,Fantasy Adventure Series,First book in a fantasy series,15.99,Books
+760,Toy Space Explorer,Explorer with space figures,29.99,Toys & Games
+761,Smart Home Hub,Central hub for smart devices,99.99,Electronics
+762,Glass Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+763,Men's Dress Shoes,Polished leather shoes,69.99,Clothing
+764,Science Non-Fiction Anthology,Collection of science essays,16.99,Books
+765,Plush Panda Toy,Soft toy for young children,14.99,Toys & Games
+766,Wireless Fitness Tracker,Tracker with heart rate monitor,59.99,Electronics
+767,Stainless Steel Baking Sheet,Large sheet for baking,19.99,Home & Kitchen
+768,Women's Parka,Insulated parka for winter,89.99,Clothing
+769,Mystery Thriller Novel,Fast-paced crime novel,14.99,Books
+770,Toy Construction Site,Playset with vehicles,39.99,Toys & Games
+771,Smart LED Bulb,Color-changing bulb with app,29.99,Electronics
+772,Wooden Salad Bowl,Large bowl for serving,19.99,Home & Kitchen
+773,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+774,Self-Help Productivity,Guide to time management,13.99,Books
+775,Building Block Pirate Ship,Pirate-themed building set,39.99,Toys & Games
+776,Wireless Action Camera,Waterproof camera for sports,79.99,Electronics
+777,Ceramic Mug,Single mug for coffee,12.99,Home & Kitchen
+778,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+779,Classic Mystery Series,First book in a detective series,14.99,Books
+780,Toy Fire Station,Playset with fire trucks,34.99,Toys & Games
+781,Smart Thermostat,Advanced thermostat with app,99.99,Electronics
+782,Glass Food Storage,Single container with lid,14.99,Home & Kitchen
+783,Men's Casual Jacket,Lightweight jacket for daily wear,49.99,Clothing
+784,Science Fiction Novel,Story of alien exploration,15.99,Books
+785,Plush Lion Toy,Soft toy for young children,14.99,Toys & Games
+786,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+787,Stainless Steel Colander,Large colander for pasta and vegetables,19.99,Home & Kitchen
+788,Women's Athletic Tank,Breathable tank top for workouts,24.99,Clothing
+789,Science Fiction Novella,Short story about dystopian futures,13.99,Books
+790,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+791,Smart LED Strip Mini,2-meter LED strip with app control,29.99,Electronics
+792,Ceramic Serving Tray,Large tray for appetizers,24.99,Home & Kitchen
+793,Men's Dress Socks,Pack of 4 formal cotton socks,14.99,Clothing
+794,Historical Non-Fiction,Story of a major revolution,16.99,Books
+795,Building Block Fire Station,Fire station-themed building set,39.99,Toys & Games
+796,Wireless Gaming Earbuds Pro,Low-latency earbuds for gaming,69.99,Electronics
+797,Stainless Steel Pastry Cutter,Durable cutter for dough and pastries,12.99,Home & Kitchen
+798,Women's Winter Hat,Warm knit hat for cold weather,19.99,Clothing
+799,Fantasy Adventure Novel,Story of a mythical quest,15.99,Books
+800,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+801,Smart Fitness Watch,Water-resistant watch with step tracking,79.99,Electronics
+802,Glass Storage Container Set,Set of 3 airtight containers,24.99,Home & Kitchen
+803,Men's Athletic Shorts,Quick-dry shorts with pockets,29.99,Clothing
+804,Science Non-Fiction Book,Guide to modern astronomy,16.99,Books
+805,Interactive Robot Car,Programmable car with sensors,49.99,Toys & Games
+806,Wireless Bluetooth Speaker,Portable speaker with deep bass,59.99,Electronics
+807,Ceramic Coffee Pot,1L pot for brewing coffee,19.99,Home & Kitchen
+808,Women's Running Leggings,High-waisted leggings with compression,39.99,Clothing
+809,Mystery Suspense Novel,Gripping tale of a missing person,14.99,Books
+810,Toy Space Shuttle Set,Shuttle with launch pad and figures,34.99,Toys & Games
+811,Smart Door Camera,HD camera with motion detection,89.99,Electronics
+812,Bamboo Cutting Board Set,Set of 3 boards with handles,24.99,Home & Kitchen
+813,Men's Casual Hoodie,Soft hoodie with front pocket,39.99,Clothing
+814,Self-Help Leadership Book,Strategies for effective leadership,15.99,Books
+815,Building Block Train Station,Train-themed building set,39.99,Toys & Games
+816,Wireless Gaming Keyboard Pro,RGB keyboard with mechanical keys,79.99,Electronics
+817,Stainless Steel Measuring Spoons,Set of 6 for precise measurements,12.99,Home & Kitchen
+818,Women's Winter Gloves,Warm gloves with touchscreen compatibility,19.99,Clothing
+819,Historical Adventure Novel,Tale of a pirate's journey,14.99,Books
+820,Toy Fire Engine Set,Fire truck with extendable ladder,29.99,Toys & Games
+821,Smart Light Bulb Duo,Set of 2 color-changing bulbs,39.99,Electronics
+822,Glass Mixing Bowl Set,Set of 3 bowls for food prep,24.99,Home & Kitchen
+823,Men's Running Jacket,Lightweight jacket with ventilation,49.99,Clothing
+824,Science Fiction Anthology,Collection of futuristic short stories,15.99,Books
+825,Plush Elephant Toy,Soft stuffed animal for kids,14.99,Toys & Games
+826,Wireless Security Camera Mini,Compact camera with night vision,59.99,Electronics
+827,Ceramic Dinnerware Set,Set of 4 plates and bowls,49.99,Home & Kitchen
+828,Women's Athletic Shoes,Supportive sneakers for running,59.99,Clothing
+829,Classic Mystery Novel,Detective story from the 20th century,13.99,Books
+830,Toy Construction Bulldozer,Bulldozer with moving scoop,29.99,Toys & Games
+831,Smart Thermostat Lite,Compact thermostat with app control,79.99,Electronics
+832,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+833,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+834,Personal Finance Guide,Guide to wealth building,14.99,Books
+835,Interactive Puzzle Toy,Brain teaser for kids and adults,29.99,Toys & Games
+836,Wireless Earbuds Sport,Sweat-resistant earbuds with hooks,49.99,Electronics
+837,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+838,Women's Denim Jacket,Stylish jacket with stretch,49.99,Clothing
+839,Fantasy Novel Trilogy,Third book in a magical series,15.99,Books
+840,Toy Airport Playset,Airport with planes and control tower,39.99,Toys & Games
+841,Smart Home Speaker Mini,Compact speaker with voice assistant,49.99,Electronics
+842,Ceramic Mug Set,Set of 4 mugs for coffee or tea,24.99,Home & Kitchen
+843,Men's Athletic Pants,Moisture-wicking pants for workouts,39.99,Clothing
+844,Science History Book,History of scientific breakthroughs,16.99,Books
+845,Plush Tiger Toy,Soft stuffed animal for young children,14.99,Toys & Games
+846,Wireless Gaming Mouse Pad,Large pad with wireless charging,39.99,Electronics
+847,Bamboo Serving Platter,Platter for cheese and snacks,19.99,Home & Kitchen
+848,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+849,Mystery Thriller Series,Second book in a crime series,14.99,Books
+850,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+851,Smart Video Doorbell,Doorbell with 1080p camera,99.99,Electronics
+852,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+853,Men's Casual Sneakers,Lightweight sneakers for daily wear,49.99,Clothing
+854,Self-Help Wellness Book,Guide to mental and physical health,13.99,Books
+855,Building Block Space Rover,Space rover-themed building set,34.99,Toys & Games
+856,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+857,Ceramic Pie Dish,9-inch dish for baking pies,19.99,Home & Kitchen
+858,Women's Running Top,Breathable top for workouts,29.99,Clothing
+859,Classic Adventure Novel,Tale of a wilderness journey,14.99,Books
+860,Toy Fire Station Set,Fire station with trucks and sirens,39.99,Toys & Games
+861,Smart Light Panel,Wall-mounted LED panel with app,89.99,Electronics
+862,Stainless Steel Whisk Set,Set of 3 whisks for mixing,14.99,Home & Kitchen
+863,Men's Dress Pants,Fitted pants for formal occasions,49.99,Clothing
+864,Science Non-Fiction Series,Book on renewable energy,16.99,Books
+865,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+866,Wireless Fitness Headphones,Sweat-resistant headphones with mic,59.99,Electronics
+867,Glass Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+868,Women's Parka,Insulated parka with faux fur hood,89.99,Clothing
+869,Historical Fiction Novel,Story set in ancient Rome,15.99,Books
+870,Toy Construction Crane,Interactive crane with moving parts,34.99,Toys & Games
+871,Smart Pet Camera,Camera with treat dispenser and app,79.99,Electronics
+872,Bamboo Cutting Board,Large board with juice groove,19.99,Home & Kitchen
+873,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+874,Psychology Self-Help Book,Guide to overcoming anxiety,13.99,Books
+875,Interactive Robot Toy,Programmable robot with voice control,49.99,Toys & Games
+876,Wireless Charging Station,Multi-device charger for phones,49.99,Electronics
+877,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+878,Women's Athletic Leggings,High-waisted leggings for yoga,39.99,Clothing
+879,Fantasy Adventure Series,First book in a magical trilogy,15.99,Books
+880,Toy Space Station,Space-themed playset with figures,39.99,Toys & Games
+881,Smart Thermostat Pro,Advanced thermostat with voice control,129.99,Electronics
+882,Glass Water Pitcher,1.5L pitcher with filter,19.99,Home & Kitchen
+883,Men's Casual Jacket,Lightweight jacket for daily wear,49.99,Clothing
+884,Science Fiction Novel,Story of interstellar travel,15.99,Books
+885,Plush Lion Toy,Soft stuffed animal for young children,14.99,Toys & Games
+886,Wireless Gaming Headset Pro,Headset with noise cancellation,99.99,Electronics
+887,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+888,Women's Winter Coat,Insulated coat for cold weather,89.99,Clothing
+889,Mystery Thriller Novel,Fast-paced crime story,14.99,Books
+890,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+891,Smart LED Bulb Pro,Color-changing bulb with voice control,39.99,Electronics
+892,Wooden Salad Bowl,Large bowl for family meals,24.99,Home & Kitchen
+893,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+894,Self-Help Motivation Book,Guide to achieving goals,13.99,Books
+895,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+896,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+897,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+898,Women's Athletic Top,Moisture-wicking top for workouts,29.99,Clothing
+899,Classic Fantasy Novel,Epic tale of dragons and heroes,15.99,Books
+900,Toy Police Car,Interactive car with lights and sounds,29.99,Toys & Games
+901,Smart Home Hub Pro,Advanced hub for smart device control,129.99,Electronics
+902,Glass Food Storage Container,Single container with airtight lid,14.99,Home & Kitchen
+903,Men's Dress Shoes,Polished leather shoes for formal wear,69.99,Clothing
+904,Science Non-Fiction Anthology,Collection of essays on technology,16.99,Books
+905,Plush Zebra Toy,Soft stuffed animal for young children,14.99,Toys & Games
+906,Wireless Fitness Tracker Pro,Tracker with GPS and heart rate,79.99,Electronics
+907,Stainless Steel Colander Set,Set of 2 colanders for straining,24.99,Home & Kitchen
+908,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+909,Historical Adventure Series,Second book in a historical saga,15.99,Books
+910,Toy Construction Site,Playset with vehicles and workers,39.99,Toys & Games
+911,Smart Light Strip Pro,5-meter LED strip with app control,49.99,Electronics
+912,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+913,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+914,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+915,Interactive Puzzle Game,Brain teaser for family fun,29.99,Toys & Games
+916,Wireless Noise Cancelling Earbuds Pro,High-end earbuds with ANC,129.99,Electronics
+917,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+918,Women's Winter Scarf,Soft scarf for cold weather,24.99,Clothing
+919,Fantasy Novel Series,Third book in a fantasy trilogy,15.99,Books
+920,Toy Space Rover,Rover with astronaut figures,34.99,Toys & Games
+921,Smart Security Camera,Indoor camera with two-way audio,79.99,Electronics
+922,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+923,Men's Casual Hoodie,Cozy hoodie with drawstrings,39.99,Clothing
+924,Science Fiction Classic,Timeless novel about alien contact,14.99,Books
+925,Plush Elephant Toy,Soft stuffed animal for kids,14.99,Toys & Games
+926,Wireless Gaming Mouse Pro,High-precision mouse with RGB,59.99,Electronics
+927,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+928,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+929,Mystery Suspense Series,First book in a thriller series,14.99,Books
+930,Toy Fire Station,Playset with fire trucks and figures,39.99,Toys & Games
+931,Smart Thermostat Mini,Compact thermostat with app control,79.99,Electronics
+932,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+933,Men's Running Jacket,Lightweight jacket for outdoor runs,49.99,Clothing
+934,Personal Finance Book,Guide to saving and investing,14.99,Books
+935,Building Block Space Station,Space-themed building set,39.99,Toys & Games
+936,Wireless Action Camera Pro,4K camera with stabilization,99.99,Electronics
+937,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+938,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+939,Historical Fiction Novel,Story set in the Victorian era,15.99,Books
+940,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+941,Smart LED Bulb Set,Set of 4 color-changing bulbs,59.99,Electronics
+942,Glass Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+943,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+944,Science Non-Fiction Series,Book on quantum computing,16.99,Books
+945,Plush Tiger Toy,Soft stuffed animal for young children,14.99,Toys & Games
+946,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+947,Stainless Steel Baking Pan,9x13 inch pan for baking,24.99,Home & Kitchen
+948,Women's Athletic Shoes,Supportive sneakers for workouts,59.99,Clothing
+949,Fantasy Adventure Novel,Story of a magical kingdom,15.99,Books
+950,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+951,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+952,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+953,Men's Casual Pants,Comfortable pants for daily wear,39.99,Clothing
+954,Self-Help Motivation Book,Guide to building confidence,13.99,Books
+955,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+956,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+957,Ceramic Dinnerware Set,Set of 4 plates and bowls,49.99,Home & Kitchen
+958,Women's Running Top,Breathable top for outdoor runs,29.99,Clothing
+959,Classic Mystery Novel,Detective story from the 19th century,14.99,Books
+960,Toy Space Shuttle,Shuttle with astronaut figures,34.99,Toys & Games
+961,Smart Video Doorbell Pro,Doorbell with 4K camera and app,129.99,Electronics
+962,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+963,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+964,Science Fiction Anthology,Collection of futuristic tales,15.99,Books
+965,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+966,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+967,Stainless Steel Colander,Large colander for pasta,19.99,Home & Kitchen
+968,Women's Winter Scarf,Cozy scarf for cold weather,24.99,Clothing
+969,Mystery Thriller Series,Third book in a crime series,14.99,Books
+970,Toy Fire Truck Set,Fire truck with extendable ladder,29.99,Toys & Games
+971,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+972,Wooden Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+973,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+974,Self-Help Wellness Book,Guide to healthy living,13.99,Books
+975,Building Block Castle,Castle-themed building set with dragons,39.99,Toys & Games
+976,Wireless Gaming Mouse,High-precision mouse with RGB,49.99,Electronics
+977,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+978,Women's Athletic Leggings,High-waisted leggings for yoga,39.99,Clothing
+979,Fantasy Novel Series,Second book in a magical trilogy,15.99,Books
+980,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+981,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+982,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+983,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+984,Science Non-Fiction Book,Book on artificial intelligence,16.99,Books
+985,Plush Lion Toy,Soft stuffed animal for young children,14.99,Toys & Games
+986,Wireless Fitness Tracker,Tracker with heart rate monitor,59.99,Electronics
+987,Stainless Steel Baking Sheet,Large sheet for baking,19.99,Home & Kitchen
+988,Women's Winter Coat,Insulated coat with hood,89.99,Clothing
+989,Historical Fiction Novel,Story set in ancient Egypt,15.99,Books
+990,Toy Construction Site,Playset with vehicles and cranes,39.99,Toys & Games
+991,Smart LED Bulb,Color-changing bulb with app,29.99,Electronics
+992,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+993,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+994,Self-Help Productivity Book,Guide to time management,13.99,Books
+995,Interactive Puzzle Game,Brain teaser for family fun,29.99,Toys & Games
+996,Wireless Noise Cancelling Earbuds,High-end earbuds with ANC,99.99,Electronics
+997,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+998,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+999,Classic Fantasy Series,First book in a magical series,15.99,Books
+1000,Toy Space Explorer,Explorer with space figures,29.99,Toys & Games
+1001,Smart Home Camera Pro,Indoor camera with 360-degree view,89.99,Electronics
+1002,Glass Prep Bowl Set,Set of 4 stackable bowls for prep,19.99,Home & Kitchen
+1003,Men's Athletic Tank Top,Moisture-wicking tank for workouts,24.99,Clothing
+1004,Science Fiction Novel,Story of a futuristic city,15.99,Books
+1005,Toy Construction Loader,Loader with realistic moving parts,29.99,Toys & Games
+1006,Wireless Bluetooth Earbuds,High-fidelity earbuds with case,69.99,Electronics
+1007,Stainless Steel Mixing Spoon,Single spoon for cooking and baking,12.99,Home & Kitchen
+1008,Women's Winter Jacket,Insulated jacket with hood,89.99,Clothing
+1009,Historical Biography,Life story of a famous explorer,16.99,Books
+1010,Plush Rhino Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1011,Smart Light Switch Pro,Wall-mounted switch with voice control,49.99,Electronics
+1012,Ceramic Serving Platter,Large platter for entertaining,24.99,Home & Kitchen
+1013,Men's Dress Socks,Pack of 6 formal cotton socks,19.99,Clothing
+1014,Self-Help Motivation Book,Guide to personal growth,13.99,Books
+1015,Building Block Pirate Ship,Pirate-themed building set with cannons,39.99,Toys & Games
+1016,Wireless Gaming Controller,Ergonomic controller for gaming,59.99,Electronics
+1017,Bamboo Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+1018,Women's Athletic Leggings,High-waisted leggings for running,39.99,Clothing
+1019,Fantasy Adventure Series,Second book in a magical trilogy,15.99,Books
+1020,Toy Fire Station,Playset with fire trucks and ladders,34.99,Toys & Games
+1021,Smart Thermostat Lite,Compact thermostat with app control,79.99,Electronics
+1022,Glass Mixing Bowl Set,Set of 3 bowls for food prep,24.99,Home & Kitchen
+1023,Men's Casual Hoodie,Soft hoodie with kangaroo pocket,39.99,Clothing
+1024,Science Non-Fiction Book,Exploration of genetic engineering,16.99,Books
+1025,Interactive Robot Dog,Programmable dog with voice commands,49.99,Toys & Games
+1026,Wireless Security Camera,Outdoor camera with motion detection,79.99,Electronics
+1027,Ceramic Mug Set,Set of 4 colorful mugs for coffee,24.99,Home & Kitchen
+1028,Women's Running Shoes,Lightweight sneakers with cushioning,59.99,Clothing
+1029,Mystery Thriller Novel,Gripping crime story with twists,14.99,Books
+1030,Toy Space Shuttle,Shuttle with astronaut figures,34.99,Toys & Games
+1031,Smart LED Bulb Duo,Set of 2 color-changing bulbs,39.99,Electronics
+1032,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1033,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+1034,Classic Fantasy Novel,Epic tale of knights and dragons,15.99,Books
+1035,Plush Elephant Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1036,Wireless Gaming Headset Pro,Headset with noise cancellation,99.99,Electronics
+1037,Wooden Cutting Board,Large board with juice groove,19.99,Home & Kitchen
+1038,Women's Winter Scarf,Warm scarf in soft wool,24.99,Clothing
+1039,Historical Fiction Series,Third book in a historical saga,15.99,Books
+1040,Toy Police Car,Interactive car with lights and sirens,29.99,Toys & Games
+1041,Smart Home Hub,Central hub for smart device control,99.99,Electronics
+1042,Glass Food Storage Set,Set of 4 containers with airtight lids,29.99,Home & Kitchen
+1043,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1044,Science Non-Fiction Anthology,Collection of essays on space exploration,16.99,Books
+1045,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1046,Wireless Fitness Tracker Pro,Tracker with heart rate and GPS,79.99,Electronics
+1047,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1048,Women's Athletic Jacket,Lightweight jacket for workouts,49.99,Clothing
+1049,Mystery Suspense Series,First book in a thriller series,14.99,Books
+1050,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1051,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+1052,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+1053,Men's Running Pants,Sweat-wicking pants for running,39.99,Clothing
+1054,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1055,Interactive Puzzle Game,Brain teaser for family fun,29.99,Toys & Games
+1056,Wireless Noise Cancelling Earbuds,High-end earbuds with ANC,99.99,Electronics
+1057,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1058,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1059,Fantasy Novel Series,Second book in a fantasy trilogy,15.99,Books
+1060,Toy Fire Truck,Interactive truck with extendable ladder,29.99,Toys & Games
+1061,Smart Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1062,Glass Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1063,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1064,Science Fiction Novel,Story of alien contact,15.99,Books
+1065,Plush Panda Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1066,Wireless Gaming Mouse,High-precision mouse with RGB lighting,49.99,Electronics
+1067,Ceramic Pie Dish,9-inch dish for baking pies,19.99,Home & Kitchen
+1068,Women's Running Top,Breathable top for outdoor runs,29.99,Clothing
+1069,Historical Adventure Novel,Tale of a medieval quest,14.99,Books
+1070,Toy Space Rover,Rover with astronaut figures,34.99,Toys & Games
+1071,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+1072,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+1073,Men's Dress Shoes,Polished leather shoes for formal wear,69.99,Clothing
+1074,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1075,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1076,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1077,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1078,Women's Athletic Leggings,High-waisted leggings for yoga,39.99,Clothing
+1079,Classic Mystery Novel,Detective story from the 20th century,14.99,Books
+1080,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1081,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1082,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1083,Men's Casual Jacket,Lightweight jacket for daily wear,49.99,Clothing
+1084,Science Non-Fiction Series,Book on climate change solutions,16.99,Books
+1085,Plush Tiger Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1086,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1087,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1088,Women's Winter Scarf,Cozy scarf for cold weather,24.99,Clothing
+1089,Fantasy Adventure Series,Third book in a magical trilogy,15.99,Books
+1090,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1091,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+1092,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+1093,Men's Athletic Shoes,Supportive sneakers for sports,59.99,Clothing
+1094,Mystery Thriller Series,Second book in a crime series,14.99,Books
+1095,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1096,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1097,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+1098,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1099,Historical Fiction Novel,Story set in the Renaissance,15.99,Books
+1100,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1101,Smart Video Doorbell,Doorbell with 1080p camera,99.99,Electronics
+1102,Glass Food Storage Container,Single container with airtight lid,14.99,Home & Kitchen
+1103,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1104,Self-Help Productivity Book,Guide to time management,13.99,Books
+1105,Building Block Space Rover,Space rover-themed building set,34.99,Toys & Games
+1106,Wireless Fitness Tracker,Tracker with heart rate monitor,59.99,Electronics
+1107,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1108,Women's Winter Coat,Insulated coat with hood,89.99,Clothing
+1109,Science Fiction Anthology,Collection of futuristic short stories,15.99,Books
+1110,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1111,Smart Light Strip Pro,5-meter LED strip with voice control,49.99,Electronics
+1112,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1113,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1114,Classic Fantasy Novel,Epic tale of magic and adventure,15.99,Books
+1115,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1116,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1117,Ceramic Pie Dish,9-inch dish for baking pies,19.99,Home & Kitchen
+1118,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1119,Mystery Suspense Novel,Gripping crime story with twists,14.99,Books
+1120,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1121,Smart Thermostat Pro,Advanced thermostat with voice control,129.99,Electronics
+1122,Glass Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+1123,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1124,Self-Help Wellness Book,Guide to healthy living,13.99,Books
+1125,Building Block Castle,Castle-themed building set with dragons,39.99,Toys & Games
+1126,Wireless Gaming Mouse Pro,High-precision mouse with RGB,59.99,Electronics
+1127,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1128,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1129,Historical Adventure Series,First book in a historical saga,15.99,Books
+1130,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1131,Smart Home Hub Pro,Advanced hub for smart device control,129.99,Electronics
+1132,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+1133,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1134,Science Fiction Novel,Story of interstellar war,15.99,Books
+1135,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1136,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1137,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1138,Women's Athletic Jacket,Lightweight jacket for workouts,49.99,Clothing
+1139,Fantasy Novel Series,Third book in a magical trilogy,15.99,Books
+1140,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1141,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1142,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+1143,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+1144,Self-Help Motivation Book,Guide to building confidence,13.99,Books
+1145,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1146,Wireless Charging Station,Multi-device charger for phones,49.99,Electronics
+1147,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1148,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1149,Historical Fiction Novel,Story set in ancient Greece,15.99,Books
+1150,Toy Space Shuttle,Shuttle with astronaut figures,34.99,Toys & Games
+1151,Smart Security Camera,Indoor camera with two-way audio,79.99,Electronics
+1152,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+1153,Men's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1154,Science Non-Fiction Book,Exploration of quantum physics,16.99,Books
+1155,Plush Tiger Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1156,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1157,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1158,Women's Athletic Leggings,High-waisted leggings for yoga,39.99,Clothing
+1159,Mystery Thriller Series,Second book in a crime series,14.99,Books
+1160,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1161,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+1162,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1163,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1164,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1165,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1166,Wireless Fitness Tracker Pro,Tracker with GPS and heart rate,79.99,Electronics
+1167,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1168,Women's Winter Scarf,Cozy scarf for cold weather,24.99,Clothing
+1169,Fantasy Adventure Novel,Story of a magical quest,15.99,Books
+1170,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1171,Smart Home Speaker Mini,Compact speaker with voice assistant,49.99,Electronics
+1172,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+1173,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1174,Science Fiction Series,First book in a sci-fi trilogy,15.99,Books
+1175,Plush Elephant Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1176,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1177,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+1178,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1179,Historical Adventure Series,Third book in a historical saga,15.99,Books
+1180,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1181,Smart LED Bulb Pro,Color-changing bulb with voice control,39.99,Electronics
+1182,Glass Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1183,Men's Athletic Shoes,Supportive sneakers for sports,59.99,Clothing
+1184,Mystery Suspense Novel,Gripping crime story with twists,14.99,Books
+1185,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1186,Wireless Gaming Mouse,High-precision mouse with RGB lighting,49.99,Electronics
+1187,Stainless Steel Whisk Set,Set of 3 whisks for mixing,14.99,Home & Kitchen
+1188,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1189,Classic Fantasy Novel,Epic tale of dragons and heroes,15.99,Books
+1190,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1191,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+1192,Wooden Salad Bowl Set,Set of 2 bowls for serving,24.99,Home & Kitchen
+1193,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1194,Science Non-Fiction Anthology,Collection of essays on technology,16.99,Books
+1195,Plush Panda Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1196,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1197,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+1198,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1199,Fantasy Novel Series,Second book in a magical trilogy,15.99,Books
+1200,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1201,Smart Home Hub,Central hub for smart device control,99.99,Electronics
+1202,Glass Food Storage Container,Single container with airtight lid,14.99,Home & Kitchen
+1203,Men's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1204,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1205,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1206,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1207,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1208,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1209,Historical Fiction Novel,Story set in the Victorian era,15.99,Books
+1210,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1211,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1212,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+1213,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1214,Science Fiction Novel,Story of alien exploration,15.99,Books
+1215,Plush Tiger Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1216,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+1217,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1218,Women's Athletic Jacket,Lightweight jacket for workouts,49.99,Clothing
+1219,Mystery Thriller Series,Third book in a crime series,14.99,Books
+1220,Toy Space Shuttle,Shuttle with astronaut figures,34.99,Toys & Games
+1221,Smart Video Doorbell,Doorbell with 1080p camera,99.99,Electronics
+1222,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1223,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1224,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1225,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1226,Wireless Fitness Tracker Pro,Tracker with GPS and heart rate,79.99,Electronics
+1227,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1228,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1229,Fantasy Adventure Series,First book in a magical trilogy,15.99,Books
+1230,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1231,Smart Light Strip Pro,5-meter LED strip with voice control,49.99,Electronics
+1232,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1233,Men's Athletic Shoes,Supportive sneakers for sports,59.99,Clothing
+1234,Science Non-Fiction Book,Exploration of artificial intelligence,16.99,Books
+1235,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1236,Wireless Gaming Headset Pro,Headset with noise cancellation,99.99,Electronics
+1237,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1238,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1239,Historical Adventure Novel,Tale of a pirate's journey,15.99,Books
+1240,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1241,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+1242,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+1243,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1244,Mystery Suspense Series,Second book in a thriller series,14.99,Books
+1245,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1246,Wireless Charging Station,Multi-device charger for phones,49.99,Electronics
+1247,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1248,Women's Athletic Leggings,High-waisted leggings for yoga,39.99,Clothing
+1249,Fantasy Novel Series,Third book in a magical trilogy,15.99,Books
+1250,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1251,Smart LED Bulb Duo,Set of 2 color-changing bulbs,39.99,Electronics
+1252,Bamboo Cutting Board,Large board with juice groove,19.99,Home & Kitchen
+1253,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1254,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1255,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1256,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1257,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+1258,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1259,Science Fiction Novel,Story of interstellar travel,15.99,Books
+1260,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1261,Smart Thermostat Pro,Advanced thermostat with voice control,129.99,Electronics
+1262,Glass Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1263,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1264,Classic Fantasy Novel,Epic tale of dragons and heroes,15.99,Books
+1265,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1266,Wireless Gaming Mouse,High-precision mouse with RGB lighting,49.99,Electronics
+1267,Stainless Steel Whisk Set,Set of 3 whisks for mixing,14.99,Home & Kitchen
+1268,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1269,Mystery Thriller Series,First book in a crime series,14.99,Books
+1270,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1271,Smart Home Hub,Central hub for smart device control,99.99,Electronics
+1272,Wooden Salad Servers,Set of 2 servers for tossing salads,14.99,Home & Kitchen
+1273,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1274,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1275,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1276,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1277,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+1278,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1279,Fantasy Adventure Series,Second book in a magical trilogy,15.99,Books
+1280,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1281,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1282,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1283,Men's Athletic Shorts,Quick-dry shorts for sports,29.99,Clothing
+1284,Science Non-Fiction Book,Exploration of renewable energy,16.99,Books
+1285,Plush Tiger Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1286,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+1287,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1288,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1289,Historical Fiction Novel,Story set in ancient Rome,15.99,Books
+1290,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1291,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+1292,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+1293,Men's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1294,Mystery Suspense Series,Third book in a thriller series,14.99,Books
+1295,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1296,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1297,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1298,Women's Athletic Jacket,Lightweight jacket for workouts,49.99,Clothing
+1299,Fantasy Novel Series,First book in a magical trilogy,15.99,Books
+1300,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1301,Smart Home Speaker Pro,Advanced speaker with voice control,129.99,Electronics
+1302,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+1303,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1304,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1305,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1306,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1307,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1308,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1309,Science Fiction Novel,Story of alien exploration,15.99,Books
+1310,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1311,Smart LED Bulb Pro,Color-changing bulb with voice control,39.99,Electronics
+1312,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1313,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1314,Classic Fantasy Series,Second book in a magical trilogy,15.99,Books
+1315,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1316,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1317,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1318,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1319,Mystery Thriller Novel,Gripping crime story with twists,14.99,Books
+1320,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1321,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+1322,Glass Mixing Bowl Set,Set of 3 bowls for food prep,24.99,Home & Kitchen
+1323,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1324,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1325,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1326,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1327,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1328,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1329,Fantasy Adventure Series,Third book in a magical trilogy,15.99,Books
+1330,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1331,Smart Home Hub,Central hub for smart device control,99.99,Electronics
+1332,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+1333,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1334,Science Non-Fiction Book,Exploration of quantum computing,16.99,Books
+1335,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1336,Wireless Gaming Mouse,High-precision mouse with RGB lighting,49.99,Electronics
+1337,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1338,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1339,Historical Fiction Novel,Story set in ancient Egypt,15.99,Books
+1340,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1341,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1342,Glass Food Storage Container,Single container with airtight lid,14.99,Home & Kitchen
+1343,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1344,Mystery Suspense Series,First book in a thriller series,14.99,Books
+1345,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1346,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1347,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1348,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1349,Fantasy Novel Series,Second book in a magical trilogy,15.99,Books
+1350,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1351,Smart Security Camera,Indoor camera with two-way audio,79.99,Electronics
+1352,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1353,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1354,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1355,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1356,Wireless Gaming Headset Pro,Headset with noise cancellation,99.99,Electronics
+1357,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+1358,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1359,Science Fiction Novel,Story of alien exploration,15.99,Books
+1360,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1361,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+1362,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1363,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1364,Classic Fantasy Series,Third book in a magical trilogy,15.99,Books
+1365,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1366,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1367,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1368,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1369,Mystery Thriller Series,Second book in a crime series,14.99,Books
+1370,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1371,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+1372,Bamboo Cutting Board,Large board with juice groove,19.99,Home & Kitchen
+1373,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1374,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1375,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1376,Wireless Charging Station,Multi-device charger for phones,49.99,Electronics
+1377,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+1378,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1379,Fantasy Adventure Novel,Story of a magical quest,15.99,Books
+1380,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1381,Smart LED Bulb Pro,Color-changing bulb with voice control,39.99,Electronics
+1382,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+1383,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1384,Science Non-Fiction Book,Exploration of renewable energy,16.99,Books
+1385,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1386,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+1387,Stainless Steel Whisk Set,Set of 3 whisks for mixing,14.99,Home & Kitchen
+1388,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1389,Historical Fiction Novel,Story set in ancient Greece,15.99,Books
+1390,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1391,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+1392,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1393,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1394,Mystery Suspense Series,Third book in a thriller series,14.99,Books
+1395,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1396,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1397,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1398,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1399,Fantasy Novel Series,First book in a magical trilogy,15.99,Books
+1400,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1401,Smart Light Strip,3-meter LED strip with app control,39.99,Electronics
+1402,Glass Mixing Bowl Set,Set of 3 bowls for food prep,24.99,Home & Kitchen
+1403,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1404,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1405,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1406,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1407,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1408,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1409,Science Fiction Novel,Story of alien exploration,15.99,Books
+1410,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1411,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+1412,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+1413,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1414,Classic Fantasy Novel,Epic tale of dragons and heroes,15.99,Books
+1415,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1416,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1417,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1418,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1419,Mystery Thriller Series,Second book in a crime series,14.99,Books
+1420,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1421,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1422,Glass Food Storage Container,Single container with airtight lid,14.99,Home & Kitchen
+1423,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1424,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1425,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1426,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1427,Stainless Steel Whisk,Whisk for mixing and baking,12.99,Home & Kitchen
+1428,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1429,Fantasy Adventure Series,Third book in a magical trilogy,15.99,Books
+1430,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1431,Smart Thermostat Pro,Advanced thermostat with voice control,129.99,Electronics
+1432,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1433,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1434,Science Non-Fiction Book,Exploration of quantum physics,16.99,Books
+1435,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1436,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1437,Ceramic Dinner Plate Set,Set of 4 plates for dining,29.99,Home & Kitchen
+1438,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1439,Historical Fiction Novel,Story set in ancient Rome,15.99,Books
+1440,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games
+1441,Smart Home Hub,Central hub for smart device control,99.99,Electronics
+1442,Glass Mixing Bowl,Single 2-quart bowl for prep,14.99,Home & Kitchen
+1443,Men's Dress Shirt,Fitted cotton shirt for formal wear,39.99,Clothing
+1444,Mystery Suspense Series,First book in a thriller series,14.99,Books
+1445,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1446,Wireless Charging Station,Multi-device charger for phones,49.99,Electronics
+1447,Stainless Steel Baking Sheet,Large sheet for cookies and pastries,19.99,Home & Kitchen
+1448,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1449,Fantasy Novel Series,Second book in a magical trilogy,15.99,Books
+1450,Toy Fire Truck,Interactive truck with lights and sirens,29.99,Toys & Games
+1451,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1452,Bamboo Serving Tray,Tray for snacks and drinks,19.99,Home & Kitchen
+1453,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1454,Self-Help Wellness Book,Guide to mental health,13.99,Books
+1455,Building Block Space Station,Space-themed building set with astronauts,39.99,Toys & Games
+1456,Wireless Security Camera Pro,Outdoor camera with 4K video,129.99,Electronics
+1457,Ceramic Mug,Single large mug for coffee,12.99,Home & Kitchen
+1458,Women's Winter Coat,Insulated coat with faux fur hood,89.99,Clothing
+1459,Science Fiction Novel,Story of alien exploration,15.99,Books
+1460,Toy Police Station,Playset with police cars and figures,34.99,Toys & Games
+1461,Smart Light Strip Pro,5-meter LED strip with voice control,49.99,Electronics
+1462,Glass Food Storage Set,Set of 4 containers with lids,29.99,Home & Kitchen
+1463,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1464,Classic Fantasy Novel,Epic tale of dragons and heroes,15.99,Books
+1465,Plush Elephant Toy,Soft stuffed animal for young children,14.99,Toys & Games
+1466,Wireless Gaming Headset,Headset with surround sound,79.99,Electronics
+1467,Stainless Steel Whisk Set,Set of 3 whisks for mixing,14.99,Home & Kitchen
+1468,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1469,Mystery Thriller Series,Third book in a crime series,14.99,Books
+1470,Toy Construction Excavator,Excavator with moving parts,34.99,Toys & Games
+1471,Smart Thermostat,Advanced thermostat with app control,99.99,Electronics
+1472,Wooden Salad Bowl,Large bowl for family meals,19.99,Home & Kitchen
+1473,Men's Dress Pants,Fitted pants for formal wear,49.99,Clothing
+1474,Self-Help Productivity Book,Guide to efficient work habits,13.99,Books
+1475,Building Block Castle,Castle-themed building set with knights,39.99,Toys & Games
+1476,Wireless Action Camera,Waterproof camera with 4K recording,79.99,Electronics
+1477,Ceramic Dinner Plate,Single plate for everyday dining,12.99,Home & Kitchen
+1478,Women's Athletic Leggings,High-waisted leggings for workouts,39.99,Clothing
+1479,Fantasy Adventure Series,First book in a magical trilogy,15.99,Books
+1480,Toy Fire Station,Playset with fire trucks and ladders,39.99,Toys & Games
+1481,Smart Home Speaker,Voice-activated speaker with Wi-Fi,89.99,Electronics
+1482,Glass Mixing Bowl Set,Set of 3 bowls for food prep,24.99,Home & Kitchen
+1483,Men's Running Shoes,Lightweight shoes with cushioning,59.99,Clothing
+1484,Science Non-Fiction Book,Exploration of quantum physics,16.99,Books
+1485,Plush Panda Toy,Soft stuffed animal for kids,14.99,Toys & Games
+1486,Wireless Security Camera,Outdoor camera with night vision,79.99,Electronics
+1487,Stainless Steel Baking Pan,9x13 inch pan for casseroles,24.99,Home & Kitchen
+1488,Women's Winter Scarf,Cozy scarf in neutral tones,24.99,Clothing
+1489,Historical Fiction Novel,Story set in ancient Egypt,15.99,Books
+1490,Toy Police Helicopter,Interactive helicopter with lights,29.99,Toys & Games
+1491,Smart LED Bulb,Color-changing bulb with app control,29.99,Electronics
+1492,Bamboo Cutting Board,Large board with handle,19.99,Home & Kitchen
+1493,Men's Athletic Hoodie,Sweat-wicking hoodie for sports,39.99,Clothing
+1494,Mystery Suspense Series,Second book in a thriller series,14.99,Books
+1495,Interactive Robot Toy,Programmable robot with sensors,49.99,Toys & Games
+1496,Wireless Charging Pad,Pad for phones and earbuds,29.99,Electronics
+1497,Ceramic Mug Set,Set of 4 colorful mugs,24.99,Home & Kitchen
+1498,Women's Running Jacket,Water-resistant jacket for running,49.99,Clothing
+1499,Fantasy Novel Series,Third book in a magical trilogy,15.99,Books
+1500,Toy Construction Crane,Crane with moving parts,34.99,Toys & Games

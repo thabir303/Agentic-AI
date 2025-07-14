@@ -1,0 +1,13 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+python-dotenv
+langchain
+faiss-cpu
+pandas
+groq
+sentence-transformers
+langchain-huggingface
+langchain-community
+mem0ai
