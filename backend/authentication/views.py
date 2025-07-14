@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import authenticate
 from .models import User
@@ -18,7 +19,12 @@ class SignupView(APIView):
                 'message': 'Signup successful',
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'role': user.role
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'role': user.role
+                }
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -32,6 +38,23 @@ class SigninView(APIView):
                 'message': 'Signin successful',
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'role': user.role
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'role': user.role
+                }
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role
+        })
