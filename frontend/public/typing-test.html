@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Typing Test</title>
+    <style>
+        .typing-demo {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            background: #f9f9f9;
+        }
+        
+        .message {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .typing-cursor {
+            animation: blink 1s infinite;
+            font-weight: bold;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot Typing Effect Test</h1>
+    
+    <div class="typing-demo">
+        <h3>Test the typing effect:</h3>
+        <div id="message-container"></div>
+        <button onclick="testTyping()">Test Typing Effect</button>
+        <button onclick="clearMessages()">Clear</button>
+    </div>
+
+    <script>
+        let messageCounter = 0;
+
+        function typeMessage(text, containerId, speed = 50) {
+            const container = document.getElementById(containerId);
+            let currentText = '';
+            let index = 0;
+
+            const typeInterval = setInterval(() => {
+                if (index < text.length) {
+                    currentText += text[index];
+                    container.innerHTML = currentText + '<span class="typing-cursor">▋</span>';
+                    index++;
+                } else {
+                    container.innerHTML = currentText;
+                    clearInterval(typeInterval);
+                }
+            }, speed);
+        }
+
+        function testTyping() {
+            const container = document.getElementById('message-container');
+            messageCounter++;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.id = 'message-' + messageCounter;
+            container.appendChild(messageDiv);
+
+            const testTexts = [
+                "Hello! I'm your AI assistant. How can I help you today?",
+                "I found 3 wireless products that match your query: 1. Wireless Bluetooth Earbuds - $69.99, 2. Wireless Speaker - $45.99, 3. Wireless Mouse - $29.99",
+                "Here's the product information for ID 1: Wireless Bluetooth Earbuds - $69.99 in Electronics category. High-quality earbuds with noise cancellation and 20-hour battery life.",
+                "🔗 http://localhost:5173/products/1"
+            ];
+
+            const randomText = testTexts[Math.floor(Math.random() * testTexts.length)];
+            typeMessage(randomText, 'message-' + messageCounter, 30);
+        }
+
+        function clearMessages() {
+            document.getElementById('message-container').innerHTML = '';
+            messageCounter = 0;
+        }
+    </script>
+</body>
+</html>

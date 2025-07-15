@@ -173,6 +173,37 @@ class VectorDBService:
             logger.error(f"Error searching products: {e}")
             return []
     
+    def search_products_by_price_range(self, min_price=0, max_price=None, category_filter=None, k=10):
+        """Search products by price range with optional category filter"""
+        try:
+            # Filter products by price range
+            filtered_products = []
+            
+            for product in self.products_data:
+                price = product['price']
+                
+                # Check price range
+                if price < min_price:
+                    continue
+                if max_price is not None and price > max_price:
+                    continue
+                
+                # Check category filter
+                if category_filter and product['category'].lower() != category_filter.lower():
+                    continue
+                
+                filtered_products.append(product)
+            
+            # Sort by price (ascending)
+            filtered_products.sort(key=lambda x: x['price'])
+            
+            # Return top k products
+            return filtered_products[:k]
+            
+        except Exception as e:
+            logger.error(f"Error searching products by price range: {e}")
+            return []
+    
     def get_product_by_id(self, product_id):
         """Get specific product by ID"""
         for product in self.products_data:

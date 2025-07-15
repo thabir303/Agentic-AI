@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Link Test</title>
+</head>
+<body>
+    <h1>Testing Chatbot Link Redirection</h1>
+    
+    <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h3>Test Links:</h3>
+        <p>Product Link 1: <a href="http://localhost:5173/products/1" onclick="testRedirect(this.href); return false;">Product 1</a></p>
+        <p>Product Link 2: <a href="http://localhost:5173/products/2" onclick="testRedirect(this.href); return false;">Product 2</a></p>
+        <p>Direct Link: <a href="http://localhost:5173/products/3">Product 3 (Direct)</a></p>
+    </div>
+    
+    <script>
+        function testRedirect(url) {
+            console.log('Attempting to redirect to:', url);
+            try {
+                window.location.assign(url);
+            } catch (error) {
+                console.error('Redirect failed:', error);
+                window.location.href = url;
+            }
+        }
+        
+        // Test the regex pattern
+        const testText = "Check out this product: http://localhost:5173/products/123 for more details.";
+        const urlRegex = /(https?:\/\/localhost:5173\/products\/\d+)/g;
+        const matches = testText.match(urlRegex);
+        console.log('Regex matches:', matches);
+    </script>
+</body>
+</html>

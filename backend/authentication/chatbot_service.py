@@ -6,6 +6,7 @@ from mem0 import MemoryClient
 from django.conf import settings
 from .vector_service import get_vector_service
 from .models import Issue
+from .markdown_to_text import markdown_to_text
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +41,31 @@ class ChatbotService:
             r'product\s+number\s+(\d+)'
         ]
         
+        # Check for price range patterns
+        price_range_patterns = [
+            r'under\s+\$?(\d+)',
+            r'below\s+\$?(\d+)',
+            r'less\s+than\s+\$?(\d+)',
+            r'cheaper\s+than\s+\$?(\d+)',
+            r'between\s+\$?(\d+)\s*(?:and|to|-)\s*\$?(\d+)',
+            r'\$?(\d+)\s*(?:to|-)\s*\$?(\d+)',
+            r'from\s+\$?(\d+)\s*to\s*\$?(\d+)',
+            r'price\s+range\s+\$?(\d+)',
+            r'budget\s+of\s+\$?(\d+)',
+            r'around\s+\$?(\d+)'
+        ]
+        
         message_lower = message.lower()
         for pattern in product_id_patterns:
             match = re.search(pattern, message_lower)
             if match:
                 return "product_specific"
+        
+        # Check for price range patterns
+        for pattern in price_range_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                return "price_range_search"
         
         prompt = f"""
         Analyze the following user message and determine the intent. Return only one of these categories:
@@ -52,8 +73,9 @@ class ChatbotService:
         1. "product_search" - User is looking for products, asking about features, prices, availability
         2. "product_specific" - User is asking about a specific product by name, ID, or wants details
         3. "category_browse" - User wants to browse products by category
-        4. "issue_report" - User is reporting a problem, complaint, or needs help with an order/service
-        5. "general_chat" - General conversation, greetings, or unclear intent
+        4. "price_range_search" - User is looking for products within a specific price range
+        5. "issue_report" - User is reporting a problem, complaint, or needs help with an order/service
+        6. "general_chat" - General conversation, greetings, or unclear intent
         
         User message: "{message}"
         
@@ -62,10 +84,10 @@ class ChatbotService:
         try:
             response = self.groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.3-70b-versatile",  # Faster model
                 temperature=0.1,
-                max_tokens=30,
-                timeout=10
+                max_tokens=20,
+                timeout=5
             )
             
             intent = response.choices[0].message.content.strip().lower()
@@ -86,6 +108,35 @@ class ChatbotService:
                 return category
         return None
     
+    def extract_price_range_from_message(self, message):
+        """Extract price range from user message"""
+        import re
+        
+        price_range_patterns = [
+            (r'under\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'below\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'less\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'cheaper\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'between\s+\$?(\d+)\s*(?:and|to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            (r'\$?(\d+)\s*(?:to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            (r'from\s+\$?(\d+)\s*to\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            (r'budget\s+of\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'around\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'price\s+range\s+\$?(\d+)', lambda m: (0, int(m.group(1))))
+        ]
+        
+        message_lower = message.lower()
+        for pattern, extractor in price_range_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                try:
+                    min_price, max_price = extractor(match)
+                    return (min_price, max_price)
+                except (ValueError, IndexError):
+                    continue
+        
+        return None
+
     def handle_product_search(self, message, user_id=None):
         """Handle product search queries"""
         try:
@@ -125,24 +176,25 @@ class ChatbotService:
             
             response = self.groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.3-70b-versatile", 
                 temperature=0.7,
-                max_tokens=150,
-                timeout=10
+                max_tokens=120,
+                timeout=8
             )
             
             bot_response = response.choices[0].message.content.strip()
             
-            # Add product links to the response
+            bot_response = markdown_to_text(bot_response)
+            
             if product_links:
-                bot_response += f"\n\n📱 **Product Links:**\n{product_links}"
+                bot_response += f"\n\nProduct Links:\n{product_links}"
             
             # Store in memory if user_id provided
             if user_id and self.memory:
                 try:
                     messages = [
-                        {"role": "user", "content": message},
-                        {"role": "assistant", "content": f"Found {len(products)} products for search: {message}"}
+                        {"role": "user", "content": f"User searched for: {message}"},
+                        {"role": "assistant", "content": f"Found {len(products)} products matching '{message}'. Top results: {', '.join([p['name'] for p in products[:3]])}"}
                     ]
                     self.memory.add(messages, user_id=str(user_id))
                 except Exception as e:
@@ -232,20 +284,24 @@ class ChatbotService:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.3,
-                max_tokens=150
+                max_tokens=100,
+                timeout=8
             )
             
             bot_response = response.choices[0].message.content.strip()
             
+            # Convert markdown to plain text
+            bot_response = markdown_to_text(bot_response)
+            
             # Add product link
-            product_link = f"🔗 http://localhost:5173/products/{product['id']}"
-            bot_response += f"\n\n📱 **Product Link:**\n{product_link}"
+            product_link = f"http://localhost:5173/products/{product['id']}"
+            bot_response += f"\n\nProduct Link:\n{product_link}"
             
             if user_id and self.memory:
                 try:
                     messages = [
-                        {"role": "user", "content": message},
-                        {"role": "assistant", "content": f"Provided details for product: {product['name']} (ID: {product['id']})"}
+                        {"role": "user", "content": f"User asked about product ID {product['id']}: {message}"},
+                        {"role": "assistant", "content": f"Showed product ID {product['id']}: {product['name']} - ${product['price']} in {product['category']} category"}
                     ]
                     self.memory.add(messages, user_id=str(user_id))
                 except Exception as e:
@@ -306,10 +362,14 @@ class ChatbotService:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.7,
-                max_tokens=200
+                max_tokens=120,
+                timeout=8
             )
             
             bot_response = response.choices[0].message.content.strip()
+            
+            # Convert markdown to plain text
+            bot_response = markdown_to_text(bot_response)
             
             # Add product links
             if products:
@@ -320,11 +380,13 @@ class ChatbotService:
                 if product_links:
                     bot_response += f"\n\n📱 **Featured Products:**\n{product_links}"
             
+            bot_response = markdown_to_text(bot_response)
+
             if user_id and self.memory:
                 try:
                     messages = [
-                        {"role": "user", "content": message},
-                        {"role": "assistant", "content": f"Browsed {category} category with {len(products)} products"}
+                        {"role": "user", "content": f"User browsed {category} category"},
+                        {"role": "assistant", "content": f"Showed {len(products)} products from {category} category. Featured: {', '.join([p['name'] for p in products[:3]])}"}
                     ]
                     self.memory.add(messages, user_id=str(user_id))
                 except Exception as e:
@@ -373,16 +435,20 @@ class ChatbotService:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.6,
-                max_tokens=200
+                max_tokens=120,
+                timeout=8
             )
             
             bot_response = response.choices[0].message.content.strip()
             
+            # Convert markdown to plain text
+            bot_response = markdown_to_text(bot_response)
+            
             if user_id and self.memory:
                 try:
                     messages = [
-                        {"role": "user", "content": message},
-                        {"role": "assistant", "content": f"Issue #{issue.id} created and being addressed"}
+                        {"role": "user", "content": f"User reported issue: {message[:100]}..."},
+                        {"role": "assistant", "content": f"Created issue #{issue.id} for user {username}: {message[:50]}..."}
                     ]
                     self.memory.add(messages, user_id=str(user_id))
                 except Exception as e:
@@ -433,16 +499,20 @@ class ChatbotService:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.8,
-                max_tokens=200
+                max_tokens=120,
+                timeout=8
             )
             
             bot_response = response.choices[0].message.content.strip()
             
+            # Convert markdown to plain text
+            bot_response = markdown_to_text(bot_response)
+            
             if user_id and self.memory:
                 try:
                     messages = [
-                        {"role": "user", "content": message},
-                        {"role": "assistant", "content": bot_response}
+                        {"role": "user", "content": f"General chat: {message}"},
+                        {"role": "assistant", "content": f"Responded to general conversation: {bot_response[:100]}..."}
                     ]
                     self.memory.add(messages, user_id=str(user_id))
                 except Exception as e:
@@ -460,13 +530,115 @@ class ChatbotService:
                 "intent": "general_chat"
             }
     
+    def handle_price_range_search(self, message, user_id=None):
+        """Handle price range based product search"""
+        try:
+            # Extract price range
+            price_range = self.extract_price_range_from_message(message)
+            
+            if not price_range:
+                return {
+                    "response": "I couldn't understand the price range you're looking for. Could you please specify it more clearly? For example: 'products under $50' or 'between $20 to $100'",
+                    "products": [],
+                    "intent": "price_range_search"
+                }
+            
+            min_price, max_price = price_range
+            
+            # Also check for category if mentioned
+            category = self.extract_category_from_message(message)
+            
+            # Search for products in price range
+            products = get_vector_service().search_products_by_price_range(
+                min_price=min_price, 
+                max_price=max_price, 
+                category_filter=category,
+                k=10
+            )
+            
+            if not products:
+                price_text = f"${min_price}-${max_price}" if min_price > 0 else f"under ${max_price}"
+                category_text = f" in {category}" if category else ""
+                return {
+                    "response": f"I couldn't find any products {price_text}{category_text}. Would you like to try a different price range or browse our other products?",
+                    "products": [],
+                    "intent": "price_range_search"
+                }
+            
+            # Generate response with LLM
+            price_text = f"${min_price}-${max_price}" if min_price > 0 else f"under ${max_price}"
+            category_text = f" in {category}" if category else ""
+            
+            products_text = ""
+            product_links = ""
+            for i, product in enumerate(products[:5], 1):
+                products_text += f"{i}. {product['name']} - ${product['price']}\n   Category: {product['category']}\n   {product['description'][:80]}...\n\n"
+                product_links += f"🔗 http://localhost:5173/products/{product['id']}\n"
+            
+            prompt = f"""
+            User is looking for products in price range {price_text}{category_text}.
+            
+            Found {len(products)} products matching their criteria:
+            {products_text}
+            
+            Provide a helpful response that:
+            1. Confirms their price range search
+            2. Mentions the number of products found
+            3. Highlights a few top options
+            4. Encourages them to check the links
+            Keep it under 150 words and conversational.
+            
+            Response:"""
+            
+            response = self.groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.3-70b-versatile",
+                temperature=0.7,
+                max_tokens=120,
+                timeout=8
+            )
+            
+            bot_response = response.choices[0].message.content.strip()
+            
+            # Convert markdown to plain text
+            bot_response = markdown_to_text(bot_response)
+            
+            # Add product links
+            if product_links:
+                bot_response += f"\n\nProduct Links:\n{product_links}"
+            
+            # Store in memory if user_id provided
+            if user_id and self.memory:
+                try:
+                    messages = [
+                        {"role": "user", "content": f"User searched for products in price range {price_text}{category_text}"},
+                        {"role": "assistant", "content": f"Found {len(products)} products in price range {price_text}{category_text}. Top results: {', '.join([p['name'] for p in products[:3]])}"}
+                    ]
+                    self.memory.add(messages, user_id=str(user_id))
+                except Exception as e:
+                    logger.error(f"Error storing memory: {e}")
+            
+            return {
+                "response": bot_response,
+                "products": products[:5],
+                "price_range": price_range,
+                "category": category,
+                "intent": "price_range_search"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in price range search: {e}")
+            return {
+                "response": "I'm sorry, I encountered an error while searching for products in your price range. Please try again.",
+                "products": [],
+                "intent": "price_range_search"
+            }
+
     def process_message(self, message, user_id=None, user_email=None, username=None):
         """Main method to process user messages"""
         try:
-            # Detect intent
             intent = self.detect_intent(message)
             
-            # Route to appropriate handler
             if intent == "product_search":
                 return self.handle_product_search(message, user_id)
             elif intent == "product_specific":
@@ -475,6 +647,8 @@ class ChatbotService:
                 return self.handle_category_browse(message, user_id)
             elif intent == "issue_report":
                 return self.handle_issue_report(message, user_id, user_email, username)
+            elif intent == "price_range_search":
+                return self.handle_price_range_search(message, user_id)
             else:
                 return self.handle_general_chat(message, user_id)
                 

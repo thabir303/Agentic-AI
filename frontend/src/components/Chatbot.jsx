@@ -1,39 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, X, Send, Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { chatbotAPI } from '../utils/api';
 
-// Function to render markdown links and direct URLs
-const renderMessageWithLinks = (text) => {
-  // First handle markdown links [text](url)
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  // Then handle direct URLs (http://localhost:5173/products/:id)
-  const urlRegex = /(https?:\/\/localhost:5173\/products\/\d+)/g;
+// Function to render plain text with clickable URLs
+const renderMessageWithLinks = (text, navigate) => {
+  console.log('renderMessageWithLinks called with text:', text.substring(0, 100) + '...');
   
-  let processedText = text;
+  // Handle direct URLs (http://localhost:5173/products/:id)
+  const urlRegex = /(https?:\/\/localhost:5173\/products\/(\d+))/g;
+  
   const parts = [];
   let lastIndex = 0;
-  
-  // First process direct URLs
   let match;
+  let linkCount = 0;
+  
+  // Process direct URLs
   while ((match = urlRegex.exec(text)) !== null) {
+    linkCount++;
+    console.log(`Found link ${linkCount}:`, match[1], 'Product ID:', match[2]);
+    
     // Add text before the URL
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index));
     }
     
-    // Add the clickable URL
+    const fullUrl = match[1];
+    const productId = match[2];
+    
+    // Add the clickable URL as a button
     parts.push(
-      <a
-        key={match.index}
-        href={match[1]}
-        className="text-blue-600 hover:text-blue-800 underline cursor-pointer font-medium"
-        onClick={(e) => {
-          e.preventDefault();
-          window.location.href = match[1];
-        }}
-      >
-        {match[1]}
-      </a>
+      <div key={`link-${match.index}`} className="my-2">
+        <button
+          className="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🚀 Button clicked! Navigating to product:', productId);
+            console.log('📍 Current URL:', window.location.href);
+            console.log('🎯 Target URL:', `/products/${productId}`);
+            
+            try {
+              console.log('🧭 Using React Router navigate...');
+              navigate(`/products/${productId}`);
+              console.log('✅ Navigation successful');
+            } catch (error) {
+              console.error('❌ Navigation error:', error);
+              console.log('🔄 Falling back to window.location...');
+              window.location.href = `/products/${productId}`;
+            }
+          }}
+          onMouseOver={() => console.log(`🖱️ Hovering over product ${productId} button`)}
+        >
+          🔗 View Product {productId}
+        </button>
+      </div>
     );
     
     lastIndex = match.index + match[0].length;
@@ -44,108 +65,127 @@ const renderMessageWithLinks = (text) => {
     parts.push(text.slice(lastIndex));
   }
   
-  // If no URLs were found, process markdown links
-  if (parts.length === 0) {
-    lastIndex = 0;
-    while ((match = linkRegex.exec(text)) !== null) {
-      // Add text before the link
-      if (match.index > lastIndex) {
-        parts.push(text.slice(lastIndex, match.index));
-      }
-      
-      // Add the link
-      parts.push(
-        <a
-          key={match.index}
-          href={match[2]}
-          className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            if (match[2].includes('/products/')) {
-              window.location.href = match[2];
-            } else {
-              window.open(match[2], '_blank');
-            }
-          }}
-        >
-          {match[2]}
-        </a>
-      );
-      
-      lastIndex = match.index + match[0].length;
-    }
-    
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex));
-    }
-  }
-  
-  return parts.length > 1 ? parts : text;
+  console.log(`✅ Created ${linkCount} clickable links, total parts: ${parts.length}`);
+  return parts.length > 0 ? parts : text;
 };
 
 const Chatbot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       text: "Hello! I'm your AI assistant. How can I help you with our products today?",
       isBot: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      isTyping: false
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [typingMessage, setTypingMessage] = useState(null);
 
   const clearChat = () => {
+    // Clear any ongoing typing
+    if (typingMessage) {
+      clearInterval(typingMessage.intervalId);
+      setTypingMessage(null);
+    }
+    
     setMessages([
       {
         id: 1,
         text: "Hello! I'm your AI assistant. How can I help you with our products today?",
         isBot: true,
-        timestamp: new Date()
+        timestamp: new Date(),
+        isTyping: false
       }
     ]);
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (typingMessage) {
+        clearInterval(typingMessage.intervalId);
+      }
+    };
+  }, [typingMessage]);
 
   const newChat = () => {
     clearChat();
     setIsOpen(true);
   };
 
+  const typeMessage = (fullText, messageId) => {
+    let currentText = '';
+    let currentIndex = 0;
+
+    const typeInterval = setInterval(() => {
+      if (currentIndex < fullText.length) {
+        currentText += fullText[currentIndex];
+        
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, text: currentText, isTyping: true }
+            : msg
+        ));
+        
+        currentIndex++;
+      } else {
+        // Typing complete
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, text: fullText, isTyping: false }
+            : msg
+        ));
+        setTypingMessage(null);
+        clearInterval(typeInterval);
+      }
+    }, 15); // Faster typing speed (was 3ms, now 15ms for better visibility)
+
+    setTypingMessage({ intervalId: typeInterval, messageId });
+  };
+
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || loading || typingMessage) return;
 
     const userMessage = {
       id: Date.now(),
       text: inputMessage,
       isBot: false,
-      timestamp: new Date()
+      timestamp: new Date(),
+      isTyping: false
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
     setLoading(true);
 
+    // Add placeholder bot message that will be typed
+    const botMessageId = Date.now() + 1;
+    const placeholderBotMessage = {
+      id: botMessageId,
+      text: '',
+      isBot: true,
+      timestamp: new Date(),
+      isTyping: true
+    };
+
+    setMessages(prev => [...prev, placeholderBotMessage]);
+
     try {
-      const response = await chatbotAPI.sendMessage(inputMessage);
+      const response = await chatbotAPI.sendMessage(currentInput);
 
-      const botMessage = {
-        id: Date.now() + 1,
-        text: response.data.response,
-        isBot: true,
-        timestamp: new Date()
-      };
+      // Start typing effect
+      typeMessage(response.data.response, botMessageId);
 
-      setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: "Sorry, I'm having trouble connecting. Please try again later.",
-        isBot: true,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      const errorText = "Sorry, I'm having trouble connecting. Please try again later.";
+      
+      // Type the error message
+      typeMessage(errorText, botMessageId);
     } finally {
       setLoading(false);
     }
@@ -214,7 +254,16 @@ const Chatbot = () => {
                   }`}
                 >
                   <div className="text-sm whitespace-pre-wrap">
-                    {message.isBot ? renderMessageWithLinks(message.text) : message.text}
+                    {message.isBot ? (
+                      <span>
+                        {renderMessageWithLinks(message.text, navigate)}
+                        {message.isTyping && (
+                          <span className="animate-pulse">▋</span>
+                        )}
+                      </span>
+                    ) : (
+                      message.text
+                    )}
                   </div>
                   <p className={`text-xs mt-1 ${
                     message.isBot ? 'text-gray-500' : 'text-blue-100'
@@ -224,17 +273,6 @@ const Chatbot = () => {
                 </div>
               </div>
             ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 p-3 rounded-lg">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Input */}
@@ -247,11 +285,11 @@ const Chatbot = () => {
                 placeholder="Ask about products or report an issue..."
                 className="flex-1 p-2 border rounded-lg resize-none h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows="1"
-                disabled={loading}
+                disabled={loading || typingMessage}
               />
               <button
                 onClick={sendMessage}
-                disabled={!inputMessage.trim() || loading}
+                disabled={!inputMessage.trim() || loading || typingMessage}
                 className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors"
               >
                 <Send size={18} />
