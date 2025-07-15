@@ -16,6 +16,7 @@ A complete AI-powered e-commerce chatbot system with Django REST Framework backe
 ### 🔧 Technical Features
 - **Vector Database**: FAISS for efficient product similarity search
 - **AI Integration**: Groq LLM for intelligent conversation handling
+- **LangChain Integration**: Used for building the semantic search pipeline and connecting LLMs with vector databases
 - **Mem0 Memory Service**: Persistent, semantic memory for user conversations and context
 - **Persistent Storage**: Vector embeddings saved locally for faster responses
 - **JWT Authentication**: Secure token-based authentication
@@ -296,4 +297,8 @@ I need help with checkout
 ---
 
 **Happy Chatting! 🤖✨**
+
+## 🧠 About LangChain
+
+LangChain is used in Agentic AI to connect large language models (LLMs) with the FAISS vector database. It enables semantic product search, conversational retrieval, and context-aware responses by chaining together embeddings, retrieval, and LLMs in the backend.
 
