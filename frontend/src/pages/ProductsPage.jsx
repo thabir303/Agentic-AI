@@ -26,7 +26,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProducts();
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [searchTerm, selectedCategory]);
