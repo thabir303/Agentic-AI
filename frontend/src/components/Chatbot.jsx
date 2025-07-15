@@ -20,7 +20,7 @@ const renderMessageWithLinks = (text, navigate) => {
     linkCount++;
     console.log(`Found link ${linkCount}:`, match[1], 'Product ID:', match[2]);
     
-    // Add text before the URL
+    // Add text before the URL (but skip the URL itself)
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index));
     }
@@ -28,33 +28,33 @@ const renderMessageWithLinks = (text, navigate) => {
     const fullUrl = match[1];
     const productId = match[2];
     
-    // Add the clickable URL as a button
+    // Add the clickable URL as a link (replace the URL text)
     parts.push(
-      <div key={`link-${match.index}`} className="my-2">
-        <button
-          className="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('🚀 Button clicked! Navigating to product:', productId);
-            console.log('📍 Current URL:', window.location.href);
-            console.log('🎯 Target URL:', `/products/${productId}`);
-            
-            try {
-              console.log('🧭 Using React Router navigate...');
-              navigate(`/products/${productId}`);
-              console.log('✅ Navigation successful');
-            } catch (error) {
-              console.error('❌ Navigation error:', error);
-              console.log('🔄 Falling back to window.location...');
-              window.location.href = `/products/${productId}`;
-            }
-          }}
-          onMouseOver={() => console.log(`🖱️ Hovering over product ${productId} button`)}
-        >
-          🔗 View Product {productId}
-        </button>
-      </div>
+      <a
+        key={`link-${match.index}`}
+        href={fullUrl}
+        className="text-blue-600 hover:text-blue-800 underline cursor-pointer font-medium inline-block my-1"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🚀 Link clicked! Navigating to product:', productId);
+          console.log('📍 Current URL:', window.location.href);
+          console.log('🎯 Target URL:', `/products/${productId}`);
+          
+          try {
+            console.log('🧭 Using React Router navigate...');
+            navigate(`/products/${productId}`);
+            console.log('✅ Navigation successful');
+          } catch (error) {
+            console.error('❌ Navigation error:', error);
+            console.log('🔄 Falling back to window.location...');
+            window.location.href = `/products/${productId}`;
+          }
+        }}
+        onMouseOver={() => console.log(`🖱️ Hovering over product ${productId} link`)}
+      >
+        {fullUrl}
+      </a>
     );
     
     lastIndex = match.index + match[0].length;

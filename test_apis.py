@@ -107,7 +107,7 @@ def test_api_endpoints():
             product = product_data.get('product', {})
             similar = product_data.get('similar_products', [])
             print(f"✅ Product detail retrieved: {product.get('name', 'N/A')}")
-            print(f"🔗 Similar products: {len(similar)} found")
+            print(f"Similar products: {len(similar)} found")
         else:
             print(f"❌ Product detail failed: {response.status_code}")
     except Exception as e:

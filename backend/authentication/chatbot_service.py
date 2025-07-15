@@ -375,10 +375,10 @@ class ChatbotService:
             if products:
                 product_links = ""
                 for product in products[:3]:
-                    product_links += f"🔗 http://localhost:5173/products/{product['id']}\n"
+                    product_links += f"http://localhost:5173/products/{product['id']}\n"
                 
                 if product_links:
-                    bot_response += f"\n\n📱 **Featured Products:**\n{product_links}"
+                    bot_response += f"\n\nFeatured Products:\n{product_links}"
             
             bot_response = markdown_to_text(bot_response)
 
@@ -573,7 +573,7 @@ class ChatbotService:
             product_links = ""
             for i, product in enumerate(products[:5], 1):
                 products_text += f"{i}. {product['name']} - ${product['price']}\n   Category: {product['category']}\n   {product['description'][:80]}...\n\n"
-                product_links += f"🔗 http://localhost:5173/products/{product['id']}\n"
+                product_links += f"http://localhost:5173/products/{product['id']}\n"
             
             prompt = f"""
             User is looking for products in price range {price_text}{category_text}.
