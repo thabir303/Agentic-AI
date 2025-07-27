@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Chatbot endpoint
     path('chatbot/', ChatbotView.as_view(), name='chatbot'),
+    path('chatbot/clear-memory/', ChatbotView.as_view(), name='chatbot-clear-memory'),
 
     # Admin endpoints
     path('admin/issues/', AdminIssuesView.as_view(), name='admin-issues'),

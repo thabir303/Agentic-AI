@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, X, Send, Plus, Trash2 } from 'lucide-react';
+import { MessageCircle, X, Send, Plus, Trash2, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { chatbotAPI } from '../utils/api';
 
@@ -84,6 +84,28 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState(null);
+
+  const clearMemory = async () => {
+    try {
+      await chatbotAPI.clearMemory();
+      // Clear local chat as well
+      clearChat();
+      // Add a system message to indicate memory was cleared
+      setMessages([
+        {
+          id: 1,
+          text: "Hello! I'm your AI assistant. My memory has been cleared and we're starting fresh. How can I help you with our products today?",
+          isBot: true,
+          timestamp: new Date(),
+          isTyping: false
+        }
+      ]);
+    } catch (error) {
+      console.error('Failed to clear memory:', error);
+      // Still clear local chat even if API fails
+      clearChat();
+    }
+  };
 
   const clearChat = () => {
     // Clear any ongoing typing
@@ -230,13 +252,22 @@ const Chatbot = () => {
               <h3 className="font-semibold">AI Assistant</h3>
               <p className="text-blue-100 text-sm">Ask me about our products!</p>
             </div>
-            <button
-              onClick={clearChat}
-              className="bg-blue-500 hover:bg-blue-400 p-2 rounded-lg transition-colors"
-              title="Clear Chat"
-            >
-              <Trash2 size={18} />
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={clearMemory}
+                className="bg-purple-500 hover:bg-purple-400 p-2 rounded-lg transition-colors"
+                title="Clear Memory & Chat"
+              >
+                <Brain size={18} />
+              </button>
+              <button
+                onClick={clearChat}
+                className="bg-blue-500 hover:bg-blue-400 p-2 rounded-lg transition-colors"
+                title="Clear Chat Only"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}

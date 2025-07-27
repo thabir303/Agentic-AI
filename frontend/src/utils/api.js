@@ -96,6 +96,19 @@ export const chatbotAPI = {
     }
     
     return { data: await response.json() };
+  },
+  
+  clearMemory: async () => {
+    const response = await fetch(`${API_BASE_URL}/auth/chatbot/clear-memory/`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to clear memory');
+    }
+    
+    return { data: await response.json() };
   }
 };
 

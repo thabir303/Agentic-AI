@@ -128,6 +128,27 @@ class ChatbotView(APIView):
                 'response': 'I apologize, but I encountered an error. Please try again.',
                 'intent': 'error'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def delete(self, request):
+        """Clear user memory"""
+        try:
+            user = request.user
+            success = chatbot_service.clear_user_memory(user.id)
+            
+            if success:
+                return Response({
+                    'message': 'Memory cleared successfully'
+                })
+            else:
+                return Response({
+                    'error': 'Failed to clear memory'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except Exception as e:
+            logger.error(f"Error clearing memory: {e}")
+            return Response({
+                'error': 'Failed to clear memory'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminIssuesView(APIView):
     permission_classes = [IsAuthenticated]
