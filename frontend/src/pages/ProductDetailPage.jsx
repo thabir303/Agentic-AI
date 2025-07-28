@@ -78,6 +78,7 @@ const ProductDetailPage = () => {
             <div className="space-y-4">
               <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
                 <div className="text-center text-gray-500">
+                <p className="text-lg font-medium">{product.product_name}</p>
                   <p className="text-lg font-medium">{product.product_name}</p>
                   <p className="text-sm text-gray-400 mt-2">Product Image</p>
                 </div>
@@ -97,7 +98,8 @@ const ProductDetailPage = () => {
                 </div>
                 
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                  {product.product_name}
+                  {product.name}
+                  {console.log(product.name)}
                 </h1>
 
                 <div className="text-4xl font-bold text-blue-600 mb-6">
