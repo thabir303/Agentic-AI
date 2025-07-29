@@ -6,3 +6,5 @@ db.sqlite3
 *.log
 *.pk
 test_*.py
+debug_*.py
+*_test.py

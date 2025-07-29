@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 class VectorDBService:
     def __init__(self):
         self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_name="sentence-transformers/all-mpnet-base-v2",
+            # High quality embeddings, better than MiniLM models for semantic search
+            # This model provides 768-dimensional embeddings with excellent performance
             model_kwargs={'device': 'cpu'},
             encode_kwargs={'normalize_embeddings': True}
         )

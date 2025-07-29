@@ -379,55 +379,68 @@ class ChatbotService:
         return "general_chat"
 
     def detect_intent(self, message, user_context=""):
-        """Smart LLM-based intent detection with enhanced prompting"""
+        """Advanced LLM-based intent detection with deep context understanding"""
         
         # If Groq API is disabled, use simple fallback
         if not self.groq_client or self.use_local_fallback:
             return self.simple_keyword_intent_detection(message.lower())
         
-        prompt = f"""You are a smart e-commerce assistant. Analyze this message and respond with ONE word intent:
+        prompt = f"""You are an intelligent e-commerce assistant with deep understanding of user intentions. Analyze the user's message and determine their primary intent.
 
-INTENTS: product_search, product_specific, category_browse, general_chat, issue_report
+USER MESSAGE: "{message}"
+USER CONTEXT: {user_context if user_context else "New conversation"}
 
-MESSAGE: "{message}"
+AVAILABLE INTENTS:
+1. product_search - User wants to find/discover products (includes browsing, searching, comparing)
+2. product_specific - User wants details about a specific product (mentions product ID, "show me product X")
+3. category_browse - User wants to explore product categories or sections
+4. general_chat - Greetings, personal questions, casual conversation, gratitude
+5. issue_report - Problems, complaints, technical issues, order problems
 
-SMART RULES:
-- product_search: Looking for products, need items, kitchen stuff, buy things
-- product_specific: "show product 123", "product ID 456", exact product requests  
-- category_browse: "browse electronics", "show categories", section browsing
-- general_chat: greetings, name questions, thanks, casual talk
-- issue_report: problems, complaints, errors, broken things
+ADVANCED ANALYSIS RULES:
+- Consider context: Previous conversations, user behavior patterns
+- Intent hierarchy: Specific > Search > Browse > Chat > Issues
+- Natural language understanding: "I'm looking for..." = product_search
+- Implicit intents: "What do you have in kitchen?" = category_browse  
+- Multi-intent messages: Pick the PRIMARY intent
+- Ambiguous cases: Default to most helpful intent
 
 EXAMPLES:
-"Hello" → general_chat
-"What's my name?" → general_chat  
-"I need kitchen items" → product_search
-"Show product 527" → product_specific
-"Browse electronics" → category_browse
-"My order is broken" → issue_report
-"Looking for bowls" → product_search
+"Hi there!" → general_chat
+"What's your name?" → general_chat
+"I need something for cooking" → product_search
+"Show me stainless steel bowls" → product_search
+"Product 467 details please" → product_specific
+"What kitchen items do you have?" → category_browse
+"Browse electronics section" → category_browse
+"My order is delayed" → issue_report
+"Looking for affordable bowls under $20" → product_search
+"Thanks for the help!" → general_chat
 
-INTENT:"""
+Analyze the message holistically and respond with ONLY the intent name:"""
         
         try:
             response = self.groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.3-70b-versatile", 
                 temperature=0.1,
-                max_tokens=10,
-                timeout=5
+                max_tokens=1500,
+                timeout=8
             )
             
             intent = response.choices[0].message.content.strip().lower()
             valid_intents = ["product_search", "product_specific", "category_browse", "general_chat", "issue_report"]
             
             if intent in valid_intents:
+                logger.info(f"LLM detected intent: {intent} for message: {message[:50]}...")
                 return intent
             else:
-                return "general_chat"  # Safe default
+                # LLM response validation failed, use fallback
+                logger.warning(f"Invalid LLM intent '{intent}', using fallback")
+                return self.simple_keyword_intent_detection(message.lower())
                 
         except Exception as e:
-            logger.error(f"Intent detection failed: {e}")
+            logger.error(f"LLM intent detection failed: {e}")
             return self.simple_keyword_intent_detection(message.lower())
     
     def clean_response_for_production(self, response_text):
@@ -597,7 +610,7 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
                         messages=[{"role": "user", "content": prompt}],
                         model="llama-3.3-70b-versatile", 
                         temperature=0.7,
-                        max_tokens=120,
+                        max_tokens=1200,
                         timeout=8
                     )
                     bot_response = response.choices[0].message.content.strip()
@@ -686,7 +699,7 @@ Keep it professional and under 80 words. NO markdown."""
                         messages=[{"role": "user", "content": prompt}],
                         model="llama-3.3-70b-versatile",
                         temperature=0.3,
-                        max_tokens=100,
+                        max_tokens=1000,
                         timeout=6
                     )
                     bot_response = response.choices[0].message.content.strip()
@@ -751,7 +764,7 @@ Keep it conversational and under 100 words. NO markdown."""
                         messages=[{"role": "user", "content": prompt}],
                         model="llama-3.3-70b-versatile",
                         temperature=0.7,
-                        max_tokens=100,
+                        max_tokens=1000,
                         timeout=6
                     )
                     bot_response = response.choices[0].message.content.strip()
@@ -804,7 +817,7 @@ Keep it conversational and under 100 words. NO markdown."""
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.6,
-                max_tokens=120,
+                max_tokens=1200,
                 timeout=8
             )
             
@@ -838,28 +851,9 @@ Keep it conversational and under 100 words. NO markdown."""
             }
     
     def handle_general_chat(self, message, user_id=None, username=None):
-        """Smart general conversation with enhanced LLM prompting"""
+        """Pure LLM-based general conversation with smart context understanding"""
         try:
-            message_lower = message.lower().strip()
-            
-            # Handle name questions smartly
-            if "what's my name" in message_lower or "who am i" in message_lower:
-                if username and username != "unknown_user":
-                    response = f"Your name is {username}! How can I help you today?"
-                else:
-                    response = "I don't have your name yet. What should I call you?"
-                
-                if user_id:
-                    self.store_user_memory(user_id, message, response, "general_chat", {}, username)
-                return {"response": response, "intent": "general_chat"}
-            
-            if "what's your name" in message_lower or "who are you" in message_lower:
-                response = "I'm your AI shopping assistant for Agentic AI Store! I help you find products and answer questions. What can I help you with?"
-                if user_id:
-                    self.store_user_memory(user_id, message, response, "general_chat", {}, username)
-                return {"response": response, "intent": "general_chat"}
-            
-            # Enhanced LLM conversation
+            # Enhanced LLM conversation with smart context understanding
             if self.groq_client and not self.use_local_fallback:
                 memory_context = self.get_user_memory_context(user_id, message, limit=3)
                 
@@ -869,27 +863,40 @@ CONTEXT: {memory_context if memory_context else "New conversation"}
 USER MESSAGE: "{message}"
 USERNAME: {username if username and username != "unknown_user" else "Customer"}
 
-RESPOND naturally and helpfully:
-- If greeting, welcome them warmly to our store
-- If thanking, acknowledge gracefully
-- If asking about capabilities, mention product search & help
-- Keep it conversational and under 80 words
-- NO markdown formatting"""
+INTELLIGENT RESPONSE RULES:
+- If they ask their name: Use their username if available, otherwise ask politely
+- If they ask your name: Introduce yourself as AI shopping assistant for Agentic AI Store  
+- If greeting: Welcome them warmly to our store
+- If thanking: Acknowledge gracefully and offer continued help
+- If asking about capabilities: Mention product search, browsing, and customer support
+- If casual conversation: Respond naturally while staying helpful and store-focused
+- Keep it conversational, helpful, and under 100 words
+- NO markdown formatting
+
+RESPOND naturally and contextually:"""
                 
                 try:
                     response = self.groq_client.chat.completions.create(
                         messages=[{"role": "user", "content": prompt}],
                         model="llama-3.3-70b-versatile",
                         temperature=0.8,
-                        max_tokens=100,
-                        timeout=6
+                        max_tokens=1200,
+                        timeout=8
                     )
                     bot_response = response.choices[0].message.content.strip()
                     bot_response = self.clean_response_for_production(bot_response)
-                except Exception:
-                    bot_response = self.generate_simple_chat_response(message_lower, username, "")
+                    
+                    # Special handling for name questions using LLM context
+                    message_lower = message.lower()
+                    if ("what's my name" in message_lower or "who am i" in message_lower) and username and username != "unknown_user":
+                        bot_response = f"Your name is {username}! {bot_response}"
+                    
+                except Exception as e:
+                    logger.warning(f"LLM general chat failed: {e}, using fallback")
+                    bot_response = self.generate_simple_chat_response(message.lower(), username, memory_context)
             else:
-                bot_response = self.generate_simple_chat_response(message_lower, username, "")
+                # Fallback for when LLM is unavailable
+                bot_response = self.generate_simple_chat_response(message.lower(), username, "")
             
             if user_id:
                 self.store_user_memory(user_id, message, bot_response, "general_chat", {}, username)
@@ -964,7 +971,7 @@ RESPOND naturally and helpfully:
                 messages=[{"role": "user", "content": prompt}],
                 model="llama-3.3-70b-versatile",
                 temperature=0.7,
-                max_tokens=120,
+                max_tokens=1200,
                 timeout=8
             )
             
@@ -1003,6 +1010,43 @@ RESPOND naturally and helpfully:
                 "intent": "price_range_search"
             }
 
+    def get_user_context_for_intent(self, user_id, username=None):
+        """Get relevant user context for intent detection"""
+        if not user_id:
+            return "New conversation"
+            
+        try:
+            # Try to get recent conversations from memory
+            context_parts = []
+            
+            # From Mem0 memory
+            if self.memory:
+                try:
+                    recent_memories = self.memory.get_all(user_id=str(user_id), limit=3)
+                    if recent_memories:
+                        for memory in recent_memories:
+                            if 'messages' in memory and memory['messages']:
+                                last_msg = memory['messages'][-1]['content'][:50]
+                                context_parts.append(f"Recent: {last_msg}")
+                except Exception as e:
+                    logger.debug(f"Could not get Mem0 context: {e}")
+            
+            # From local memory fallback
+            if hasattr(self, 'local_memory') and str(user_id) in self.local_memory:
+                recent_local = self.local_memory[str(user_id)][-2:]  # Last 2 conversations
+                for memory in recent_local:
+                    context_parts.append(f"Previous intent: {memory.get('intent', 'unknown')}")
+            
+            # Add username context
+            if username:
+                context_parts.append(f"User: {username}")
+            
+            return " | ".join(context_parts) if context_parts else "New conversation"
+            
+        except Exception as e:
+            logger.debug(f"Error getting user context: {e}")
+            return "New conversation"
+
     def process_message(self, message, user_id=None, user_email=None, username=None):
         """Smart message processing with enhanced LLM responses"""
         try:
@@ -1015,9 +1059,12 @@ RESPOND naturally and helpfully:
             elif user_id and not username:
                 username = self.get_user_name_from_memory(user_id)
             
-            # Detect intent using smart LLM
-            intent = self.detect_intent(message)
-            logger.info(f"Intent: {intent} | User: {username or 'unknown'}")
+            # Get user context for better intent detection
+            user_context = self.get_user_context_for_intent(user_id, username)
+            
+            # Detect intent using smart LLM with context
+            intent = self.detect_intent(message, user_context)
+            logger.info(f"Intent: {intent} | User: {username or 'unknown'} | Context: {user_context[:30]}...")
             
             # Route to handlers
             if intent == "product_search":
