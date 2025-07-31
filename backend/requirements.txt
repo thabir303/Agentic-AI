@@ -11,3 +11,4 @@ sentence-transformers
 langchain-huggingface
 langchain-community
 mem0ai
+google-generativeai

@@ -4,6 +4,7 @@ import re
 import logging
 from datetime import datetime
 from groq import Groq
+import google.generativeai as genai
 from mem0 import MemoryClient
 from django.conf import settings
 from .vector_service import get_vector_service
@@ -18,13 +19,34 @@ class ChatbotService:
         self.use_local_fallback = os.getenv('USE_LOCAL_FALLBACK', 'False').lower() == 'true'
         self.enable_api_fallback = os.getenv('ENABLE_API_FALLBACK', 'True').lower() == 'true'
         
-        # Initialize Groq client with API key
+        # Initialize Gemini client with API key (Primary choice)
+        gemini_api_key = os.getenv('GEMINI_API_KEY')
+        if gemini_api_key and not self.use_local_fallback:
+            try:
+                genai.configure(api_key=gemini_api_key)
+                # Use faster flash model to avoid rate limits
+                self.gemini_model = genai.GenerativeModel('gemini-2.5-pro')
+                # Test the connection
+                test_response = self.gemini_model.generate_content("Hi")
+                logger.info("Gemini 2.5 Pro client initialized successfully")
+                self.llm_client = 'gemini'
+            except Exception as e:
+                logger.error(f"Failed to initialize Gemini client: {e}")
+                logger.warning("Falling back to Groq client")
+                self.gemini_model = None
+                self.llm_client = None
+        else:
+            logger.warning("No Gemini API key found or local fallback enabled")
+            self.gemini_model = None
+            self.llm_client = None
+        
+        # Initialize Groq client as fallback
         groq_api_key = os.getenv('GROQ_API_KEY')
-        if groq_api_key and not self.use_local_fallback:
+        if groq_api_key and not self.use_local_fallback and not self.llm_client:
             try:
                 self.groq_client = Groq(api_key=groq_api_key)
-                # Test the connection with a simple request
-                logger.info("Groq client initialized successfully with API key")
+                logger.info("Groq client initialized as fallback")
+                self.llm_client = 'groq'
             except Exception as e:
                 logger.error(f"Failed to initialize Groq client: {e}")
                 self.groq_client = None
@@ -32,7 +54,7 @@ class ChatbotService:
             if self.use_local_fallback:
                 logger.warning("Local fallback mode enabled, Groq client disabled")
             else:
-                logger.warning("No Groq API key found")
+                logger.warning("No Groq API key found or Gemini is primary")
             self.groq_client = None
         
         # Initialize mem0 client with API key  
@@ -59,6 +81,67 @@ class ChatbotService:
             
         # Always initialize local memory as fallback
         self.local_memory = {}
+    
+    def generate_llm_response(self, messages, temperature=0.7, max_tokens=5000):
+        """Generate response using available LLM (Gemini primary, Groq fallback)"""
+        try:
+            if self.llm_client == 'gemini' and self.gemini_model:
+                # Convert messages to Gemini format
+                prompt_parts = []
+                for msg in messages:
+                    role = msg.get('role', 'user')
+                    content = msg.get('content', '')
+                    if role == 'system':
+                        prompt_parts.append(f"System: {content}")
+                    elif role == 'user':
+                        prompt_parts.append(f"User: {content}")
+                    elif role == 'assistant':
+                        prompt_parts.append(f"Assistant: {content}")
+                
+                prompt = "\n".join(prompt_parts)
+                
+                # Generate response with Gemini
+                response = self.gemini_model.generate_content(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=temperature,
+                        max_output_tokens=max_tokens,
+                    )
+                )
+                
+                return response.text.strip()
+                
+            elif self.llm_client == 'groq' and self.groq_client:
+                # Use Groq as fallback
+                response = self.groq_client.chat.completions.create(
+                    messages=messages,
+                    model="llama-3.3-70b-versatile",
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                return response.choices[0].message.content.strip()
+            
+            else:
+                logger.error("No LLM client available")
+                return "I'm sorry, I'm currently unavailable. Please try again later."
+                
+        except Exception as e:
+            logger.error(f"Error generating LLM response: {e}")
+            # Try fallback if primary fails
+            if self.llm_client == 'gemini' and self.groq_client:
+                try:
+                    logger.info("Falling back to Groq after Gemini failure")
+                    response = self.groq_client.chat.completions.create(
+                        messages=messages,
+                        model="llama-3.3-70b-versatile",
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
+                    return response.choices[0].message.content.strip()
+                except Exception as fallback_error:
+                    logger.error(f"Fallback also failed: {fallback_error}")
+            
+            return "I'm experiencing technical difficulties. Please try again in a moment."
     
     def get_user_memory_context(self, user_id, current_message, limit=5):
         """Enhanced memory retrieval with better context filtering and local fallback"""
@@ -378,70 +461,106 @@ class ChatbotService:
         
         return "general_chat"
 
-    def detect_intent(self, message, user_context=""):
-        """Advanced LLM-based intent detection with deep context understanding"""
+    def detect_intent_with_memory_requirement(self, message, user_context=""):
+        """Enhanced intent detection that also determines if memory context is needed"""
         
-        # If Groq API is disabled, use simple fallback
-        if not self.groq_client or self.use_local_fallback:
-            return self.simple_keyword_intent_detection(message.lower())
+        # If LLM API is disabled, use simple fallback
+        if not self.llm_client:
+            return {
+                "intent": self.simple_keyword_intent_detection(message.lower()),
+                "needs_memory": False,
+                "confidence": "low"
+            }
         
-        prompt = f"""You are an intelligent e-commerce assistant with deep understanding of user intentions. Analyze the user's message and determine their primary intent.
+        prompt = f"""You are an intelligent e-commerce assistant that analyzes user messages to determine:
+1. PRIMARY INTENT
+2. WHETHER PREVIOUS CONVERSATION CONTEXT/MEMORY IS NEEDED
 
 USER MESSAGE: "{message}"
-USER CONTEXT: {user_context if user_context else "New conversation"}
+AVAILABLE CONTEXT: {user_context if user_context else "New conversation"}
 
 AVAILABLE INTENTS:
-1. product_search - User wants to find/discover products (includes browsing, searching, comparing)
-2. product_specific - User wants details about a specific product (mentions product ID, "show me product X")
-3. category_browse - User wants to explore product categories or sections
-4. general_chat - Greetings, personal questions, casual conversation, gratitude
-5. issue_report - Problems, complaints, technical issues, order problems
+1. product_search - User wants to find/discover products 
+2. product_specific - User wants details about a specific product (mentions product ID)
+3. category_browse - User wants to explore product categories
+4. general_chat - Greetings, personal questions, casual conversation
+5. issue_report - Problems, complaints, technical issues
 
-ADVANCED ANALYSIS RULES:
-- Consider context: Previous conversations, user behavior patterns
-- Intent hierarchy: Specific > Search > Browse > Chat > Issues
-- Natural language understanding: "I'm looking for..." = product_search
-- Implicit intents: "What do you have in kitchen?" = category_browse  
-- Multi-intent messages: Pick the PRIMARY intent
-- Ambiguous cases: Default to most helpful intent
+MEMORY REQUIREMENTS ANALYSIS:
+- NEEDS MEMORY: If user references previous conversation ("that product", "the one you showed", "like before", "continue our chat", "remember when", "as I mentioned")
+- NEEDS MEMORY: If asking personal questions ("what's my name", "my previous orders", "our last conversation")
+- NEEDS MEMORY: If follow-up questions ("more details", "tell me about that", "the other options")
+- NO MEMORY: If completely new topic, greeting, specific product ID, clear standalone query
 
 EXAMPLES:
-"Hi there!" → general_chat
-"What's your name?" → general_chat
-"I need something for cooking" → product_search
-"Show me stainless steel bowls" → product_search
-"Product 467 details please" → product_specific
-"What kitchen items do you have?" → category_browse
-"Browse electronics section" → category_browse
-"My order is delayed" → issue_report
-"Looking for affordable bowls under $20" → product_search
-"Thanks for the help!" → general_chat
+"Hi there!" → intent: general_chat, needs_memory: false
+"Show me stainless steel bowls" → intent: product_search, needs_memory: false  
+"What's my name?" → intent: general_chat, needs_memory: true
+"Tell me more about that product" → intent: product_specific, needs_memory: true
+"I want the jacket you showed earlier" → intent: product_search, needs_memory: true
+"Product ID 123 details" → intent: product_specific, needs_memory: false
+"Browse electronics" → intent: category_browse, needs_memory: false
+"Thanks for the help!" → intent: general_chat, needs_memory: false
+"My order is missing" → intent: issue_report, needs_memory: false
 
-Analyze the message holistically and respond with ONLY the intent name:"""
+RESPOND in this exact format:
+intent: intent_name
+needs_memory: true/false
+confidence: high/medium/low"""
         
         try:
-            response = self.groq_client.chat.completions.create(
+            response_text = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile", 
-                temperature=0.1,
-                max_tokens=1500,
-                timeout=8
+                temperature=0.2,
+                max_tokens=2000
             )
             
-            intent = response.choices[0].message.content.strip().lower()
-            valid_intents = ["product_search", "product_specific", "category_browse", "general_chat", "issue_report"]
-            
-            if intent in valid_intents:
-                logger.info(f"LLM detected intent: {intent} for message: {message[:50]}...")
-                return intent
-            else:
-                # LLM response validation failed, use fallback
-                logger.warning(f"Invalid LLM intent '{intent}', using fallback")
-                return self.simple_keyword_intent_detection(message.lower())
+            # Parse simple text response
+            try:
+                lines = response_text.strip().split('\n')
+                result = {}
+                
+                for line in lines:
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        key = key.strip().lower()
+                        value = value.strip().lower()
+                        
+                        if key == "intent":
+                            result["intent"] = value
+                        elif key == "needs_memory":
+                            result["needs_memory"] = value == "true"
+                        elif key == "confidence":
+                            result["confidence"] = value
+                
+                # Validate the response
+                valid_intents = ["product_search", "product_specific", "category_browse", "general_chat", "issue_report"]
+                if result.get("intent") in valid_intents and "needs_memory" in result:
+                    logger.info(f"Intent: {result['intent']}, Memory needed: {result['needs_memory']}, Confidence: {result.get('confidence', 'unknown')}")
+                    return result
+                else:
+                    raise ValueError("Invalid response format")
+                    
+            except (ValueError, KeyError) as e:
+                logger.warning(f"Failed to parse LLM intent response: {e}, using fallback")
+                return {
+                    "intent": self.simple_keyword_intent_detection(message.lower()),
+                    "needs_memory": False,
+                    "confidence": "low"
+                }
                 
         except Exception as e:
-            logger.error(f"LLM intent detection failed: {e}")
-            return self.simple_keyword_intent_detection(message.lower())
+            logger.error(f"Enhanced intent detection failed: {e}")
+            return {
+                "intent": self.simple_keyword_intent_detection(message.lower()),
+                "needs_memory": False,
+                "confidence": "low"
+            }
+
+    def detect_intent(self, message, user_context=""):
+        """Backward compatibility method - just returns intent name"""
+        result = self.detect_intent_with_memory_requirement(message, user_context)
+        return result["intent"]
     
     def clean_response_for_production(self, response_text):
         """Clean response text for production - remove markdown and make it user-friendly"""
@@ -564,9 +683,15 @@ Analyze the message holistically and respond with ONLY the intent name:"""
         """Simple product filtering"""
         return products[:max_products] if products else []
 
-    def handle_product_search(self, message, user_id=None, username=None):
+    def handle_product_search(self, message, user_id=None, username=None, needs_memory=False):
         """Smart product search with enhanced LLM prompting"""
         try:
+            # Get memory context only if needed
+            memory_context = ""
+            if needs_memory and user_id:
+                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+                logger.info(f"Product search using memory context: {memory_context[:50]}...")
+            
             # Get products from vector search
             category = self.extract_category_from_message(message)
             price_range = self.extract_price_range_from_message(message)
@@ -587,10 +712,13 @@ Analyze the message holistically and respond with ONLY the intent name:"""
                 return {"response": response, "products": [], "intent": "product_search"}
             
             # Enhanced LLM prompt for better responses
-            products_text = "\n".join([f"• {p['name']} - ${p['price']} ({p['category']})" for p in products[:3]])
+            products_text = "\n".join([f"• {p['name']} - ${p['price']} ({p['category']})" for p in products[:5]])
             price_text = f" within ${price_range[0]}-${price_range[1]}" if price_range else ""
             
-            prompt = f"""You are a helpful e-commerce assistant. A customer searched: "{message}"{price_text}
+            # Include memory context in prompt if available
+            context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
+            
+            prompt = f"""You are a helpful e-commerce assistant. A customer searched: "{message}"{price_text}{context_prompt}
 
 PRODUCTS FOUND:
 {products_text}
@@ -604,20 +732,14 @@ RESPOND with:
 Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             
             # Generate response
-            if self.groq_client and not self.use_local_fallback:
-                try:
-                    response = self.groq_client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model="llama-3.3-70b-versatile", 
-                        temperature=0.7,
-                        max_tokens=1200,
-                        timeout=8
-                    )
-                    bot_response = response.choices[0].message.content.strip()
-                    bot_response = self.clean_response_for_production(bot_response)
-                except Exception:
-                    bot_response = f"I found {len(products)} products for '{message}'{price_text}:\n\n{products_text}\n\nWould you like more details about any of these?"
-            else:
+            try:
+                bot_response = self.generate_llm_response(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=5000
+                )
+                bot_response = self.clean_response_for_production(bot_response)
+            except Exception:
                 bot_response = f"I found {len(products)} products for '{message}'{price_text}:\n\n{products_text}\n\nWould you like more details about any of these?"
             
             # Add product links
@@ -635,9 +757,15 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             return {"response": "Sorry, I'm having trouble searching right now. Please try again.", 
                    "products": [], "intent": "product_search"}
     
-    def handle_product_specific(self, message, user_id=None, username=None):
+    def handle_product_specific(self, message, user_id=None, username=None, needs_memory=False):
         """Smart specific product handler"""
         try:
+            # Get memory context only if needed (e.g., "that product", "the one you showed")
+            memory_context = ""
+            if needs_memory and user_id:
+                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+                logger.info(f"Product specific using memory context: {memory_context[:50]}...")
+            
             import re
             
             # Extract product ID from message
@@ -679,9 +807,11 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             
             product = products[0]
             
+            # Include memory context in prompt if available
+            context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
+            
             # Smart LLM response or simple fallback
-            if self.groq_client and not self.use_local_fallback:
-                prompt = f"""User wants details about this specific product:
+            prompt = f"""User wants details about this specific product: "{message}"{context_prompt}
 
 PRODUCT: {product['name']} (ID: {product['id']})
 PRICE: ${product['price']}
@@ -693,20 +823,15 @@ RESPOND with:
 2. Price and category
 3. Brief description
 Keep it professional and under 80 words. NO markdown."""
-                
-                try:
-                    response = self.groq_client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model="llama-3.3-70b-versatile",
-                        temperature=0.3,
-                        max_tokens=1000,
-                        timeout=6
-                    )
-                    bot_response = response.choices[0].message.content.strip()
-                    bot_response = self.clean_response_for_production(bot_response)
-                except Exception:
-                    bot_response = f"Product ID {product['id']}: {product['name']}\nPrice: ${product['price']}\nCategory: {product['category']}\n\n{product['description'][:100]}..."
-            else:
+            
+            try:
+                bot_response = self.generate_llm_response(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3,
+                    max_tokens=5000
+                )
+                bot_response = self.clean_response_for_production(bot_response)
+            except Exception:
                 bot_response = f"Product ID {product['id']}: {product['name']}\nPrice: ${product['price']}\nCategory: {product['category']}\n\n{product['description'][:100]}..."
             
             # Add product link
@@ -724,9 +849,15 @@ Keep it professional and under 80 words. NO markdown."""
             return {"response": "Sorry, I couldn't retrieve the product details right now. Please try again.", 
                    "products": [], "intent": "product_specific"}
     
-    def handle_category_browse(self, message, user_id=None, username=None):
+    def handle_category_browse(self, message, user_id=None, username=None, needs_memory=False):
         """Smart category browsing with enhanced LLM"""
         try:
+            # Get memory context only if needed
+            memory_context = ""
+            if needs_memory and user_id:
+                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+                logger.info(f"Category browse using memory context: {memory_context[:50]}...")
+            
             category = self.extract_category_from_message(message)
             
             if not category:
@@ -747,8 +878,10 @@ Keep it professional and under 80 words. NO markdown."""
             # Smart LLM response or simple fallback
             products_text = "\n".join([f"• {p['name']} - ${p['price']}" for p in products[:3]])
             
-            if self.groq_client and not self.use_local_fallback:
-                prompt = f"""User wants to browse "{category}" category.
+            # Include memory context in prompt if available
+            context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
+            
+            prompt = f"""User wants to browse "{category}" category: "{message}"{context_prompt}
 
 PRODUCTS FOUND:
 {products_text}
@@ -758,20 +891,15 @@ RESPOND with:
 2. Show the products naturally  
 3. Encourage exploration
 Keep it conversational and under 100 words. NO markdown."""
-                
-                try:
-                    response = self.groq_client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model="llama-3.3-70b-versatile",
-                        temperature=0.7,
-                        max_tokens=1000,
-                        timeout=6
-                    )
-                    bot_response = response.choices[0].message.content.strip()
-                    bot_response = self.clean_response_for_production(bot_response)
-                except Exception:
-                    bot_response = f"Here are our top {category} products:\n\n{products_text}\n\nWould you like to see more details about any of these?"
-            else:
+            
+            try:
+                bot_response = self.generate_llm_response(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=5000
+                )
+                bot_response = self.clean_response_for_production(bot_response)
+            except Exception:
                 bot_response = f"Here are our top {category} products:\n\n{products_text}\n\nWould you like to see more details about any of these?"
             
             # Add product links
@@ -789,9 +917,15 @@ Keep it conversational and under 100 words. NO markdown."""
             return {"response": "Sorry, I couldn't load categories right now. Try searching for specific products!", 
                    "intent": "category_browse"}
     
-    def handle_issue_report(self, message, user_id=None, user_email=None, username=None):
+    def handle_issue_report(self, message, user_id=None, user_email=None, username=None, needs_memory=False):
         """Handle issue reporting"""
         try:
+            # Get memory context only if needed (for contextual issues)
+            memory_context = ""
+            if needs_memory and user_id:
+                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+                logger.info(f"Issue report using memory context: {memory_context[:50]}...")
+            
             # Create issue in database
             issue = Issue.objects.create(
                 username=username or "Anonymous",
@@ -800,9 +934,12 @@ Keep it conversational and under 100 words. NO markdown."""
                 status="pending"
             )
             
+            # Include memory context in prompt if available
+            context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
+            
             # Generate empathetic response
             prompt = f"""
-            A user has reported an issue: "{message}"
+            A user has reported an issue: "{message}"{context_prompt}
             
             Provide a helpful, empathetic response that:
             1. Acknowledges their concern
@@ -813,15 +950,11 @@ Keep it conversational and under 100 words. NO markdown."""
             
             Response:"""
             
-            response = self.groq_client.chat.completions.create(
+            bot_response = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
                 temperature=0.6,
-                max_tokens=1200,
-                timeout=8
+                max_tokens=5000
             )
-            
-            bot_response = response.choices[0].message.content.strip()
             
             # Convert markdown to plain text
             bot_response = markdown_to_text(bot_response)
@@ -850,18 +983,22 @@ Keep it conversational and under 100 words. NO markdown."""
                 "intent": "issue_report"
             }
     
-    def handle_general_chat(self, message, user_id=None, username=None):
+    def handle_general_chat(self, message, user_id=None, username=None, needs_memory=False):
         """Pure LLM-based general conversation with smart context understanding"""
         try:
             # Enhanced LLM conversation with smart context understanding
-            if self.groq_client and not self.use_local_fallback:
+            memory_context = ""
+            if needs_memory and user_id:
                 memory_context = self.get_user_memory_context(user_id, message, limit=3)
-                
-                prompt = f"""You are a friendly AI assistant for "Agentic AI Store". 
+                logger.info(f"General chat using memory context: {memory_context[:50]}...")
+            
+            # Include memory context in prompt if available
+            context_prompt = f"\nCONTEXT: {memory_context}" if memory_context else "\nCONTEXT: New conversation"
+            
+            prompt = f"""You are a friendly AI assistant for "Agentic AI Store". 
 
-CONTEXT: {memory_context if memory_context else "New conversation"}
 USER MESSAGE: "{message}"
-USERNAME: {username if username and username != "unknown_user" else "Customer"}
+USERNAME: {username if username and username != "unknown_user" else "Customer"}{context_prompt}
 
 INTELLIGENT RESPONSE RULES:
 - If they ask their name: Use their username if available, otherwise ask politely
@@ -870,33 +1007,28 @@ INTELLIGENT RESPONSE RULES:
 - If thanking: Acknowledge gracefully and offer continued help
 - If asking about capabilities: Mention product search, browsing, and customer support
 - If casual conversation: Respond naturally while staying helpful and store-focused
+- If referencing previous conversation: Use the context provided
 - Keep it conversational, helpful, and under 100 words
 - NO markdown formatting
 
 RESPOND naturally and contextually:"""
+            
+            try:
+                bot_response = self.generate_llm_response(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.8,
+                    max_tokens=5000
+                )
+                bot_response = self.clean_response_for_production(bot_response)
                 
-                try:
-                    response = self.groq_client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model="llama-3.3-70b-versatile",
-                        temperature=0.8,
-                        max_tokens=1200,
-                        timeout=8
-                    )
-                    bot_response = response.choices[0].message.content.strip()
-                    bot_response = self.clean_response_for_production(bot_response)
-                    
-                    # Special handling for name questions using LLM context
-                    message_lower = message.lower()
-                    if ("what's my name" in message_lower or "who am i" in message_lower) and username and username != "unknown_user":
-                        bot_response = f"Your name is {username}! {bot_response}"
-                    
-                except Exception as e:
-                    logger.warning(f"LLM general chat failed: {e}, using fallback")
-                    bot_response = self.generate_simple_chat_response(message.lower(), username, memory_context)
-            else:
-                # Fallback for when LLM is unavailable
-                bot_response = self.generate_simple_chat_response(message.lower(), username, "")
+                # Special handling for name questions using LLM context
+                message_lower = message.lower()
+                if ("what's my name" in message_lower or "who am i" in message_lower) and username and username != "unknown_user":
+                    bot_response = f"Your name is {username}! {bot_response}"
+                
+            except Exception as e:
+                logger.warning(f"LLM general chat failed: {e}, using fallback")
+                bot_response = self.generate_simple_chat_response(message.lower(), username, memory_context)
             
             if user_id:
                 self.store_user_memory(user_id, message, bot_response, "general_chat", {}, username)
@@ -967,15 +1099,11 @@ RESPOND naturally and contextually:"""
             
             Response:"""
             
-            response = self.groq_client.chat.completions.create(
+            bot_response = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama-3.3-70b-versatile",
                 temperature=0.7,
-                max_tokens=1200,
-                timeout=8
+                max_tokens=5200
             )
-            
-            bot_response = response.choices[0].message.content.strip()
             
             # Convert markdown to plain text
             bot_response = markdown_to_text(bot_response)
@@ -1048,7 +1176,7 @@ RESPOND naturally and contextually:"""
             return "New conversation"
 
     def process_message(self, message, user_id=None, user_email=None, username=None):
-        """Smart message processing with enhanced LLM responses"""
+        """Smart message processing with enhanced LLM responses and memory management"""
         try:
             if not message or not message.strip():
                 return {"response": "Please send me a message and I'll help you!", "intent": "general_chat"}
@@ -1062,21 +1190,25 @@ RESPOND naturally and contextually:"""
             # Get user context for better intent detection
             user_context = self.get_user_context_for_intent(user_id, username)
             
-            # Detect intent using smart LLM with context
-            intent = self.detect_intent(message, user_context)
-            logger.info(f"Intent: {intent} | User: {username or 'unknown'} | Context: {user_context[:30]}...")
+            # Enhanced intent detection with memory requirement analysis
+            intent_result = self.detect_intent_with_memory_requirement(message, user_context)
+            intent = intent_result["intent"]
+            needs_memory = intent_result["needs_memory"]
+            confidence = intent_result.get("confidence", "unknown")
             
-            # Route to handlers
+            logger.info(f"Intent: {intent} | Memory needed: {needs_memory} | Confidence: {confidence} | User: {username or 'unknown'}")
+            
+            # Route to handlers with memory requirement
             if intent == "product_search":
-                return self.handle_product_search(message, user_id, username)
+                return self.handle_product_search(message, user_id, username, needs_memory)
             elif intent == "product_specific":
-                return self.handle_product_specific(message, user_id, username)
+                return self.handle_product_specific(message, user_id, username, needs_memory)
             elif intent == "category_browse":
-                return self.handle_category_browse(message, user_id, username)
+                return self.handle_category_browse(message, user_id, username, needs_memory)
             elif intent == "issue_report":
-                return self.handle_issue_report(message, user_id, user_email, username)
+                return self.handle_issue_report(message, user_id, user_email, username, needs_memory)
             else:  # general_chat
-                return self.handle_general_chat(message, user_id, username)
+                return self.handle_general_chat(message, user_id, username, needs_memory)
                 
         except Exception as e:
             logger.error(f"Processing error: {e}")
