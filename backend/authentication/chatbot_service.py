@@ -524,68 +524,43 @@ class ChatbotService:
                 "confidence": "low"
             }
         
-        prompt = f"""You are an intelligent e-commerce assistant that analyzes user messages to determine:
-1. PRIMARY INTENT
-2. WHETHER PREVIOUS CONVERSATION CONTEXT/MEMORY IS NEEDED
+        prompt = f"""You are an intelligent AI assistant with deep e-commerce knowledge. Analyze the user's message to determine their intent and memory context.
 
 USER MESSAGE: "{message}"
-AVAILABLE CONTEXT: {user_context if user_context else "New conversation"}
+CONVERSATION CONTEXT: {user_context if user_context else "New conversation"}
 
-AVAILABLE INTENTS:
-1. product_search - User wants to find/discover products 
-2. product_specific - User wants details about a specific product (mentions product ID)
-3. category_browse - User wants to explore product categories
-4. price_range_search - User wants products within specific price range
-5. general_chat - Greetings, personal questions, casual conversation
-6. issue_report - Problems, complaints, technical issues
+INTENT ANALYSIS:
+Identify the user's primary intent:
 
-MEMORY REQUIREMENTS ANALYSIS:
-- NEEDS MEMORY: If user references previous conversation ("that product", "the one you showed", "like before", "continue our chat", "remember when", "as I mentioned", "what you recommended")
-- NEEDS MEMORY: If asking personal questions ("what's my name", "my previous orders", "our last conversation")
-- NEEDS MEMORY: If follow-up questions ("more details", "tell me about that", "the other options", "show me more")
-- NEEDS MEMORY: If using pronouns referencing previous items ("it", "them", "those", "this one")
-- NO MEMORY: If completely new topic, greeting, specific product ID, clear standalone query, price range searches
-- NO MEMORY: If asking for new product search, category browsing, or price-based searches
+product_search: Discovering products based on needs
 
-EXAMPLES:
-"Hi there!" → intent: general_chat, needs_memory: false
-"Hello, how are you?" → intent: general_chat, needs_memory: false
-"Show me stainless steel bowls" → intent: product_search, needs_memory: false
-"I need wireless headphones" → intent: product_search, needs_memory: false
-"Find me gaming laptops" → intent: product_search, needs_memory: false
-"Looking for kitchen utensils" → intent: product_search, needs_memory: false
-"Products under $40" → intent: price_range_search, needs_memory: false
-"Wireless gaming mouse under 40 dollars" → intent: price_range_search, needs_memory: false
-"Gaming laptops between $500-$800" → intent: price_range_search, needs_memory: false
-"Bluetooth speakers below $100" → intent: price_range_search, needs_memory: false
-"Smart TVs under 600 dollars" → intent: price_range_search, needs_memory: false
-"Coffee makers between $50 to $150" → intent: price_range_search, needs_memory: false
-"What's my name?" → intent: general_chat, needs_memory: true
-"Who am I?" → intent: general_chat, needs_memory: true
-"What's your name?" → intent: general_chat, needs_memory: false
-"Tell me more about that product" → intent: product_specific, needs_memory: true
-"Show me details about that item" → intent: product_specific, needs_memory: true
-"I want the jacket you showed earlier" → intent: product_search, needs_memory: true
-"Product ID 123 details" → intent: product_specific, needs_memory: false
-"Show me product 456" → intent: product_specific, needs_memory: false
-"Give me product number 789" → intent: product_specific, needs_memory: false
-"Browse electronics" → intent: category_browse, needs_memory: false
-"Show me home and kitchen items" → intent: category_browse, needs_memory: false
-"Explore clothing category" → intent: category_browse, needs_memory: false
-"Thanks for the help!" → intent: general_chat, needs_memory: false
-"My order is missing" → intent: issue_report, needs_memory: false
-"I have a problem with my purchase" → intent: issue_report, needs_memory: false
-"The product doesn't work" → intent: issue_report, needs_memory: false
-"Can you help me?" → intent: general_chat, needs_memory: false
-"What can you do?" → intent: general_chat, needs_memory: false
-"How does this work?" → intent: general_chat, needs_memory: false
-"Show me more like the previous ones" → intent: product_search, needs_memory: true
-"Any other options?" → intent: product_search, needs_memory: true
+product_specific: Inquiring about a specific product
 
-RESPOND in this exact format:
-intent: intent_name
-needs_memory: true/false
-confidence: high/medium/low"""
+category_browse: Exploring product categories
+
+price_range_search: Searching within a price range
+
+general_chat: Casual conversation or help requests
+
+issue_report: Reporting problems or service issues
+
+CONTEXTUAL MEMORY:
+Does the message depend on previous conversations?
+
+needs_memory: true: References or builds on past conversations
+
+needs_memory: false: Independent request with no prior context required
+
+SUGGESTIONS:
+
+Use past preferences if available to tailor responses.
+
+If no preferences are provided, offer relevant suggestions based on the query.
+
+OUTPUT FORMAT:
+intent: [intent_name]
+needs_memory: [true/false]
+confidence: [high/medium/low]"""
         
         try:
             response_text = self.generate_llm_response(
@@ -735,60 +710,43 @@ confidence: high/medium/low"""
         return "I'm here to help you with your shopping needs at Agentic AI Store. You can ask me to find products, browse categories, or just chat! What would you like to do?"
     
     def extract_product_name_from_message(self, message):
-        """Extract product name from user message using LLM with robust fallback"""
+        """Extract product name from user message using LLM with minimal fallback"""
         print(f"\n=== PRODUCT NAME EXTRACTION DEBUG ===")
         print(f"Input message: '{message}'")
         
-        # Always try regex first as backup in case LLM fails completely
-        regex_result = self._extract_product_name_regex(message)
-        print(f"Regex backup result: '{regex_result}'")
-        
         if not self.llm_client:
-            print("No LLM client available, using regex result")
+            print("No LLM client available, returning None")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
-            return regex_result
+            return None
         
         # Use LLM for intelligent product name extraction
-        prompt = f"""Extract the product name from this user message. The user is looking for a specific product but may mention price range, categories, or other details.
+        prompt = f"""Extract the specific product name from this message. Be concise and precise.
 
-USER MESSAGE: "{message}"
+MESSAGE: "{message}"
 
-TASK: Identify and return ONLY the product name/type that the user is searching for.
+RULES:
+- Extract only the main product type (laptop, headphones, etc.)
+- Remove price constraints, locations, and descriptive words
+- For "gift" requests: suggest specific product categories if context allows, otherwise return "none"
+- Return "none" for vague requests like "something nice"
+- Keep technical specs only if they define the product (wireless, bluetooth)
 
-EXAMPLES:
-"wireless gaming mouse under 40 dollars" → "wireless gaming mouse"
-"stainless steel mixing bowls between $20-30" → "stainless steel mixing bowls"
-"show me bluetooth headphones under $100" → "bluetooth headphones"
-"I need running shoes below 50 dollars" → "running shoes"
-"laptop computers around $800 in electronics" → "laptop computers"
-"wooden spoon set under $15" → "wooden spoon set"
-"gaming chair below $200" → "gaming chair"
-"smart tv under 500 dollars" → "smart tv"
-"coffee maker between $50-80" → "coffee maker"
-"i want good quality earbuds less than 50$" → "earbuds"
-"show me earbuds under $50" → "earbuds"
-"bluetooth earphones below 40 dollars" → "bluetooth earphones"
-
-RESPOND with ONLY the product name. If no specific product is mentioned, respond with "none".
-
-PRODUCT NAME:"""
+RESPOND WITH ONLY THE PRODUCT NAME :"""
         
         try:
             response_text = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,  # Lower temperature for more consistent extraction
-                max_tokens=2000     # Reduce tokens for simple extraction
+                max_tokens=150     # Much lower token limit for concise responses
             )
             
             print(f"LLM response: '{response_text}'")
             
             # Check if response is empty or None
             if not response_text or response_text.strip() == "":
-                print(f"✗ Empty LLM response, using regex fallback")
-                result = regex_result if regex_result else None
-                print(f"Final result from regex: '{result}'")
+                print(f"✗ Empty LLM response, returning None")
                 print(f"=== END PRODUCT NAME DEBUG ===\n")
-                return result
+                return None
             
             product_name = response_text.strip().lower()
             
@@ -796,26 +754,52 @@ PRODUCT NAME:"""
             product_name = product_name.replace('product name:', '').strip()
             product_name = product_name.replace('answer:', '').strip()
             product_name = product_name.replace('result:', '').strip()
+            product_name = product_name.replace('extracted product:', '').strip()
+            
+            # If response is too verbose (more than 50 chars), try to extract the actual product name
+            if len(product_name) > 50:
+                # Look for actual product name at the end or in specific patterns
+                lines = product_name.split('\n')
+                for line in reversed(lines):
+                    # Look for lines that contain actual product names
+                    if ':' in line and len(line.split(':')[-1].strip()) < 30:
+                        extracted_part = line.split(':')[-1].strip()
+                        if extracted_part and extracted_part != "none":
+                            product_name = extracted_part
+                            break
+                    elif len(line.strip()) < 30 and line.strip() and not line.startswith('*'):
+                        product_name = line.strip()
+                        break
+                
+                # If still too long, return None
+                if len(product_name) > 50:
+                    print(f"✗ LLM response too verbose, returning None")
+                    print(f"=== END PRODUCT NAME DEBUG ===\n")
+                    return None
             
             # Clean up response
             if product_name and product_name != "none" and len(product_name) > 1:
                 # Remove any extra quotation marks or formatting
                 product_name = product_name.replace('"', '').replace("'", '').strip()
+                
+                # Check if it's actually a meaningful product name
+                if product_name in ['gift', 'something', 'item', 'thing', 'stuff', 'product']:
+                    print(f"✗ Generic term '{product_name}', returning None")
+                    print(f"=== END PRODUCT NAME DEBUG ===\n")
+                    return None
+                
                 print(f"✓ Extracted product name: '{product_name}'")
                 print(f"=== END PRODUCT NAME DEBUG ===\n")
                 return product_name
             
             print(f"✗ No valid product name found in LLM response: '{product_name}'")
-            print(f"Using regex fallback result: '{regex_result}'")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
-            return regex_result
+            return None
             
         except Exception as e:
             print(f"✗ LLM extraction failed: {e}")
-            print(f"Using regex fallback result: '{regex_result}'")
-            logger.warning(f"LLM product name extraction failed: {e}, using regex fallback")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
-            return regex_result
+            return None
 
     def _extract_product_name_regex(self, message):
         """Helper method for regex-based product name extraction"""
@@ -1289,7 +1273,7 @@ RESPOND naturally and contextually:"""
             print(f"Extracted product name: '{product_name}'")
             
             # Search for products in price range with product name filter
-            if product_name:
+            if product_name and product_name != "none":
                 print(f"Searching with product name: '{product_name}'")
                 # First search by product name and then filter by price
                 products = get_vector_service().search_products(product_name, k=30)  # Get more for filtering
@@ -1327,7 +1311,7 @@ RESPOND naturally and contextually:"""
                 products = filtered_products[:10]  # Limit to 10 results
                 print(f"Final filtered products: {len(products)}")
             else:
-                print("No product name found, searching by price range only")
+                print("No specific product name found, searching by price range only")
                 # Search by price range only
                 products = get_vector_service().search_products_by_price_range(
                     min_price=min_price, 
@@ -1350,7 +1334,7 @@ RESPOND naturally and contextually:"""
             
             # Generate response with LLM
             price_text = f"${min_price}-${max_price}" if min_price > 0 else f"under ${max_price}"
-            product_name_text = f" for '{product_name}'" if product_name else ""
+            product_name_text = f" for '{product_name}'" if product_name and product_name != "none" else ""
             category_text = f" in {category}" if category else ""
             
             products_text = ""
@@ -1362,7 +1346,23 @@ RESPOND naturally and contextually:"""
             # Include memory context in prompt if available
             context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
             
-            prompt = f"""You are a helpful e-commerce assistant. User is looking for products{product_name_text} in price range {price_text}{category_text}: "{message}"{context_prompt}
+            # Enhanced prompt that considers memory context
+            if memory_context and not product_name:
+                # When we have context but no specific product name, use context to understand what they want
+                prompt = f"""You are a helpful e-commerce assistant. User is specifying a budget for their previous request: "{message}"{context_prompt}
+
+Based on the context and their budget {price_text}, I found {len(products)} suitable products:
+{products_text}
+
+RESPOND with a brief, natural response that:
+1. References their previous conversation context
+2. Confirms the budget fits their needs  
+3. Highlights the relevant products
+4. Encourages them to check the options
+
+Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
+            else:
+                prompt = f"""You are a helpful e-commerce assistant. User is looking for products{product_name_text} in price range {price_text}{category_text}: "{message}"{context_prompt}
 
 Found {len(products)} products matching their criteria:
 {products_text}
@@ -1373,7 +1373,7 @@ RESPOND with a brief, natural response that:
 3. Highlights the products
 4. Encourages them to check the links
 
-Keep it conversational, helpful, and under 80 words. NO markdown formatting. Start your response directly without any meta-commentary."""
+Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
             
             bot_response = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
