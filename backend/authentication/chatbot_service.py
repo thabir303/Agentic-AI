@@ -42,11 +42,14 @@ class ChatbotService:
         
         # Initialize Groq client as fallback
         groq_api_key = os.getenv('GROQ_API_KEY')
-        if groq_api_key and not self.use_local_fallback and not self.llm_client:
+        if groq_api_key and not self.use_local_fallback:
             try:
                 self.groq_client = Groq(api_key=groq_api_key)
-                logger.info("Groq client initialized as fallback")
-                self.llm_client = 'groq'
+                logger.info("Groq client initialized successfully as backup")
+                # If no primary LLM is set, use Groq
+                if not self.llm_client:
+                    self.llm_client = 'groq'
+                    logger.info("Using Groq as primary LLM client")
             except Exception as e:
                 logger.error(f"Failed to initialize Groq client: {e}")
                 self.groq_client = None
@@ -54,7 +57,7 @@ class ChatbotService:
             if self.use_local_fallback:
                 logger.warning("Local fallback mode enabled, Groq client disabled")
             else:
-                logger.warning("No Groq API key found or Gemini is primary")
+                logger.warning("No Groq API key found")
             self.groq_client = None
         
         # Initialize mem0 client with API key  
@@ -109,7 +112,15 @@ class ChatbotService:
                     )
                 )
                 
-                return response.text.strip()
+                result = response.text.strip() if response.text else ""
+                
+                # Debug empty responses from Gemini
+                if not result:
+                    print(f"⚠️ Gemini returned empty response, trying Groq fallback")
+                    logger.warning("Gemini returned empty response, falling back to Groq")
+                    raise Exception("Empty Gemini response")
+                
+                return result
                 
             elif self.llm_client == 'groq' and self.groq_client:
                 # Use Groq as fallback
@@ -437,26 +448,60 @@ class ChatbotService:
         return self.detect_intent(message, user_context)
     
     def simple_keyword_intent_detection(self, message_lower):
-        """Simple fallback intent detection"""
+        """Simple fallback intent detection with spelling correction"""
+        import re
+        
+        # Normalize common spelling variations/errors
+        normalized_message = message_lower
+        
+        # Common spelling corrections for earbuds
+        earbuds_variations = [
+            ('earbuds', 'earbuds'), ('earphones', 'earbuds'), ('ear buds', 'earbuds'),
+            ('earbud', 'earbuds'), ('ear phones', 'earbuds'), ('headphones', 'headphones'),
+            ('headphone', 'headphones'), ('head phones', 'headphones')
+        ]
+        
+        for variation, correct in earbuds_variations:
+            normalized_message = normalized_message.replace(variation, correct)
+        
+        # Price range patterns (highest priority after product ID) - must have price indicator
+        price_indicators = ['under $', 'below $', 'less than $', 'cheaper than $', 'between $', 'budget of $', 'around $']
+        number_with_price = ['under 5', 'under 10', 'under 20', 'under 30', 'under 40', 'under 50', 'under 100', 'under 200', 'under 300', 'under 500', 'under 1000',
+                            'below 20', 'below 30', 'below 40', 'below 50', 'below 100', 'below 200', 'below 500',
+                            'between 50', 'between 100', 'around 100', 'around 200']
+        
+        if any(phrase in normalized_message for phrase in price_indicators + number_with_price):
+            # Also check if there are digits indicating price
+            if re.search(r'\b\d+\s*(dollars?|$)?\b', normalized_message):
+                return "price_range_search"
         
         # Product ID patterns (highest priority)
-        if any(phrase in message_lower for phrase in ['product id', 'show product', 'product number', 'product 5']):
+        if any(phrase in normalized_message for phrase in ['product id', 'show product', 'product number', 'product 5', 'give me product', 'show me product']):
             return "product_specific"
         
+        # Issue/problem patterns
+        if any(phrase in normalized_message for phrase in ['problem', 'issue', 'complaint', 'broken', 'not working', 'defective', 'missing', 'wrong order', 'damaged']):
+            return "issue_report"
+        
         # Personal questions
-        if any(phrase in message_lower for phrase in ["what's my name", "who am i", "what's your name", "who are you"]):
+        if any(phrase in normalized_message for phrase in ["what's my name", "who am i", "what's your name", "who are you"]):
             return "general_chat"
         
         # Greetings and social
-        if any(word in message_lower for word in ['hello', 'hi', 'hey', 'thanks', 'thank you', 'how are you']):
+        if any(word in normalized_message for word in ['hello', 'hi', 'hey', 'thanks', 'thank you', 'how are you', 'good morning', 'good afternoon', 'good evening']):
+            return "general_chat"
+        
+        # Help and capabilities
+        if any(phrase in normalized_message for phrase in ['help me', 'can you help', 'what can you do', 'how does this work', 'capabilities']):
             return "general_chat"
             
         # Category browsing
-        if any(word in message_lower for word in ['category', 'browse', 'section', 'electronics']):
+        if any(word in normalized_message for word in ['category', 'browse', 'section', 'electronics', 'clothing', 'home', 'kitchen', 'explore']):
             return "category_browse"
             
-        # Product search keywords (broader)
-        if any(word in message_lower for word in ['find', 'search', 'need', 'want', 'buy', 'steel', 'bowl', 'phone', 'kitchen', 'looking for']):
+        # Product search keywords (broader) - include earbuds and common audio products
+        product_keywords = ['find', 'search', 'need', 'want', 'buy', 'looking for', 'show me', 'get me', 'steel', 'bowl', 'phone', 'kitchen', 'laptop', 'headphones', 'mouse', 'keyboard', 'earbuds', 'speaker', 'wireless', 'bluetooth']
+        if any(word in normalized_message for word in product_keywords):
             return "product_search"
         
         return "general_chat"
@@ -464,10 +509,17 @@ class ChatbotService:
     def detect_intent_with_memory_requirement(self, message, user_context=""):
         """Enhanced intent detection that also determines if memory context is needed"""
         
+        # DEBUG: Print intent detection process
+        print(f"\n=== INTENT DETECTION DEBUG ===")
+        print(f"Original message: '{message}'")
+        
         # If LLM API is disabled, use simple fallback
         if not self.llm_client:
+            simple_intent = self.simple_keyword_intent_detection(message.lower())
+            print(f"Using simple fallback, detected intent: {simple_intent}")
+            print(f"=== END INTENT DEBUG ===\n")
             return {
-                "intent": self.simple_keyword_intent_detection(message.lower()),
+                "intent": simple_intent,
                 "needs_memory": False,
                 "confidence": "low"
             }
@@ -483,25 +535,52 @@ AVAILABLE INTENTS:
 1. product_search - User wants to find/discover products 
 2. product_specific - User wants details about a specific product (mentions product ID)
 3. category_browse - User wants to explore product categories
-4. general_chat - Greetings, personal questions, casual conversation
-5. issue_report - Problems, complaints, technical issues
+4. price_range_search - User wants products within specific price range
+5. general_chat - Greetings, personal questions, casual conversation
+6. issue_report - Problems, complaints, technical issues
 
 MEMORY REQUIREMENTS ANALYSIS:
-- NEEDS MEMORY: If user references previous conversation ("that product", "the one you showed", "like before", "continue our chat", "remember when", "as I mentioned")
+- NEEDS MEMORY: If user references previous conversation ("that product", "the one you showed", "like before", "continue our chat", "remember when", "as I mentioned", "what you recommended")
 - NEEDS MEMORY: If asking personal questions ("what's my name", "my previous orders", "our last conversation")
-- NEEDS MEMORY: If follow-up questions ("more details", "tell me about that", "the other options")
-- NO MEMORY: If completely new topic, greeting, specific product ID, clear standalone query
+- NEEDS MEMORY: If follow-up questions ("more details", "tell me about that", "the other options", "show me more")
+- NEEDS MEMORY: If using pronouns referencing previous items ("it", "them", "those", "this one")
+- NO MEMORY: If completely new topic, greeting, specific product ID, clear standalone query, price range searches
+- NO MEMORY: If asking for new product search, category browsing, or price-based searches
 
 EXAMPLES:
 "Hi there!" → intent: general_chat, needs_memory: false
-"Show me stainless steel bowls" → intent: product_search, needs_memory: false  
+"Hello, how are you?" → intent: general_chat, needs_memory: false
+"Show me stainless steel bowls" → intent: product_search, needs_memory: false
+"I need wireless headphones" → intent: product_search, needs_memory: false
+"Find me gaming laptops" → intent: product_search, needs_memory: false
+"Looking for kitchen utensils" → intent: product_search, needs_memory: false
+"Products under $40" → intent: price_range_search, needs_memory: false
+"Wireless gaming mouse under 40 dollars" → intent: price_range_search, needs_memory: false
+"Gaming laptops between $500-$800" → intent: price_range_search, needs_memory: false
+"Bluetooth speakers below $100" → intent: price_range_search, needs_memory: false
+"Smart TVs under 600 dollars" → intent: price_range_search, needs_memory: false
+"Coffee makers between $50 to $150" → intent: price_range_search, needs_memory: false
 "What's my name?" → intent: general_chat, needs_memory: true
+"Who am I?" → intent: general_chat, needs_memory: true
+"What's your name?" → intent: general_chat, needs_memory: false
 "Tell me more about that product" → intent: product_specific, needs_memory: true
+"Show me details about that item" → intent: product_specific, needs_memory: true
 "I want the jacket you showed earlier" → intent: product_search, needs_memory: true
 "Product ID 123 details" → intent: product_specific, needs_memory: false
+"Show me product 456" → intent: product_specific, needs_memory: false
+"Give me product number 789" → intent: product_specific, needs_memory: false
 "Browse electronics" → intent: category_browse, needs_memory: false
+"Show me home and kitchen items" → intent: category_browse, needs_memory: false
+"Explore clothing category" → intent: category_browse, needs_memory: false
 "Thanks for the help!" → intent: general_chat, needs_memory: false
 "My order is missing" → intent: issue_report, needs_memory: false
+"I have a problem with my purchase" → intent: issue_report, needs_memory: false
+"The product doesn't work" → intent: issue_report, needs_memory: false
+"Can you help me?" → intent: general_chat, needs_memory: false
+"What can you do?" → intent: general_chat, needs_memory: false
+"How does this work?" → intent: general_chat, needs_memory: false
+"Show me more like the previous ones" → intent: product_search, needs_memory: true
+"Any other options?" → intent: product_search, needs_memory: true
 
 RESPOND in this exact format:
 intent: intent_name
@@ -514,6 +593,8 @@ confidence: high/medium/low"""
                 temperature=0.2,
                 max_tokens=2000
             )
+            
+            print(f"LLM response: '{response_text}'")
             
             # Parse simple text response
             try:
@@ -533,26 +614,39 @@ confidence: high/medium/low"""
                         elif key == "confidence":
                             result["confidence"] = value
                 
+                print(f"Parsed result: {result}")
+                
                 # Validate the response
-                valid_intents = ["product_search", "product_specific", "category_browse", "general_chat", "issue_report"]
+                valid_intents = ["product_search", "product_specific", "category_browse", "price_range_search", "general_chat", "issue_report"]
                 if result.get("intent") in valid_intents and "needs_memory" in result:
+                    print(f"✓ Valid intent detected: {result['intent']}, Memory: {result['needs_memory']}")
+                    print(f"=== END INTENT DEBUG ===\n")
                     logger.info(f"Intent: {result['intent']}, Memory needed: {result['needs_memory']}, Confidence: {result.get('confidence', 'unknown')}")
                     return result
                 else:
+                    print(f"✗ Invalid response format, using fallback")
                     raise ValueError("Invalid response format")
                     
             except (ValueError, KeyError) as e:
+                print(f"✗ Failed to parse LLM response: {e}")
+                simple_intent = self.simple_keyword_intent_detection(message.lower())
+                print(f"Using simple fallback: {simple_intent}")
+                print(f"=== END INTENT DEBUG ===\n")
                 logger.warning(f"Failed to parse LLM intent response: {e}, using fallback")
                 return {
-                    "intent": self.simple_keyword_intent_detection(message.lower()),
+                    "intent": simple_intent,
                     "needs_memory": False,
                     "confidence": "low"
                 }
                 
         except Exception as e:
+            print(f"✗ LLM intent detection failed: {e}")
+            simple_intent = self.simple_keyword_intent_detection(message.lower())
+            print(f"Using simple fallback: {simple_intent}")
+            print(f"=== END INTENT DEBUG ===\n")
             logger.error(f"Enhanced intent detection failed: {e}")
             return {
-                "intent": self.simple_keyword_intent_detection(message.lower()),
+                "intent": simple_intent,
                 "needs_memory": False,
                 "confidence": "low"
             }
@@ -640,6 +734,139 @@ confidence: high/medium/low"""
         # Default conversational response
         return "I'm here to help you with your shopping needs at Agentic AI Store. You can ask me to find products, browse categories, or just chat! What would you like to do?"
     
+    def extract_product_name_from_message(self, message):
+        """Extract product name from user message using LLM with robust fallback"""
+        print(f"\n=== PRODUCT NAME EXTRACTION DEBUG ===")
+        print(f"Input message: '{message}'")
+        
+        # Always try regex first as backup in case LLM fails completely
+        regex_result = self._extract_product_name_regex(message)
+        print(f"Regex backup result: '{regex_result}'")
+        
+        if not self.llm_client:
+            print("No LLM client available, using regex result")
+            print(f"=== END PRODUCT NAME DEBUG ===\n")
+            return regex_result
+        
+        # Use LLM for intelligent product name extraction
+        prompt = f"""Extract the product name from this user message. The user is looking for a specific product but may mention price range, categories, or other details.
+
+USER MESSAGE: "{message}"
+
+TASK: Identify and return ONLY the product name/type that the user is searching for.
+
+EXAMPLES:
+"wireless gaming mouse under 40 dollars" → "wireless gaming mouse"
+"stainless steel mixing bowls between $20-30" → "stainless steel mixing bowls"
+"show me bluetooth headphones under $100" → "bluetooth headphones"
+"I need running shoes below 50 dollars" → "running shoes"
+"laptop computers around $800 in electronics" → "laptop computers"
+"wooden spoon set under $15" → "wooden spoon set"
+"gaming chair below $200" → "gaming chair"
+"smart tv under 500 dollars" → "smart tv"
+"coffee maker between $50-80" → "coffee maker"
+"i want good quality earbuds less than 50$" → "earbuds"
+"show me earbuds under $50" → "earbuds"
+"bluetooth earphones below 40 dollars" → "bluetooth earphones"
+
+RESPOND with ONLY the product name. If no specific product is mentioned, respond with "none".
+
+PRODUCT NAME:"""
+        
+        try:
+            response_text = self.generate_llm_response(
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,  # Lower temperature for more consistent extraction
+                max_tokens=2000     # Reduce tokens for simple extraction
+            )
+            
+            print(f"LLM response: '{response_text}'")
+            
+            # Check if response is empty or None
+            if not response_text or response_text.strip() == "":
+                print(f"✗ Empty LLM response, using regex fallback")
+                result = regex_result if regex_result else None
+                print(f"Final result from regex: '{result}'")
+                print(f"=== END PRODUCT NAME DEBUG ===\n")
+                return result
+            
+            product_name = response_text.strip().lower()
+            
+            # Clean up response and remove common prefixes
+            product_name = product_name.replace('product name:', '').strip()
+            product_name = product_name.replace('answer:', '').strip()
+            product_name = product_name.replace('result:', '').strip()
+            
+            # Clean up response
+            if product_name and product_name != "none" and len(product_name) > 1:
+                # Remove any extra quotation marks or formatting
+                product_name = product_name.replace('"', '').replace("'", '').strip()
+                print(f"✓ Extracted product name: '{product_name}'")
+                print(f"=== END PRODUCT NAME DEBUG ===\n")
+                return product_name
+            
+            print(f"✗ No valid product name found in LLM response: '{product_name}'")
+            print(f"Using regex fallback result: '{regex_result}'")
+            print(f"=== END PRODUCT NAME DEBUG ===\n")
+            return regex_result
+            
+        except Exception as e:
+            print(f"✗ LLM extraction failed: {e}")
+            print(f"Using regex fallback result: '{regex_result}'")
+            logger.warning(f"LLM product name extraction failed: {e}, using regex fallback")
+            print(f"=== END PRODUCT NAME DEBUG ===\n")
+            return regex_result
+
+    def _extract_product_name_regex(self, message):
+        """Helper method for regex-based product name extraction"""
+        message_lower = message.lower()
+        
+        # Common product keywords that we should look for
+        product_keywords = {
+            'earbuds', 'earphones', 'headphones', 'speakers', 'mouse', 'keyboard', 
+            'laptop', 'computer', 'phone', 'tablet', 'chair', 'desk', 'bowl', 
+            'spoon', 'knife', 'plate', 'cup', 'mug', 'bottle', 'bag', 'watch',
+            'shoes', 'shirt', 'jacket', 'pants', 'socks', 'hat', 'tv', 'monitor',
+            'camera', 'microphone', 'cable', 'charger', 'case', 'stand', 'holder'
+        }
+        
+        # Look for product keywords first
+        found_products = []
+        words = message_lower.split()
+        
+        for word in words:
+            # Check exact matches
+            if word in product_keywords:
+                found_products.append(word)
+            # Check partial matches (for compound words)
+            for product in product_keywords:
+                if product in word and len(word) > len(product):
+                    found_products.append(product)
+        
+        if found_products:
+            return found_products[0]
+        
+        # If no specific product found, try to extract by removing price terms
+        price_terms = ['under', 'below', 'less than', 'cheaper than', 'between', 'budget of', 'around', 'price range', '$', 'dollars', 'dollar', 'less', 'than']
+        stop_words = ['i', 'want', 'need', 'looking', 'for', 'good', 'quality', 'the', 'a', 'an', 'show', 'me', 'find', 'get']
+        
+        # Remove price indicators and numbers
+        message_clean = re.sub(r'\b\d+\s*(dollars?|$)?\b', '', message_lower)
+        message_clean = re.sub(r'\$\d+', '', message_clean)
+        
+        # Remove price terms
+        for term in price_terms:
+            message_clean = message_clean.replace(term, ' ')
+        
+        # Remove stop words
+        words = message_clean.split()
+        filtered_words = [word for word in words if word not in stop_words and len(word) > 2]
+        
+        if filtered_words:
+            return ' '.join(filtered_words[:2])  # Take first 2 meaningful words
+        
+        return None
+
     def extract_category_from_message(self, message):
         """Extract category from user message"""
         categories = get_vector_service().get_categories()
@@ -683,13 +910,11 @@ confidence: high/medium/low"""
         """Simple product filtering"""
         return products[:max_products] if products else []
 
-    def handle_product_search(self, message, user_id=None, username=None, needs_memory=False):
+    def handle_product_search(self, message, user_id=None, username=None, memory_context=""):
         """Smart product search with enhanced LLM prompting"""
         try:
-            # Get memory context only if needed
-            memory_context = ""
-            if needs_memory and user_id:
-                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+            # Use provided memory context
+            if memory_context:
                 logger.info(f"Product search using memory context: {memory_context[:50]}...")
             
             # Get products from vector search
@@ -757,13 +982,11 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             return {"response": "Sorry, I'm having trouble searching right now. Please try again.", 
                    "products": [], "intent": "product_search"}
     
-    def handle_product_specific(self, message, user_id=None, username=None, needs_memory=False):
+    def handle_product_specific(self, message, user_id=None, username=None, memory_context=""):
         """Smart specific product handler"""
         try:
-            # Get memory context only if needed (e.g., "that product", "the one you showed")
-            memory_context = ""
-            if needs_memory and user_id:
-                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+            # Use provided memory context  
+            if memory_context:
                 logger.info(f"Product specific using memory context: {memory_context[:50]}...")
             
             import re
@@ -849,13 +1072,11 @@ Keep it professional and under 80 words. NO markdown."""
             return {"response": "Sorry, I couldn't retrieve the product details right now. Please try again.", 
                    "products": [], "intent": "product_specific"}
     
-    def handle_category_browse(self, message, user_id=None, username=None, needs_memory=False):
+    def handle_category_browse(self, message, user_id=None, username=None, memory_context=""):
         """Smart category browsing with enhanced LLM"""
         try:
-            # Get memory context only if needed
-            memory_context = ""
-            if needs_memory and user_id:
-                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+            # Use provided memory context
+            if memory_context:
                 logger.info(f"Category browse using memory context: {memory_context[:50]}...")
             
             category = self.extract_category_from_message(message)
@@ -917,13 +1138,11 @@ Keep it conversational and under 100 words. NO markdown."""
             return {"response": "Sorry, I couldn't load categories right now. Try searching for specific products!", 
                    "intent": "category_browse"}
     
-    def handle_issue_report(self, message, user_id=None, user_email=None, username=None, needs_memory=False):
+    def handle_issue_report(self, message, user_id=None, user_email=None, username=None, memory_context=""):
         """Handle issue reporting"""
         try:
-            # Get memory context only if needed (for contextual issues)
-            memory_context = ""
-            if needs_memory and user_id:
-                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+            # Use provided memory context
+            if memory_context:
                 logger.info(f"Issue report using memory context: {memory_context[:50]}...")
             
             # Create issue in database
@@ -983,13 +1202,11 @@ Keep it conversational and under 100 words. NO markdown."""
                 "intent": "issue_report"
             }
     
-    def handle_general_chat(self, message, user_id=None, username=None, needs_memory=False):
+    def handle_general_chat(self, message, user_id=None, username=None, memory_context=""):
         """Pure LLM-based general conversation with smart context understanding"""
         try:
-            # Enhanced LLM conversation with smart context understanding
-            memory_context = ""
-            if needs_memory and user_id:
-                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+            # Use provided memory context
+            if memory_context:
                 logger.info(f"General chat using memory context: {memory_context[:50]}...")
             
             # Include memory context in prompt if available
@@ -1039,11 +1256,20 @@ RESPOND naturally and contextually:"""
             logger.error(f"General chat error: {e}")
             return {"response": "Hello! How can I help you today?", "intent": "general_chat"}
     
-    def handle_price_range_search(self, message, user_id=None, username=None):
+    def handle_price_range_search(self, message, user_id=None, username=None, memory_context=""):
         """Handle price range based product search with username support"""
         try:
+            # Use provided memory context
+            if memory_context:
+                logger.info(f"Price range search using memory context: {memory_context[:50]}...")
+            
+            # DEBUG: Print original message
+            print(f"\n=== PRICE RANGE SEARCH DEBUG ===")
+            print(f"Original message: '{message}'")
+            
             # Extract price range
             price_range = self.extract_price_range_from_message(message)
+            print(f"Extracted price range: {price_range}")
             
             if not price_range:
                 return {
@@ -1053,17 +1279,65 @@ RESPOND naturally and contextually:"""
                 }
             
             min_price, max_price = price_range
+            print(f"Price range: ${min_price} - ${max_price}")
             
-            # Also check for category if mentioned
+            # Extract category and product name from message
             category = self.extract_category_from_message(message)
+            print(f"Extracted category: {category}")
             
-            # Search for products in price range
-            products = get_vector_service().search_products_by_price_range(
-                min_price=min_price, 
-                max_price=max_price, 
-                category_filter=category,
-                k=10
-            )
+            product_name = self.extract_product_name_from_message(message)
+            print(f"Extracted product name: '{product_name}'")
+            
+            # Search for products in price range with product name filter
+            if product_name:
+                print(f"Searching with product name: '{product_name}'")
+                # First search by product name and then filter by price
+                products = get_vector_service().search_products(product_name, k=30)  # Get more for filtering
+                print(f"Found {len(products)} products for '{product_name}'")
+                
+                # Filter by relevance and price range
+                filtered_products = []
+                product_keywords = product_name.lower().split()
+                
+                for product in products:
+                    price = float(product.get('price', 0))
+                    product_name_lower = product['name'].lower()
+                    category_lower = product.get('category', '').lower()
+                    
+                    # Check relevance - product name should contain keywords
+                    relevance_score = 0
+                    for keyword in product_keywords:
+                        if keyword in product_name_lower:
+                            relevance_score += 2  # Higher score for name match
+                        elif keyword in category_lower:
+                            relevance_score += 1  # Lower score for category match
+                    
+                    # Only include if relevant AND within price range
+                    if relevance_score > 0 and min_price <= price <= max_price:
+                        product['relevance_score'] = relevance_score
+                        filtered_products.append(product)
+                        print(f"  ✓ {product['name']} - ${price} (relevance: {relevance_score})")
+                    elif min_price <= price <= max_price:
+                        print(f"  ✗ {product['name']} - ${price} (irrelevant: {relevance_score})")
+                    else:
+                        print(f"  ✗ {product['name']} - ${price} (outside price range)")
+                
+                # Sort by relevance score (highest first) and take top results
+                filtered_products.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
+                products = filtered_products[:10]  # Limit to 10 results
+                print(f"Final filtered products: {len(products)}")
+            else:
+                print("No product name found, searching by price range only")
+                # Search by price range only
+                products = get_vector_service().search_products_by_price_range(
+                    min_price=min_price, 
+                    max_price=max_price, 
+                    category_filter=category,
+                    k=10
+                )
+                print(f"Found {len(products)} products in price range")
+            
+            print(f"=== END DEBUG ===\n")
             
             if not products:
                 price_text = f"${min_price}-${max_price}" if min_price > 0 else f"under ${max_price}"
@@ -1076,6 +1350,7 @@ RESPOND naturally and contextually:"""
             
             # Generate response with LLM
             price_text = f"${min_price}-${max_price}" if min_price > 0 else f"under ${max_price}"
+            product_name_text = f" for '{product_name}'" if product_name else ""
             category_text = f" in {category}" if category else ""
             
             products_text = ""
@@ -1084,20 +1359,21 @@ RESPOND naturally and contextually:"""
                 products_text += f"{i}. {product['name']} - ${product['price']}\n   Category: {product['category']}\n   {product['description'][:80]}...\n\n"
                 product_links += f"http://localhost:5173/products/{product['id']}\n"
             
-            prompt = f"""
-            User is looking for products in price range {price_text}{category_text}.
+            # Include memory context in prompt if available
+            context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
             
-            Found {len(products)} products matching their criteria:
-            {products_text}
-            
-            Provide a helpful response that:
-            1. Confirms their price range search
-            2. Mentions the number of products found
-            3. Highlights a few top options
-            4. Encourages them to check the links
-            Keep it under 150 words and conversational.
-            
-            Response:"""
+            prompt = f"""You are a helpful e-commerce assistant. User is looking for products{product_name_text} in price range {price_text}{category_text}: "{message}"{context_prompt}
+
+Found {len(products)} products matching their criteria:
+{products_text}
+
+RESPOND with a brief, natural response that:
+1. Confirms their search
+2. Mentions the number of products found
+3. Highlights the products
+4. Encourages them to check the links
+
+Keep it conversational, helpful, and under 80 words. NO markdown formatting. Start your response directly without any meta-commentary."""
             
             bot_response = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
@@ -1198,17 +1474,25 @@ RESPOND naturally and contextually:"""
             
             logger.info(f"Intent: {intent} | Memory needed: {needs_memory} | Confidence: {confidence} | User: {username or 'unknown'}")
             
-            # Route to handlers with memory requirement
+            # Get memory context once if needed for any intent
+            memory_context = ""
+            if needs_memory and user_id:
+                memory_context = self.get_user_memory_context(user_id, message, limit=3)
+                logger.info(f"Using memory context: {memory_context[:50]}...")
+            
+            # Route to handlers with memory context
             if intent == "product_search":
-                return self.handle_product_search(message, user_id, username, needs_memory)
+                return self.handle_product_search(message, user_id, username, memory_context)
             elif intent == "product_specific":
-                return self.handle_product_specific(message, user_id, username, needs_memory)
+                return self.handle_product_specific(message, user_id, username, memory_context)
             elif intent == "category_browse":
-                return self.handle_category_browse(message, user_id, username, needs_memory)
+                return self.handle_category_browse(message, user_id, username, memory_context)
+            elif intent == "price_range_search":
+                return self.handle_price_range_search(message, user_id, username, memory_context)
             elif intent == "issue_report":
-                return self.handle_issue_report(message, user_id, user_email, username, needs_memory)
+                return self.handle_issue_report(message, user_id, user_email, username, memory_context)
             else:  # general_chat
-                return self.handle_general_chat(message, user_id, username, needs_memory)
+                return self.handle_general_chat(message, user_id, username, memory_context)
                 
         except Exception as e:
             logger.error(f"Processing error: {e}")
