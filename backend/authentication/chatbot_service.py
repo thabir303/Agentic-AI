@@ -155,34 +155,65 @@ class ChatbotService:
             return "I'm experiencing technical difficulties. Please try again in a moment."
     
     def get_user_memory_context(self, user_id, current_message, limit=5):
-        """Enhanced memory retrieval with better context filtering and local fallback"""
+        """Enhanced memory retrieval prioritizing recent chronological context over keyword search"""
         if not user_id:
             return ""
         
         try:
             if self.memory:
-                # Try Mem0 first
-                memory_results = self.memory.search(current_message, user_id=str(user_id))
+                # PRIORITY 1: Get recent chronological memories (most important for context)
+                try:
+                    recent_memories = self.memory.get_all(user_id=str(user_id), limit=limit)
+                    if recent_memories:
+                        # Extract and filter recent conversation context
+                        relevant_memories = []
+                        for memory in recent_memories:
+                            # Try different possible memory text fields
+                            memory_text = ""
+                            if isinstance(memory, dict):
+                                if 'memory' in memory:
+                                    memory_text = memory['memory'].strip()
+                                elif 'messages' in memory and memory['messages']:
+                                    # Extract content from message format
+                                    last_msg = memory['messages'][-1]
+                                    if isinstance(last_msg, dict) and 'content' in last_msg:
+                                        memory_text = last_msg['content'].strip()
+                                elif 'content' in memory:
+                                    memory_text = memory['content'].strip()
+                            
+                            if memory_text and len(memory_text) > 10:
+                                if not self._is_current_conversation(memory_text, current_message):
+                                    relevant_memories.append(memory_text)
+                        
+                        if relevant_memories:
+                            context = "Recent conversation: " + " | ".join(relevant_memories[:3])
+                            logger.info(f"Retrieved {len(relevant_memories)} recent memories for user {user_id}")
+                            return context
+                except Exception as e:
+                    logger.debug(f"Recent memory retrieval failed: {e}")
                 
-                if not memory_results:
-                    return ""
-                
-                # Filter and format relevant memories
-                relevant_memories = []
-                for memory in memory_results[:limit]:
-                    memory_text = memory.get('memory', '').strip()
-                    if memory_text and len(memory_text) > 10:
-                        if not self._is_current_conversation(memory_text, current_message):
-                            relevant_memories.append(memory_text)
-                
-                if relevant_memories:
-                    context = "Previous user context: " + " | ".join(relevant_memories[:3])
-                    logger.info(f"Retrieved {len(relevant_memories)} relevant memories for user {user_id}")
-                    return context
+                # PRIORITY 2: Fallback to keyword search if recent memories failed
+                try:
+                    memory_results = self.memory.search(current_message, user_id=str(user_id))
+                    if memory_results:
+                        # Filter and format relevant memories
+                        relevant_memories = []
+                        for memory in memory_results[:limit]:
+                            memory_text = memory.get('memory', '').strip()
+                            if memory_text and len(memory_text) > 10:
+                                if not self._is_current_conversation(memory_text, current_message):
+                                    relevant_memories.append(memory_text)
+                        
+                        if relevant_memories:
+                            context = "Related context: " + " | ".join(relevant_memories[:3])
+                            logger.info(f"Retrieved {len(relevant_memories)} search-based memories for user {user_id}")
+                            return context
+                except Exception as e:
+                    logger.debug(f"Search-based memory retrieval failed: {e}")
                 
                 return ""
             else:
-                # Fallback to local memory
+                # Fallback to local memory (chronological order)
                 user_memories = self.local_memory.get(str(user_id), [])
                 if user_memories:
                     recent_memories = user_memories[-limit:]
@@ -862,20 +893,163 @@ RESPOND WITH ONLY THE PRODUCT NAME :"""
         return None
     
     def extract_price_range_from_message(self, message):
-        """Extract price range from user message"""
+        """Extract price range from user message using LLM primarily with regex fallback"""
+        print(f"\n=== PRICE RANGE EXTRACTION DEBUG ===")
+        print(f"Input message: '{message}'")
+        
+        # PRIORITY 1: Use LLM for intelligent price range extraction
+        if self.llm_client:
+            try:
+                prompt = f"""Extract the price range from the user's message. Return exact numbers only.
+
+MESSAGE: "{message}"
+
+RULES:
+- For "under/below $X": return min_price: 0, max_price: X
+- For "around $X": return min_price: (X-50), max_price: (X+50)  
+- For "over/greater than $X": return min_price: X, max_price: 9999
+- For "between $X and $Y": return min_price: X, max_price: Y
+- For "budget is $X": return min_price: 0, max_price: X
+- Use NUMBERS ONLY (no "infinity" or text)
+
+RESPONSE FORMAT (exact format required):
+min_price: [number]
+max_price: [number]
+
+If no price found: none"""
+
+                response_text = self.generate_llm_response(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,  # Very low temperature for consistent extraction
+                    max_tokens=100    # Short response needed
+                )
+                
+                print(f"LLM price extraction response: '{response_text}'")
+                
+                if response_text and response_text.strip().lower() != "none":
+                    # Enhanced parsing with smart handling
+                    lines = response_text.strip().split('\n')
+                    min_price = None
+                    max_price = None
+                    
+                    for line in lines:
+                        if ':' in line:
+                            key, value = line.split(':', 1)
+                            key = key.strip().lower()
+                            value = value.strip().lower()
+                            
+                            try:
+                                if key == "min_price":
+                                    min_price = int(value)
+                                elif key == "max_price":
+                                    # Handle special cases for max_price
+                                    if value in ['infinity', 'inf', 'unlimited', 'no limit']:
+                                        max_price = 9999  # Set reasonable upper limit
+                                    else:
+                                        max_price = int(value)
+                            except ValueError:
+                                # If parsing fails, try to extract numbers from the value
+                                import re
+                                numbers = re.findall(r'\d+', value)
+                                if numbers:
+                                    try:
+                                        if key == "min_price":
+                                            min_price = int(numbers[0])
+                                        elif key == "max_price":
+                                            max_price = int(numbers[0])
+                                    except (ValueError, IndexError):
+                                        continue
+                    
+                    # Validate and adjust the extracted range
+                    if min_price is not None and max_price is not None:
+                        # Ensure max_price is reasonable and greater than min_price
+                        if max_price <= 0 or max_price > 50000:  # Cap at reasonable limit
+                            max_price = 9999
+                        if min_price < 0:
+                            min_price = 0
+                        if max_price <= min_price:
+                            # If max is not greater than min, adjust based on context
+                            if min_price == 0:
+                                max_price = min_price + 1000  # Default range
+                            else:
+                                max_price = min_price + 500   # Reasonable increment
+                        
+                        print(f"✓ LLM extracted price range: ({min_price}, {max_price})")
+                        print(f"=== END PRICE RANGE DEBUG ===\n")
+                        return (min_price, max_price)
+                    else:
+                        print(f"✗ LLM response missing min_price or max_price, falling back to regex")
+                else:
+                    print(f"✗ LLM returned 'none' or empty, falling back to regex")
+                    
+            except Exception as e:
+                print(f"✗ LLM price extraction failed: {e}, falling back to regex")
+        else:
+            print("No LLM client available, using regex approach")
+        
+        # PRIORITY 2: Fallback to enhanced regex patterns
+        print("Using regex fallback for price extraction...")
+        return self._extract_price_range_regex(message)
+    
+    def _extract_price_range_regex(self, message):
+        """Fallback regex-based price range extraction with enhanced patterns"""
         import re
         
         price_range_patterns = [
+            # Explicit range indicators
             (r'under\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
             (r'below\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
             (r'less\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
             (r'cheaper\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            
+            # Greater than patterns (NEW)
+            (r'over\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'above\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'greater\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'more\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'higher\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'at\s+least\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'minimum\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            
+            # Range patterns  
             (r'between\s+\$?(\d+)\s*(?:and|to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
             (r'\$?(\d+)\s*(?:to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
             (r'from\s+\$?(\d+)\s*to\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
-            (r'budget\s+of\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            
+            # Around patterns (ENHANCED)
             (r'around\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            (r'price\s+range\s+\$?(\d+)', lambda m: (0, int(m.group(1))))
+            (r'approximately\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'roughly\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'about\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            
+            # Budget patterns
+            (r'budget\s+of\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'price\s+range\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            
+            # Enhanced budget patterns for natural language
+            (r'(?:my\s+)?budget\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?budget\s*[:=]\s*\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:i\s+have\s+)?(?:a\s+)?budget\s+(?:of\s+)?\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?price\s+limit\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?maximum\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?max\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'can\s+(?:only\s+)?spend\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'afford\s+up\s+to\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'looking\s+(?:for\s+)?(?:something\s+)?(?:around\s+)?\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            
+            # Handle dollar/dollars at the end
+            (r'budget\s+is\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'budget\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'(\d+)\s+dollars?\s+budget', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?maximum\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'(?:up\s+to\s+)?(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            
+            # Greater than with dollars at end
+            (r'over\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'above\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'greater\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'more\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'at\s+least\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
         ]
         
         message_lower = message.lower()
@@ -884,10 +1058,14 @@ RESPOND WITH ONLY THE PRODUCT NAME :"""
             if match:
                 try:
                     min_price, max_price = extractor(match)
+                    print(f"✓ Regex extracted price range: ({min_price}, {max_price})")
+                    print(f"=== END PRICE RANGE DEBUG ===\n")
                     return (min_price, max_price)
                 except (ValueError, IndexError):
                     continue
         
+        print(f"✗ No price range found in message")
+        print(f"=== END PRICE RANGE DEBUG ===\n")
         return None
 
     def filter_relevant_products(self, products, query, max_products=3):
