@@ -740,29 +740,38 @@ confidence: [high/medium/low]"""
         # Default conversational response
         return "I'm here to help you with your shopping needs at Agentic AI Store. You can ask me to find products, browse categories, or just chat! What would you like to do?"
     
-    def extract_product_name_from_message(self, message):
-        """Extract product name from user message using LLM with minimal fallback"""
+    def extract_product_name_from_message(self, message, memory_context=""):
+        """Extract product name from user message using LLM with memory context support"""
         print(f"\n=== PRODUCT NAME EXTRACTION DEBUG ===")
         print(f"Input message: '{message}'")
+        print(f"Memory context: '{memory_context[:200]}...' " if memory_context else "No memory context")
         
         if not self.llm_client:
             print("No LLM client available, returning None")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
             return None
         
-        # Use LLM for intelligent product name extraction
-        prompt = f"""Extract the specific product name from this message. Be concise and precise.
+        # Enhanced prompt that considers memory context for connected conversations
+        context_info = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
+        
+        prompt = f"""Extract the specific product name from this message. Consider conversation context for better understanding.
 
-MESSAGE: "{message}"
+MESSAGE: "{message}"{context_info}
 
-RULES:
-- Extract only the main product type (laptop, headphones, etc.)
-- Remove price constraints, locations, and descriptive words
-- For "gift" requests: suggest specific product categories if context allows, otherwise return "none"
-- Return "none" for vague requests like "something nice"
-- Keep technical specs only if they define the product (wireless, bluetooth)
+INTELLIGENT EXTRACTION RULES:
+- If current message mentions price/budget and context shows product preferences, extract from context
+- For "budget is $X" with previous product mentions, return the products from context
+- Extract main product types: laptop, books, led tv, headphones, etc.
+- For gift scenarios: use recipient preferences from context if available
+- Return "none" only if no product type can be determined from message OR context
+- Prioritize context-based products for budget/price-only messages
 
-RESPOND WITH ONLY THE PRODUCT NAME :"""
+EXAMPLES:
+- Message: "budget is $30" + Context: "likes books and jewelry" → Return: "books jewelry"
+- Message: "I want laptop" → Return: "laptop"
+- Message: "something nice" + No context → Return: "none"
+
+RESPOND WITH ONLY THE PRODUCT NAME(S):"""
         
         try:
             response_text = self.generate_llm_response(
@@ -1073,24 +1082,54 @@ If no price found: none"""
         return products[:max_products] if products else []
 
     def handle_product_search(self, message, user_id=None, username=None, memory_context=""):
-        """Smart product search with enhanced LLM prompting"""
+        """Smart product search with enhanced LLM prompting and memory-aware product filtering"""
         try:
             # Use provided memory context
             if memory_context:
                 logger.info(f"Product search using memory context: {memory_context[:50]}...")
             
-            # Get products from vector search
+            # Enhanced product search with memory context awareness
             category = self.extract_category_from_message(message)
             price_range = self.extract_price_range_from_message(message)
             
-            # Search products
+            # Extract product preferences from memory context if available
+            product_name = self.extract_product_name_from_message(message, memory_context)
+            
+            # Search products with intelligent filtering
             if price_range:
                 min_price, max_price = price_range
-                products = get_vector_service().search_products_by_price_range(
-                    min_price=min_price, max_price=max_price, category_filter=category, k=5
-                )
+                if product_name and product_name != "none":
+                    # Search for specific products within price range (similar to price_range_search logic)
+                    product_types = product_name.lower().split()
+                    all_products = []
+                    
+                    for product_type in product_types:
+                        if len(product_type) > 2:
+                            type_products = get_vector_service().search_products(product_type, k=20)
+                            for product in type_products:
+                                price = float(product.get('price', 0))
+                                if (min_price <= price <= max_price and 
+                                    not any(p['id'] == product['id'] for p in all_products)):
+                                    all_products.append(product)
+                    
+                    products = all_products[:5]
+                else:
+                    products = get_vector_service().search_products_by_price_range(
+                        min_price=min_price, max_price=max_price, category_filter=category, k=5
+                    )
             else:
-                products = get_vector_service().search_products(message, k=5, category_filter=category)
+                # Regular product search with memory context enhanced query
+                search_query = message
+                if memory_context and "likes" in memory_context.lower():
+                    # Extract product preferences from memory for better search
+                    import re
+                    likes_match = re.search(r'likes\s+([^|]+)', memory_context.lower())
+                    if likes_match:
+                        preferences = likes_match.group(1).strip()
+                        search_query += f" {preferences}"
+                        logger.info(f"Enhanced search query with preferences: {search_query}")
+                
+                products = get_vector_service().search_products(search_query, k=5, category_filter=category)
             
             if not products:
                 response = "I couldn't find products matching your request. Could you try different keywords?"
@@ -1443,51 +1482,56 @@ RESPOND naturally and contextually:"""
             min_price, max_price = price_range
             print(f"Price range: ${min_price} - ${max_price}")
             
-            # Extract category and product name from message
+            # Extract category and product name from message with memory context
             category = self.extract_category_from_message(message)
             print(f"Extracted category: {category}")
             
-            product_name = self.extract_product_name_from_message(message)
+            product_name = self.extract_product_name_from_message(message, memory_context)
             print(f"Extracted product name: '{product_name}'")
             
             # Search for products in price range with product name filter
             if product_name and product_name != "none":
                 print(f"Searching with product name: '{product_name}'")
-                # First search by product name and then filter by price
-                products = get_vector_service().search_products(product_name, k=30)  # Get more for filtering
-                print(f"Found {len(products)} products for '{product_name}'")
                 
-                # Filter by relevance and price range
-                filtered_products = []
-                product_keywords = product_name.lower().split()
+                # Handle multiple product types (like "books jewelry")
+                product_types = product_name.lower().split()
+                all_filtered_products = []
                 
-                for product in products:
-                    price = float(product.get('price', 0))
-                    product_name_lower = product['name'].lower()
-                    category_lower = product.get('category', '').lower()
-                    
-                    # Check relevance - product name should contain keywords
-                    relevance_score = 0
-                    for keyword in product_keywords:
-                        if keyword in product_name_lower:
-                            relevance_score += 2  # Higher score for name match
-                        elif keyword in category_lower:
-                            relevance_score += 1  # Lower score for category match
-                    
-                    # Only include if relevant AND within price range
-                    if relevance_score > 0 and min_price <= price <= max_price:
-                        product['relevance_score'] = relevance_score
-                        filtered_products.append(product)
-                        print(f"  ✓ {product['name']} - ${price} (relevance: {relevance_score})")
-                    elif min_price <= price <= max_price:
-                        print(f"  ✗ {product['name']} - ${price} (irrelevant: {relevance_score})")
-                    else:
-                        print(f"  ✗ {product['name']} - ${price} (outside price range)")
+                for product_type in product_types:
+                    if len(product_type) > 2:  # Skip very short words
+                        print(f"  Searching for product type: '{product_type}'")
+                        # Search by each product type
+                        products = get_vector_service().search_products(product_type, k=20)
+                        print(f"  Found {len(products)} products for '{product_type}'")
+                        
+                        # Filter by relevance and price range
+                        for product in products:
+                            price = float(product.get('price', 0))
+                            product_name_lower = product['name'].lower()
+                            category_lower = product.get('category', '').lower()
+                            
+                            # Check relevance - product name or category should contain keywords
+                            relevance_score = 0
+                            if product_type in product_name_lower:
+                                relevance_score += 3  # Highest score for name match
+                            elif product_type in category_lower:
+                                relevance_score += 2  # Medium score for category match
+                            elif any(keyword in product_name_lower for keyword in [product_type[:4]]):  # Partial match
+                                relevance_score += 1
+                            
+                            # Only include if relevant AND within price range AND not already added
+                            if (relevance_score > 0 and min_price <= price <= max_price and 
+                                not any(p['id'] == product['id'] for p in all_filtered_products)):
+                                product['relevance_score'] = relevance_score
+                                product['matched_type'] = product_type
+                                all_filtered_products.append(product)
+                                print(f"    ✓ {product['name']} - ${price} (relevance: {relevance_score}, type: {product_type})")
                 
-                # Sort by relevance score (highest first) and take top results
-                filtered_products.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
-                products = filtered_products[:10]  # Limit to 10 results
-                print(f"Final filtered products: {len(products)}")
+                # Sort by relevance score and price
+                all_filtered_products.sort(key=lambda x: (x.get('relevance_score', 0), -x.get('price', 0)), reverse=True)
+                products = all_filtered_products[:10]  # Limit to 10 results
+                print(f"Final filtered products across all types: {len(products)}")
+                
             else:
                 print("No specific product name found, searching by price range only")
                 # Search by price range only
