@@ -255,30 +255,43 @@ class ChatbotService:
             'that product', 'those items', 'it', 'them', 'this one', 'these',
             'my budget', 'my order', 'my preference', 'my last search',
             'continue', 'also looking for', 'additionally', 'furthermore',
-            'tell me more', 'what about', 'how about', 'similar to'
+            'tell me more', 'what about', 'how about', 'similar to',
+            'what did i', 'what was i', 'remember when i', 'like before'
         ]
         
         if any(indicator in message_lower for indicator in critical_indicators):
             return "critical"
         
         # HIGH: Budget/gift scenarios often need product preferences from context
+        # Also conversational continuity for general chat
         high_indicators = [
             'budget is', 'budget of', 'price range', 'for her', 'for him', 'gift for',
-            'under $', 'around $', 'between $', 'looking for something'
+            'under $', 'around $', 'between $', 'looking for something',
+            'thanks for', 'thank you for', 'following up', 'as you mentioned'
         ]
         
         if any(indicator in message_lower for indicator in high_indicators):
-            # Check if context has product preferences
-            if any(word in context_lower for word in ['likes', 'prefer', 'interested', 'wants', 'needs']):
+            # Check if context has product preferences or previous conversation
+            if any(word in context_lower for word in ['likes', 'prefer', 'interested', 'wants', 'needs', 'searched', 'bought']):
                 return "high"
         
-        # MEDIUM: General follow-up questions
+        # MEDIUM: General follow-up questions and conversational continuity
         medium_indicators = [
-            'and', 'also', 'plus', 'what else', 'anything else', 'other options'
+            'and', 'also', 'plus', 'what else', 'anything else', 'other options',
+            'what can you', 'how do you', 'tell me about', 'speaking of'
         ]
         
         if any(indicator in message_lower for indicator in medium_indicators):
             return "medium"
+        
+        # LOW: General greetings but with some personalization potential
+        low_indicators = [
+            'hello', 'hi', 'hey', 'good morning', 'how are you',
+            'what\'s up', 'thanks', 'thank you'
+        ]
+        
+        if any(indicator in message_lower for indicator in low_indicators) and context_lower:
+            return "low"
         
         return "low"
     
@@ -1877,19 +1890,28 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
             
             # Get memory context intelligently based on needs and importance
             memory_context = ""
-            if needs_memory and user_id:
+            if user_id:
+                # Always get memory context but use it intelligently
                 memory_context = self.get_user_memory_context(user_id, message, limit=3)
                 
-                # Analyze memory importance for this specific query
-                memory_importance = self._analyze_memory_importance(message, memory_context)
-                logger.info(f"Memory importance: {memory_importance} | Context: {memory_context[:50]}...")
-                
-                # If memory is not important for this query, use minimal context
-                if memory_importance == "low":
-                    memory_context = memory_context[:50] + "..." if memory_context else ""
-                elif memory_importance == "none":
-                    memory_context = ""
-                    logger.info("Memory context determined as not needed, clearing it")
+                if needs_memory and memory_context:
+                    # Analyze memory importance for this specific query
+                    memory_importance = self._analyze_memory_importance(message, memory_context)
+                    logger.info(f"Memory importance: {memory_importance} | Context: {memory_context[:50]}...")
+                    
+                    # If memory is not important for this query, use minimal context
+                    if memory_importance == "low":
+                        memory_context = memory_context[:50] + "..." if memory_context else ""
+                    elif memory_importance == "none":
+                        memory_context = ""
+                        logger.info("Memory context determined as not needed, clearing it")
+                elif not needs_memory and memory_context:
+                    # For general chat, still provide some context for personalization
+                    if intent == "general_chat":
+                        logger.info("General chat with available memory context for personalization")
+                    else:
+                        # For other intents that don't need memory, keep minimal context
+                        memory_context = memory_context[:30] + "..." if len(memory_context) > 30 else memory_context
             
             # Check for memory-specific queries first
             if self.detect_memory_query(message):
