@@ -242,6 +242,46 @@ class ChatbotService:
             return overlap > 0.6
         return False
     
+    def _analyze_memory_importance(self, message, memory_context):
+        """Analyze how crucial memory context is for this specific message"""
+        if not memory_context:
+            return "none"
+        
+        message_lower = message.lower()
+        context_lower = memory_context.lower()
+        
+        # CRITICAL: Message has pronouns/references that need context
+        critical_indicators = [
+            'that product', 'those items', 'it', 'them', 'this one', 'these',
+            'my budget', 'my order', 'my preference', 'my last search',
+            'continue', 'also looking for', 'additionally', 'furthermore',
+            'tell me more', 'what about', 'how about', 'similar to'
+        ]
+        
+        if any(indicator in message_lower for indicator in critical_indicators):
+            return "critical"
+        
+        # HIGH: Budget/gift scenarios often need product preferences from context
+        high_indicators = [
+            'budget is', 'budget of', 'price range', 'for her', 'for him', 'gift for',
+            'under $', 'around $', 'between $', 'looking for something'
+        ]
+        
+        if any(indicator in message_lower for indicator in high_indicators):
+            # Check if context has product preferences
+            if any(word in context_lower for word in ['likes', 'prefer', 'interested', 'wants', 'needs']):
+                return "high"
+        
+        # MEDIUM: General follow-up questions
+        medium_indicators = [
+            'and', 'also', 'plus', 'what else', 'anything else', 'other options'
+        ]
+        
+        if any(indicator in message_lower for indicator in medium_indicators):
+            return "medium"
+        
+        return "low"
+    
     def store_user_memory(self, user_id, user_message, bot_response, intent, extra_context=None, username=None):
         """Enhanced memory storage with better context and username tracking + local fallback"""
         if not user_id:
@@ -543,6 +583,7 @@ class ChatbotService:
         # DEBUG: Print intent detection process
         print(f"\n=== INTENT DETECTION DEBUG ===")
         print(f"Original message: '{message}'")
+        print(f"User context: '{user_context[:100]}...' " if user_context else "No user context")
         
         # If LLM API is disabled, use simple fallback
         if not self.llm_client:
@@ -575,12 +616,19 @@ general_chat: Casual conversation or help requests
 
 issue_report: Reporting problems or service issues
 
-CONTEXTUAL MEMORY:
+CONTEXTUAL MEMORY ANALYSIS:
 Does the message depend on previous conversations?
 
-needs_memory: true: References or builds on past conversations
+needs_memory: true: References or builds on past conversations (mentions "that", "it", "them", "my budget", "for her", "gift", follow-up questions, continuation words)
 
 needs_memory: false: Independent request with no prior context required
+
+ENHANCED MEMORY DETECTION:
+- Budget/gift scenarios often need previous product preferences
+- Follow-up questions ("tell me more", "what about") need context
+- Pronoun references ("it", "that product", "those") need context  
+- Continuation words ("also", "and", "additionally") need context
+- Personal requests ("my order", "my preference") need context
 
 SUGGESTIONS:
 
@@ -709,6 +757,51 @@ confidence: [high/medium/low]"""
         response += "Would you like more details about any of these products?"
         return response
     
+    def handle_memory_query(self, message, user_id=None, username=None, memory_context=""):
+        """Handle specific questions about memory and conversation history"""
+        message_lower = message.lower()
+        
+        # Get user's actual memory to show
+        user_memory = ""
+        if user_id and memory_context:
+            # Parse some recent activities from memory
+            recent_activities = []
+            if 'search' in memory_context.lower():
+                recent_activities.append("searched for products")
+            if 'buy' in memory_context.lower() or 'purchase' in memory_context.lower():
+                recent_activities.append("looked at purchasing items")
+            if 'category' in memory_context.lower():
+                recent_activities.append("browsed product categories")
+            if 'price' in memory_context.lower():
+                recent_activities.append("checked price ranges")
+            
+            if recent_activities:
+                activities_text = ", ".join(recent_activities)
+                user_memory = f"I remember you recently {activities_text}. "
+        
+        username_part = f"{username}, " if username and username != "unknown_user" else ""
+        
+        response = f"Yes {username_part}I do remember our previous conversations! {user_memory}"
+        response += "I use this conversation history to provide you with better, more personalized assistance. "
+        response += "This helps me understand your preferences and continue our conversations naturally. "
+        response += "Is there something specific you'd like me to help you with today?"
+        
+        if user_id:
+            self.store_user_memory(user_id, message, response, "memory_query", {}, username)
+        
+        return {"response": response, "intent": "general_chat"}
+
+    def detect_memory_query(self, message):
+        """Detect if the user is asking about memory/remembering"""
+        message_lower = message.lower()
+        memory_keywords = [
+            'can you remember', 'do you remember', 'remember my', 'remember our',
+            'previous search', 'past search', 'last search', 'before',
+            'conversation history', 'chat history', 'our history',
+            'what we talked about', 'what i said', 'what i asked'
+        ]
+        return any(keyword in message_lower for keyword in memory_keywords)
+
     def generate_simple_chat_response(self, message_lower, username, memory_context):
         """Generate simple template-based chat responses when LLM is unavailable"""
         
@@ -720,6 +813,10 @@ confidence: [high/medium/low]"""
         
         # Only use username in greeting for initial hello, not every response
         user_greeting = f"Hello {username}! " if should_greet() and username and username != "unknown_user" else ""
+        
+        # Memory/remember questions
+        if any(phrase in message_lower for phrase in ['can you remember', 'remember my', 'previous search', 'past search', 'do you remember', 'memory', 'history']):
+            return "Yes, I do remember our previous conversations! I use this memory to provide you with better, more personalized assistance. This helps me understand your preferences and continue our conversations naturally. What would you like me to help you with?"
         
         # Greeting responses
         if any(word in message_lower for word in ['hello', 'hi', 'hey']):
@@ -1092,8 +1189,24 @@ If no price found: none"""
             category = self.extract_category_from_message(message)
             price_range = self.extract_price_range_from_message(message)
             
-            # Extract product preferences from memory context if available
+            # Smart product extraction considering memory context importance  
             product_name = self.extract_product_name_from_message(message, memory_context)
+            
+            # If no specific product found but we have memory context, try to extract preferences
+            if (not product_name or product_name == "none") and memory_context:
+                memory_importance = self._analyze_memory_importance(message, memory_context)
+                if memory_importance in ["critical", "high"]:
+                    # Try to extract product preferences from memory context directly
+                    import re
+                    
+                    # Look for product mentions in memory context
+                    product_pattern = r'(?:likes?|prefer|interested|want|need)(?:s)?\s+([^|.]+?)(?:\s*\||$|\.|,)'
+                    match = re.search(product_pattern, memory_context.lower())
+                    if match:
+                        memory_products = match.group(1).strip()
+                        if memory_products and len(memory_products) > 3:
+                            product_name = memory_products
+                            logger.info(f"Extracted product preferences from memory: '{product_name}'")
             
             # Search products with intelligent filtering
             if price_range:
@@ -1274,7 +1387,7 @@ Keep it professional and under 80 words. NO markdown."""
                    "products": [], "intent": "product_specific"}
     
     def handle_category_browse(self, message, user_id=None, username=None, memory_context=""):
-        """Smart category browsing with enhanced LLM"""
+        """Smart category browsing with enhanced LLM and memory-aware suggestions"""
         try:
             # Use provided memory context
             if memory_context:
@@ -1282,11 +1395,44 @@ Keep it professional and under 80 words. NO markdown."""
             
             category = self.extract_category_from_message(message)
             
+            # Enhanced category detection using memory context
+            if not category and memory_context:
+                # Try to extract category preferences from memory context
+                import re
+                categories = get_vector_service().get_categories()
+                for cat in categories:
+                    if cat.lower() in memory_context.lower():
+                        category = cat
+                        logger.info(f"Found category '{category}' from memory context")
+                        break
+            
             if not category:
                 categories = get_vector_service().get_categories()
-                response = f"I can help you browse our categories! We have: {', '.join(categories)}. Which category interests you?"
+                
+                # Memory-aware category suggestion
+                if memory_context:
+                    context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}"
+                    suggestion_prompt = f"""User wants to browse categories: "{message}"{context_prompt}
+
+Available categories: {', '.join(categories)}
+
+Based on their message and previous context, suggest 1-2 most relevant categories and explain why.
+Keep it helpful and under 80 words. NO markdown."""
+                    
+                    try:
+                        response = self.generate_llm_response(
+                            messages=[{"role": "user", "content": suggestion_prompt}],
+                            temperature=0.7,
+                            max_tokens=200
+                        )
+                        response = self.clean_response_for_production(response)
+                    except Exception:
+                        response = f"I can help you browse our categories! We have: {', '.join(categories)}. Which category interests you?"
+                else:
+                    response = f"I can help you browse our categories! We have: {', '.join(categories)}. Which category interests you?"
+                
                 if user_id:
-                    self.store_user_memory(user_id, message, response, "category_browse", {}, username)
+                    self.store_user_memory(user_id, message, response, "category_browse", {"available_categories": categories}, username)
                 return {"response": response, "products": [], "categories": categories, "intent": "category_browse"}
             
             products = get_vector_service().get_products_by_category(category, limit=5)
@@ -1340,17 +1486,29 @@ Keep it conversational and under 100 words. NO markdown."""
                    "intent": "category_browse"}
     
     def handle_issue_report(self, message, user_id=None, user_email=None, username=None, memory_context=""):
-        """Handle issue reporting"""
+        """Handle issue reporting with memory-aware context understanding"""
         try:
             # Use provided memory context
             if memory_context:
                 logger.info(f"Issue report using memory context: {memory_context[:50]}...")
             
-            # Create issue in database
+            # Enhanced issue context extraction using memory
+            issue_context = ""
+            if memory_context:
+                # Try to extract product or order related context from memory
+                import re
+                product_match = re.search(r'product\s+(?:id\s+)?(\d+|[a-zA-Z]+(?:\s+[a-zA-Z]+)*)', memory_context.lower())
+                order_match = re.search(r'order|purchase|bought|ordered', memory_context.lower())
+                
+                if product_match or order_match:
+                    issue_context = f" [Related context: {memory_context[:100]}...]"
+                    logger.info(f"Enhanced issue with context: {issue_context}")
+            
+            # Create issue in database with enhanced context
             issue = Issue.objects.create(
                 username=username or "Anonymous",
                 email=user_email or "",
-                message=message,
+                message=message + issue_context,  # Add context to issue message
                 status="pending"
             )
             
@@ -1410,13 +1568,25 @@ Keep it conversational and under 100 words. NO markdown."""
             if memory_context:
                 logger.info(f"General chat using memory context: {memory_context[:50]}...")
             
+            # Enhanced context analysis for better responses
+            context_analysis = ""
+            if memory_context:
+                # Analyze memory context for better conversation flow
+                context_lower = memory_context.lower()
+                if any(word in context_lower for word in ['product', 'search', 'buy', 'order']):
+                    context_analysis = "\n[NOTE: User has recent shopping activity - be helpful with product-related follow-ups]"
+                elif any(word in context_lower for word in ['issue', 'problem', 'complaint']):
+                    context_analysis = "\n[NOTE: User has reported issues - be empathetic and supportive]"
+                elif any(word in context_lower for word in ['like', 'prefer', 'interested']):
+                    context_analysis = "\n[NOTE: User has expressed preferences - acknowledge and build on them]"
+            
             # Include memory context in prompt if available
             context_prompt = f"\nCONTEXT: {memory_context}" if memory_context else "\nCONTEXT: New conversation"
             
             prompt = f"""You are a friendly AI assistant for "Agentic AI Store". 
 
 USER MESSAGE: "{message}"
-USERNAME: {username if username and username != "unknown_user" else "Customer"}{context_prompt}
+USERNAME: {username if username and username != "unknown_user" else "Customer"}{context_prompt}{context_analysis}
 
 INTELLIGENT RESPONSE RULES:
 - If they ask their name: Use their username if available, otherwise ask politely
@@ -1424,10 +1594,19 @@ INTELLIGENT RESPONSE RULES:
 - If greeting: Welcome them warmly to our store
 - If thanking: Acknowledge gracefully and offer continued help
 - If asking about capabilities: Mention product search, browsing, and customer support
+- If asking about memory/remembering/previous searches: Explain that you DO remember their conversation history to provide better personalized assistance
 - If casual conversation: Respond naturally while staying helpful and store-focused
-- If referencing previous conversation: Use the context provided
+- If referencing previous conversation: Use the context provided thoughtfully
+- If they mention continuing/following up: Reference their previous activity naturally
 - Keep it conversational, helpful, and under 100 words
 - NO markdown formatting
+- NEVER say you don't keep history or that each conversation is a fresh start - you DO have memory capabilities
+
+MEMORY CONTEXT GUIDANCE:
+- You DO remember previous conversations to help users better
+- You use this memory to provide personalized recommendations
+- This helps you understand user preferences and continue conversations naturally
+- Be transparent about your memory capabilities when asked
 
 RESPOND naturally and contextually:"""
             
@@ -1696,13 +1875,28 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
             
             logger.info(f"Intent: {intent} | Memory needed: {needs_memory} | Confidence: {confidence} | User: {username or 'unknown'}")
             
-            # Get memory context once if needed for any intent
+            # Get memory context intelligently based on needs and importance
             memory_context = ""
             if needs_memory and user_id:
                 memory_context = self.get_user_memory_context(user_id, message, limit=3)
-                logger.info(f"Using memory context: {memory_context[:50]}...")
+                
+                # Analyze memory importance for this specific query
+                memory_importance = self._analyze_memory_importance(message, memory_context)
+                logger.info(f"Memory importance: {memory_importance} | Context: {memory_context[:50]}...")
+                
+                # If memory is not important for this query, use minimal context
+                if memory_importance == "low":
+                    memory_context = memory_context[:50] + "..." if memory_context else ""
+                elif memory_importance == "none":
+                    memory_context = ""
+                    logger.info("Memory context determined as not needed, clearing it")
             
-            # Route to handlers with memory context
+            # Check for memory-specific queries first
+            if self.detect_memory_query(message):
+                logger.info("Memory query detected - using dedicated handler")
+                return self.handle_memory_query(message, user_id, username, memory_context)
+            
+            # Route to handlers with intelligent memory context
             if intent == "product_search":
                 return self.handle_product_search(message, user_id, username, memory_context)
             elif intent == "product_specific":

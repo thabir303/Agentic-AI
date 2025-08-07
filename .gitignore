@@ -1,6 +1,6 @@
 .env
 .venv
-.md
+*.md
 db.sqlite3
 *.faiss
 *.log
