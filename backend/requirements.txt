@@ -4,6 +4,8 @@ djangorestframework-simplejwt
 django-cors-headers
 python-dotenv
 langchain
+openai
+huggingface_hub
 faiss-cpu
 pandas
 groq
