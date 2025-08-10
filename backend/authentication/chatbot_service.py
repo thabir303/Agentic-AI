@@ -14,12 +14,9 @@ logger = logging.getLogger(__name__)
 
 class ChatbotService:
     def __init__(self):
-        # Check fallback configuration - disable fallback by default to use APIs
-        self.use_local_fallback = os.getenv('USE_LOCAL_FALLBACK', 'False').lower() == 'true'
-        
-        # Initialize ONLY Hugging Face InferenceClient (No fallbacks)
+        # Initialize ONLY Hugging Face InferenceClient 
         hf_token = os.getenv('HF_TOKEN')
-        if hf_token and not self.use_local_fallback:
+        if hf_token:
             try:
                 self.hf_client = InferenceClient(
                     model="openai/gpt-oss-120b",
@@ -34,11 +31,11 @@ class ChatbotService:
                 self.llm_client = 'huggingface'
             except Exception as e:
                 logger.error(f"Failed to initialize Hugging Face client: {e}")
-                logger.error("No fallback LLM configured - HuggingFace is required")
+                logger.error("HuggingFace is required")
                 self.hf_client = None
                 self.llm_client = None
         else:
-            logger.warning("No HF_TOKEN found or local fallback enabled")
+            logger.warning("No HF_TOKEN found")
             self.hf_client = None
             self.llm_client = None
         
@@ -46,35 +43,32 @@ class ChatbotService:
         mem0_api_key = os.getenv('MEM0_API_KEY')
         self.use_mem0 = False
         
-        if mem0_api_key and not self.use_local_fallback:
+        if mem0_api_key:
             try:
                 self.memory = MemoryClient(api_key=mem0_api_key)
                 self.use_mem0 = True
                 logger.info("Mem0 client initialized successfully with API key")
             except Exception as e:
                 logger.error(f"Failed to initialize Mem0 client: {e}")
-                logger.warning("Falling back to local memory storage")
+                logger.warning("Using local memory storage")
                 self.memory = None
                 self.use_mem0 = False
         else:
-            if self.use_local_fallback:
-                logger.warning("Local fallback mode enabled, using local memory storage")
-            else:
-                logger.warning("No Mem0 API key found, using local memory storage")
+            logger.warning("No Mem0 API key found, using local memory storage")
             self.memory = None
             self.use_mem0 = False
             
-        # Always initialize local memory as fallback
+        # Initialize local memory for backup storage
         self.local_memory = {}
         
         # Backward compatibility: alias memory_client to memory
         self.memory_client = self.memory
     
     def generate_llm_response(self, messages, temperature=0.7, max_tokens=5000):
-        """Generate response using ONLY HuggingFace InferenceClient (No fallbacks)"""
+        """Generate response using HuggingFace InferenceClient"""
         try:
             if self.llm_client == 'huggingface' and self.hf_client:
-                # Use ONLY Hugging Face InferenceClient with openai/gpt-oss-120b
+                # Use Hugging Face InferenceClient with openai/gpt-oss-120b
                 response = self.hf_client.chat_completion(
                     messages=messages,
                     temperature=temperature,
@@ -99,7 +93,7 @@ class ChatbotService:
             return "I'm sorry, I'm currently experiencing technical difficulties. Please try again later."
 
     def get_user_memory_context(self, user_id, current_message, limit=5):
-        """Enhanced memory retrieval prioritizing recent chronological context over keyword search"""
+        """Enhanced memory retrieval prioritizing recent chronological context"""
         if not user_id:
             return ""
         
@@ -136,7 +130,7 @@ class ChatbotService:
                 except Exception as e:
                     logger.debug(f"Recent memory retrieval failed: {e}")
                 
-                # PRIORITY 2: Fallback to keyword search if recent memories failed
+                # PRIORITY 2: Keyword search if recent memories failed
                 try:
                     memory_results = self.memory.search(current_message, user_id=str(user_id))
                     if memory_results:
@@ -157,7 +151,7 @@ class ChatbotService:
                 
                 return ""
             else:
-                # Fallback to local memory (chronological order)
+                # Use local memory (chronological order)
                 user_memories = self.local_memory.get(str(user_id), [])
                 if user_memories:
                     recent_memories = user_memories[-limit:]
@@ -167,7 +161,7 @@ class ChatbotService:
             
         except Exception as e:
             logger.error(f"Error retrieving user memory: {e}")
-            # Fallback to local memory
+            # Use local memory
             user_memories = self.local_memory.get(str(user_id), [])
             if user_memories:
                 recent_memories = user_memories[-limit:]
@@ -240,7 +234,7 @@ class ChatbotService:
         return "low"
     
     def store_user_memory(self, user_id, user_message, bot_response, intent, extra_context=None, username=None):
-        """Enhanced memory storage with better context and username tracking + local fallback"""
+        """Enhanced memory storage with better context and username tracking"""
         if not user_id:
             return
         
@@ -265,7 +259,7 @@ class ChatbotService:
                 self.memory.add(memory_entry, user_id=str(user_id), metadata=metadata)
                 logger.info(f"Stored memory for user {user_id} ({username}) with intent {intent}")
             else:
-                # Fallback to local memory
+                # Use local memory
                 if not hasattr(self, 'local_memory'):
                     self.local_memory = {}
                 
@@ -291,7 +285,7 @@ class ChatbotService:
             
         except Exception as e:
             logger.error(f"Error storing user memory: {e}")
-            # Fallback to local storage even if Mem0 fails
+            # Use local storage when Mem0 fails
             if not hasattr(self, 'local_memory'):
                 self.local_memory = {}
             
@@ -308,10 +302,10 @@ class ChatbotService:
             }
             
             self.local_memory[str(user_id)].append(memory_entry)
-            logger.info(f"Stored fallback local memory for user {user_id} ({username})")
+            logger.info(f"Stored backup local memory for user {user_id} ({username})")
 
     def store_user_profile(self, user_id, username, user_email=None):
-        """Store user profile information in memory for personalization with fallback"""
+        """Store user profile information in memory for personalization"""
         if not user_id:
             return
         
@@ -332,7 +326,7 @@ class ChatbotService:
                 self.memory.add(profile_entry, user_id=str(user_id), metadata=metadata)
                 logger.info(f"Stored profile for user {user_id}: {username}")
             else:
-                # Fallback to local memory
+                # Use local memory
                 if not hasattr(self, 'local_memory'):
                     self.local_memory = {}
                 
@@ -355,7 +349,7 @@ class ChatbotService:
             
         except Exception as e:
             logger.error(f"Error storing user profile: {e}")
-            # Fallback to local storage
+            # Use local storage
             if not hasattr(self, 'local_memory'):
                 self.local_memory = {}
             
@@ -373,15 +367,16 @@ class ChatbotService:
             }
             
             self.local_memory[str(user_id)].insert(0, profile_entry)
-            logger.info(f"Stored fallback profile for user {user_id}: {username}")
+            logger.info(f"Stored backup profile for user {user_id}: {username}")
 
     def get_user_name_from_memory(self, user_id):
-        """
-        Retrieve username from memory
-        """
+        """Get username from memory (local or Mem0)"""
+        if not user_id:
+            return None
+        
         try:
             # Try Mem0 first
-            if self.use_mem0:
+            if self.use_mem0 and self.memory:
                 memories = self.memory.get_all(user_id=str(user_id))
                 
                 # Look for profile information
@@ -396,11 +391,11 @@ class ChatbotService:
                                 if username:
                                     return username
             
-            # Fallback to local memory
+            # Check local memory
             if hasattr(self, 'local_memory') and str(user_id) in self.local_memory:
                 memories = self.local_memory[str(user_id)]
                 for memory in memories:
-                    if memory.get('username'):
+                    if memory.get('username') and memory.get('username') != 'unknown_user':
                         return memory['username']
                     # Also check in content
                     content = memory.get('content', '')
@@ -415,125 +410,11 @@ class ChatbotService:
             logger.error(f"Error retrieving username from memory: {e}")
         
         return None
-        """Get username from memory (local or Mem0)"""
-        if not user_id:
-            return None
-        
-        try:
-            if self.memory:
-                # Try to search for user profile
-                memory_results = self.memory.search("User profile", user_id=str(user_id))
-                for memory in memory_results:
-                    if "username" in memory.get('memory', '').lower():
-                        # Extract username from memory
-                        memory_text = memory.get('memory', '')
-                        if "Username is" in memory_text:
-                            username = memory_text.split("Username is")[1].split(",")[0].strip()
-                            return username
-            else:
-                # Check local memory
-                user_memories = self.local_memory.get(str(user_id), [])
-                for memory in user_memories:
-                    if memory.get('intent') == 'user_profile':
-                        return memory.get('username')
-                    # Also check if username is stored in any memory
-                    if memory.get('username') and memory.get('username') != 'unknown_user':
-                        return memory.get('username')
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error getting username from memory: {e}")
-            # Try local memory as fallback
-            if hasattr(self, 'local_memory'):
-                user_memories = self.local_memory.get(str(user_id), [])
-                for memory in user_memories:
-                    if memory.get('username') and memory.get('username') != 'unknown_user':
-                        return memory.get('username')
-            return None
-            # Fallback to local storage
-            if not hasattr(self, 'local_memory'):
-                self.local_memory = {}
-            
-            if str(user_id) not in self.local_memory:
-                self.local_memory[str(user_id)] = []
-            
-            profile_entry = {
-                "user_message": "Profile setup",
-                "bot_response": f"Remembered profile for {username}",
-                "intent": "user_profile", 
-                "username": username,
-                "email": user_email or "",
-                "timestamp": str(datetime.now()),
-                "content": f"User profile: {username} ({user_email or 'no email'})"
-            }
-            
-            self.local_memory[str(user_id)].insert(0, profile_entry)
-            logger.info(f"Stored fallback profile for user {user_id}: {username}")
 
     def detect_hybrid_intent(self, message, user_context=""):
         """Simple intent wrapper - just use main detect_intent"""
         return self.detect_intent(message, user_context)
     
-    def simple_keyword_intent_detection(self, message_lower):
-        """Simple fallback intent detection with spelling correction"""
-        import re
-        
-        # Normalize common spelling variations/errors
-        normalized_message = message_lower
-        
-        # Common spelling corrections for earbuds
-        earbuds_variations = [
-            ('earbuds', 'earbuds'), ('earphones', 'earbuds'), ('ear buds', 'earbuds'),
-            ('earbud', 'earbuds'), ('ear phones', 'earbuds'), ('headphones', 'headphones'),
-            ('headphone', 'headphones'), ('head phones', 'headphones')
-        ]
-        
-        for variation, correct in earbuds_variations:
-            normalized_message = normalized_message.replace(variation, correct)
-        
-        # Price range patterns (highest priority after product ID) - must have price indicator
-        price_indicators = ['under $', 'below $', 'less than $', 'cheaper than $', 'between $', 'budget of $', 'around $']
-        number_with_price = ['under 5', 'under 10', 'under 20', 'under 30', 'under 40', 'under 50', 'under 100', 'under 200', 'under 300', 'under 500', 'under 1000',
-                            'below 20', 'below 30', 'below 40', 'below 50', 'below 100', 'below 200', 'below 500',
-                            'between 50', 'between 100', 'around 100', 'around 200']
-        
-        if any(phrase in normalized_message for phrase in price_indicators + number_with_price):
-            # Also check if there are digits indicating price
-            if re.search(r'\b\d+\s*(dollars?|$)?\b', normalized_message):
-                return "price_range_search"
-        
-        # Product ID patterns (highest priority)
-        if any(phrase in normalized_message for phrase in ['product id', 'show product', 'product number', 'product 5', 'give me product', 'show me product']):
-            return "product_specific"
-        
-        # Issue/problem patterns
-        if any(phrase in normalized_message for phrase in ['problem', 'issue', 'complaint', 'broken', 'not working', 'defective', 'missing', 'wrong order', 'damaged']):
-            return "issue_report"
-        
-        # Personal questions
-        if any(phrase in normalized_message for phrase in ["what's my name", "who am i", "what's your name", "who are you"]):
-            return "general_chat"
-        
-        # Greetings and social
-        if any(word in normalized_message for word in ['hello', 'hi', 'hey', 'thanks', 'thank you', 'how are you', 'good morning', 'good afternoon', 'good evening']):
-            return "general_chat"
-        
-        # Help and capabilities
-        if any(phrase in normalized_message for phrase in ['help me', 'can you help', 'what can you do', 'how does this work', 'capabilities']):
-            return "general_chat"
-            
-        # Category browsing
-        if any(word in normalized_message for word in ['category', 'browse', 'section', 'electronics', 'clothing', 'home', 'kitchen', 'explore']):
-            return "category_browse"
-            
-        # Product search keywords (broader) - include earbuds and common audio products
-        product_keywords = ['find', 'search', 'need', 'want', 'buy', 'looking for', 'show me', 'get me', 'steel', 'bowl', 'phone', 'kitchen', 'laptop', 'headphones', 'mouse', 'keyboard', 'earbuds', 'speaker', 'wireless', 'bluetooth']
-        if any(word in normalized_message for word in product_keywords):
-            return "product_search"
-        
-        return "general_chat"
-
     def detect_intent_with_memory_requirement(self, message, user_context=""):
         """Enhanced intent detection that also determines if memory context is needed"""
         
@@ -542,16 +423,6 @@ class ChatbotService:
         print(f"Original message: '{message}'")
         print(f"User context: '{user_context[:100]}...' " if user_context else "No user context")
         
-        # If LLM API is disabled, use simple fallback
-        if not self.llm_client:
-            simple_intent = self.simple_keyword_intent_detection(message.lower())
-            print(f"Using simple fallback, detected intent: {simple_intent}")
-            print(f"=== END INTENT DEBUG ===\n")
-            return {
-                "intent": simple_intent,
-                "needs_memory": False,
-                "confidence": "low"
-            }
         
         prompt = f"""You are an intelligent AI assistant with deep e-commerce knowledge. Analyze the user's message to determine their intent and memory context.
 
@@ -635,29 +506,23 @@ confidence: [high/medium/low]"""
                     logger.info(f"Intent: {result['intent']}, Memory needed: {result['needs_memory']}, Confidence: {result.get('confidence', 'unknown')}")
                     return result
                 else:
-                    print(f"✗ Invalid response format, using fallback")
+                    print(f"✗ Invalid response format, using keyword detection")
                     raise ValueError("Invalid response format")
                     
             except (ValueError, KeyError) as e:
-                print(f"✗ Failed to parse LLM response: {e}")
-                simple_intent = self.simple_keyword_intent_detection(message.lower())
-                print(f"Using simple fallback: {simple_intent}")
-                print(f"=== END INTENT DEBUG ===\n")
-                logger.warning(f"Failed to parse LLM intent response: {e}, using fallback")
+                
+                logger.warning(f"Failed to parse LLM intent response: {e}, using keyword detection")
                 return {
-                    "intent": simple_intent,
+                    "intent": "intent not_detected",
                     "needs_memory": False,
                     "confidence": "low"
                 }
                 
         except Exception as e:
-            print(f"✗ LLM intent detection failed: {e}")
-            simple_intent = self.simple_keyword_intent_detection(message.lower())
-            print(f"Using simple fallback: {simple_intent}")
-            print(f"=== END INTENT DEBUG ===\n")
+        
             logger.error(f"Enhanced intent detection failed: {e}")
             return {
-                "intent": simple_intent,
+                "intent": "intent_not_detected",
                 "needs_memory": False,
                 "confidence": "low"
             }
@@ -668,57 +533,25 @@ confidence: [high/medium/low]"""
         return result["intent"]
     
     def clean_response_for_production(self, response_text):
-        """Clean response text for production - remove markdown and make it user-friendly"""
         if not response_text:
             return response_text
         
-        # Remove markdown formatting
         clean_text = markdown_to_text(response_text)
         
-        # Remove excessive bold/italic markers that might remain
         clean_text = clean_text.replace('**', '').replace('*', '')
         clean_text = clean_text.replace('__', '').replace('_', '')
         
-        # Clean up extra whitespace and newlines
         lines = [line.strip() for line in clean_text.split('\n') if line.strip()]
         clean_text = '\n'.join(lines)
         
-        # Remove any remaining markdown syntax
         clean_text = clean_text.replace('# ', '').replace('## ', '').replace('### ', '')
         clean_text = clean_text.replace('- ', '• ').replace('* ', '• ')
         
         return clean_text.strip()
-
-    def generate_simple_product_response(self, products, username, query, price_info=""):
-        """Generate simple template-based product response when LLM is unavailable"""
-        
-        # Only greet on first interaction or when appropriate
-        user_greeting = ""  # Remove automatic greeting
-        price_text = price_info if price_info else ""
-        
-        if len(products) == 1:
-            product = products[0]
-            response = f"I found a great match for '{query}'{price_text}:\n\n"
-            response += f"{product['name']} - ${product['price']}\n"
-            response += f"Category: {product['category']}\n"
-            response += f"{product['description'][:100]}...\n\n"
-        else:
-            response = f"I found {len(products)} products matching '{query}'{price_text}:\n\n"
-            for i, product in enumerate(products, 1):
-                response += f"{i}. {product['name']} - ${product['price']}\n"
-                response += f"   Category: {product['category']}\n"
-                if product.get('relevance_score'):
-                    response += f"   Relevance: {product['relevance_score']}/5\n"
-                response += "\n"
-        
-        response += "Would you like more details about any of these products?"
-        return response
     
     def handle_memory_query(self, message, user_id=None, username=None, memory_context=""):
-        """Handle specific questions about memory and conversation history"""
         message_lower = message.lower()
         
-        # Get user's actual memory to show
         user_memory = ""
         if user_id and memory_context:
             # Parse some recent activities from memory
@@ -830,8 +663,8 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
         try:
             response_text = self.generate_llm_response(
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,  # Lower temperature for more consistent extraction
-                max_tokens=150     # Much lower token limit for concise responses
+                temperature=0.1,   
+                max_tokens=150  
             )
             
             print(f"LLM response: '{response_text}'")
@@ -895,56 +728,6 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
             print(f"=== END PRODUCT NAME DEBUG ===\n")
             return None
 
-    def _extract_product_name_regex(self, message):
-        """Helper method for regex-based product name extraction"""
-        message_lower = message.lower()
-        
-        # Common product keywords that we should look for
-        product_keywords = {
-            'earbuds', 'earphones', 'headphones', 'speakers', 'mouse', 'keyboard', 
-            'laptop', 'computer', 'phone', 'tablet', 'chair', 'desk', 'bowl', 
-            'spoon', 'knife', 'plate', 'cup', 'mug', 'bottle', 'bag', 'watch',
-            'shoes', 'shirt', 'jacket', 'pants', 'socks', 'hat', 'tv', 'monitor',
-            'camera', 'microphone', 'cable', 'charger', 'case', 'stand', 'holder'
-        }
-        
-        # Look for product keywords first
-        found_products = []
-        words = message_lower.split()
-        
-        for word in words:
-            # Check exact matches
-            if word in product_keywords:
-                found_products.append(word)
-            # Check partial matches (for compound words)
-            for product in product_keywords:
-                if product in word and len(word) > len(product):
-                    found_products.append(product)
-        
-        if found_products:
-            return found_products[0]
-        
-        # If no specific product found, try to extract by removing price terms
-        price_terms = ['under', 'below', 'less than', 'cheaper than', 'between', 'budget of', 'around', 'price range', '$', 'dollars', 'dollar', 'less', 'than']
-        stop_words = ['i', 'want', 'need', 'looking', 'for', 'good', 'quality', 'the', 'a', 'an', 'show', 'me', 'find', 'get']
-        
-        # Remove price indicators and numbers
-        message_clean = re.sub(r'\b\d+\s*(dollars?|$)?\b', '', message_lower)
-        message_clean = re.sub(r'\$\d+', '', message_clean)
-        
-        # Remove price terms
-        for term in price_terms:
-            message_clean = message_clean.replace(term, ' ')
-        
-        # Remove stop words
-        words = message_clean.split()
-        filtered_words = [word for word in words if word not in stop_words and len(word) > 2]
-        
-        if filtered_words:
-            return ' '.join(filtered_words[:2])  # Take first 2 meaningful words
-        
-        return None
-
     def extract_category_from_message(self, message):
         """Extract category from user message"""
         categories = get_vector_service().get_categories()
@@ -956,11 +739,9 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
         return None
     
     def extract_price_range_from_message(self, message):
-        """Extract price range from user message using LLM primarily with regex fallback"""
         print(f"\n=== PRICE RANGE EXTRACTION DEBUG ===")
         print(f"Input message: '{message}'")
         
-        # PRIORITY 1: Use LLM for intelligent price range extraction
         if self.llm_client:
             try:
                 prompt = f"""Extract the price range from the user's message. Return exact numbers only.
@@ -984,8 +765,8 @@ If no price found: none"""
 
                 response_text = self.generate_llm_response(
                     messages=[{"role": "user", "content": prompt}],
-                    temperature=0.1,  # Very low temperature for consistent extraction
-                    max_tokens=100    # Short response needed
+                    temperature=0.1,  
+                    max_tokens=100     
                 )
                 
                 print(f"LLM price extraction response: '{response_text}'")
@@ -1042,95 +823,19 @@ If no price found: none"""
                         print(f"=== END PRICE RANGE DEBUG ===\n")
                         return (min_price, max_price)
                     else:
-                        print(f"✗ LLM response missing min_price or max_price, falling back to regex")
+                        print(f"✗ LLM response missing min_price or max_price, using regex")
                 else:
-                    print(f"✗ LLM returned 'none' or empty, falling back to regex")
+                    print(f"✗ LLM returned 'none' or empty, using regex")
                     
             except Exception as e:
-                print(f"✗ LLM price extraction failed: {e}, falling back to regex")
+                print(f"✗ LLM price extraction failed: {e}, using regex")
         else:
             print("No LLM client available, using regex approach")
         
-        # PRIORITY 2: Fallback to enhanced regex patterns
-        print("Using regex fallback for price extraction...")
-        # return self._extract_price_range_regex(message)
+        # Use enhanced regex patterns
+        print("Using regex for price extraction...")
+        return self._extract_price_range_regex(message)
     
-    def _extract_price_range_regex(self, message):
-        """Fallback regex-based price range extraction with enhanced patterns"""
-        import re
-        
-        price_range_patterns = [
-            # Explicit range indicators
-            (r'under\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'below\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'less\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'cheaper\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            
-            # Greater than patterns (NEW)
-            (r'over\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'above\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'greater\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'more\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'higher\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'at\s+least\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            (r'minimum\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
-            
-            # Range patterns  
-            (r'between\s+\$?(\d+)\s*(?:and|to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
-            (r'\$?(\d+)\s*(?:to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
-            (r'from\s+\$?(\d+)\s*to\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
-            
-            # Around patterns (ENHANCED)
-            (r'around\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            (r'approximately\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            (r'roughly\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            (r'about\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            
-            # Budget patterns
-            (r'budget\s+of\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'price\s+range\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            
-            # Enhanced budget patterns for natural language
-            (r'(?:my\s+)?budget\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'(?:my\s+)?budget\s*[:=]\s*\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'(?:i\s+have\s+)?(?:a\s+)?budget\s+(?:of\s+)?\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'(?:my\s+)?price\s+limit\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'(?:my\s+)?maximum\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'(?:my\s+)?max\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'can\s+(?:only\s+)?spend\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'afford\s+up\s+to\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
-            (r'looking\s+(?:for\s+)?(?:something\s+)?(?:around\s+)?\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
-            
-            # Handle dollar/dollars at the end
-            (r'budget\s+is\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
-            (r'budget\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
-            (r'(\d+)\s+dollars?\s+budget', lambda m: (0, int(m.group(1)))),
-            (r'(?:my\s+)?maximum\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
-            (r'(?:up\s+to\s+)?(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
-            
-            # Greater than with dollars at end
-            (r'over\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
-            (r'above\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
-            (r'greater\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
-            (r'more\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
-            (r'at\s+least\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
-        ]
-        
-        message_lower = message.lower()
-        for pattern, extractor in price_range_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                try:
-                    min_price, max_price = extractor(match)
-                    print(f"✓ Regex extracted price range: ({min_price}, {max_price})")
-                    print(f"=== END PRICE RANGE DEBUG ===\n")
-                    return (min_price, max_price)
-                except (ValueError, IndexError):
-                    continue
-        
-        print(f"✗ No price range found in message")
-        print(f"=== END PRICE RANGE DEBUG ===\n")
-        return None
 
     def filter_relevant_products(self, products, query, max_products=3):
         """Simple product filtering"""
@@ -1281,7 +986,7 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             # Include memory context in prompt if available
             context_prompt = f"\nPREVIOUS CONTEXT: {memory_context}" if memory_context else ""
             
-            # Smart LLM response or simple fallback
+            # Smart LLM response or simple template response
             prompt = f"""User wants details about this specific product: "{message}"{context_prompt}
 
 PRODUCT: {product['name']} (ID: {product['id']})
@@ -1377,7 +1082,7 @@ Keep it helpful and under 80 words. NO markdown."""
                     self.store_user_memory(user_id, message, response, "category_browse", {}, username)
                 return {"response": response, "products": [], "intent": "category_browse"}
             
-            # Smart LLM response or simple fallback
+            # Smart LLM response or simple template response
             products_text = "\n".join([f"• {p['name']} - ${p['price']}" for p in products[:3]])
             
             # Include memory context in prompt if available
@@ -1558,7 +1263,7 @@ RESPOND naturally and contextually:"""
                     bot_response = f"Your name is {username}! {bot_response}"
                 
             except Exception as e:
-                logger.warning(f"LLM general chat failed: {e}, using fallback")
+                logger.warning(f"LLM general chat failed: {e}, using template response")
                 bot_response = self.generate_simple_chat_response(message.lower(), username, memory_context)
             
             if user_id:
@@ -1770,7 +1475,7 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
                 except Exception as e:
                     logger.debug(f"Could not get Mem0 context: {e}")
             
-            # From local memory fallback
+            # From local memory backup
             if hasattr(self, 'local_memory') and str(user_id) in self.local_memory:
                 recent_local = self.local_memory[str(user_id)][-2:]  # Last 2 conversations
                 for memory in recent_local:
@@ -1834,10 +1539,10 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
                         # For other intents that don't need memory, keep minimal context
                         memory_context = memory_context[:30] + "..." if len(memory_context) > 30 else memory_context
             
-            # Check for memory-specific queries first
-            if self.detect_memory_query(message):
-                logger.info("Memory query detected - using dedicated handler")
-                return self.handle_memory_query(message, user_id, username, memory_context)
+            # # Check for memory-specific queries first
+            # if self.detect_memory_query(message):
+            #     logger.info("Memory query detected - using dedicated handler")
+            #     return self.handle_memory_query(message, user_id, username, memory_context)
             
             # Route to handlers with intelligent memory context
             if intent == "product_search":

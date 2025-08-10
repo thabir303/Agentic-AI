@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MessageCircle, X, Send, Plus, Trash2, Brain } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MessageCircle, X, Send, Plus, Trash2, Brain, Maximize2, Minimize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { chatbotAPI } from '../utils/api';
 
@@ -84,13 +84,71 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const suggestions = [
+    'Show me popular products',
+    'Find budget headphones',
+    'Browse laptop category',
+    'What did I search before?',
+  ];
+  const scrollRef = useRef(null);
+  const abortTypingRef = useRef(false);
+
+  // Auto scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // Hide suggestions after first user message
+  useEffect(() => {
+    const hasUser = messages.some(m => !m.isBot);
+    if (hasUser) setShowSuggestions(false);
+  }, [messages]);
+
+  // Improved realistic typing function
+  const typeMessage = (fullText, messageId) => {
+    abortTypingRef.current = false;
+    let currentText = '';
+    let index = 0;
+
+    const typeNext = () => {
+      if (abortTypingRef.current) {
+        // Finish instantly
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, text: fullText, isTyping: false } : msg));
+        setTypingMessage(null);
+        return;
+      }
+      if (index < fullText.length) {
+        currentText += fullText[index];
+        index += 1;
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, text: currentText, isTyping: true } : msg));
+        // Variable delay: slower after punctuation, random jitter
+        const char = fullText[index - 1];
+        let base = 15 + Math.random() * 15; // 15-30ms
+        if ('.!?'.includes(char)) base += 250 + Math.random() * 150; // pause after sentence
+        else if (',;:' .includes(char)) base += 120 + Math.random() * 100;
+        setTimeout(typeNext, base);
+      } else {
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, text: fullText, isTyping: false } : msg));
+        setTypingMessage(null);
+      }
+    };
+
+    setTypingMessage({ messageId });
+    typeNext();
+  };
+
+  const skipTyping = () => {
+    abortTypingRef.current = true;
+  };
 
   const clearMemory = async () => {
     try {
       await chatbotAPI.clearMemory();
-      // Clear local chat as well
       clearChat();
-      // Add a system message to indicate memory was cleared
       setMessages([
         {
           id: 1,
@@ -139,36 +197,6 @@ const Chatbot = () => {
     setIsOpen(true);
   };
 
-  const typeMessage = (fullText, messageId) => {
-    let currentText = '';
-    let currentIndex = 0;
-
-    const typeInterval = setInterval(() => {
-      if (currentIndex < fullText.length) {
-        currentText += fullText[currentIndex];
-        
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, text: currentText, isTyping: true }
-            : msg
-        ));
-        
-        currentIndex++;
-      } else {
-        // Typing complete
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, text: fullText, isTyping: false }
-            : msg
-        ));
-        setTypingMessage(null);
-        clearInterval(typeInterval);
-      }
-    }, 15); // Faster typing speed (was 3ms, now 15ms for better visibility)
-
-    setTypingMessage({ intervalId: typeInterval, messageId });
-  };
-
   const sendMessage = async () => {
     if (!inputMessage.trim() || loading || typingMessage) return;
 
@@ -185,7 +213,6 @@ const Chatbot = () => {
     setInputMessage('');
     setLoading(true);
 
-    // Add placeholder bot message that will be typed
     const botMessageId = Date.now() + 1;
     const placeholderBotMessage = {
       id: botMessageId,
@@ -199,18 +226,17 @@ const Chatbot = () => {
 
     try {
       const response = await chatbotAPI.sendMessage(currentInput);
-
-      // Start typing effect
       typeMessage(response.data.response, botMessageId);
-
     } catch (error) {
-      const errorText = "Sorry, I'm having trouble connecting. Please try again later.";
-      
-      // Type the error message
-      typeMessage(errorText, botMessageId);
+      typeMessage("Sorry, I'm having trouble connecting. Please try again later.", botMessageId);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSuggestion = (text) => {
+    setInputMessage(text);
+    setTimeout(() => sendMessage(), 50);
   };
 
   const handleKeyPress = (e) => {
@@ -245,87 +271,120 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl border z-50 flex flex-col">
+        <div className={`fixed z-50 flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl transition-all duration-300 ${
+          isExpanded ? 'right-6 bottom-6 w-[900px] h-[700px] max-w-[95vw] max-h-[85vh]' : 'bottom-24 right-6 w-96 h-[640px]'
+        }`}>
           {/* Header */}
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold">AI Assistant</h3>
-              <p className="text-blue-100 text-sm">Ask me about our products!</p>
+          <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 rounded-t-xl flex justify-between items-center">
+            <div className="space-y-0.5">
+              <h3 className="font-semibold flex items-center gap-2">🤖 AI Assistant <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /></h3>
+              <p className="text-blue-100 text-xs">Ask about products, prices, categories, issues</p>
             </div>
             <div className="flex space-x-2">
               <button
+                onClick={() => setIsExpanded(e => !e)}
+                className="bg-blue-400/40 hover:bg-blue-400 p-2 rounded-lg transition-colors"
+                title={isExpanded ? 'Collapse' : 'Expand'}
+              >
+                {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+              </button>
+              <button
                 onClick={clearMemory}
-                className="bg-purple-500 hover:bg-purple-400 p-2 rounded-lg transition-colors"
+                className="bg-purple-500/80 hover:bg-purple-500 p-2 rounded-lg transition-colors"
                 title="Clear Memory & Chat"
               >
-                <Brain size={18} />
+                <Brain size={16} />
               </button>
               <button
                 onClick={clearChat}
-                className="bg-blue-500 hover:bg-blue-400 p-2 rounded-lg transition-colors"
+                className="bg-blue-500/80 hover:bg-blue-500 p-2 rounded-lg transition-colors"
                 title="Clear Chat Only"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[480px]">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-              >
-                <div
-                  className={`max-w-[280px] p-3 rounded-lg ${
-                    message.isBot
-                      ? 'bg-gray-100 text-gray-800'
-                      : 'bg-blue-600 text-white'
-                  }`}
+          {/* Suggestions */}
+          {showSuggestions && (
+            <div className="px-4 pt-3 flex flex-wrap gap-2">
+              {suggestions.map(s => (
+                <button
+                  key={s}
+                  onClick={() => handleSuggestion(s)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 transition-colors border border-gray-200"
                 >
-                  <div className="text-sm whitespace-pre-wrap">
-                    {message.isBot ? (
-                      <span>
-                        {renderMessageWithLinks(message.text, navigate)}
-                        {message.isTyping && (
-                          <span className="animate-pulse">▋</span>
-                        )}
-                      </span>
-                    ) : (
-                      message.text
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
+            {/* Messages */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pt-3 pb-2 space-y-3 max-h-[520px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              {messages.map((message, idx) => {
+                const isBot = message.isBot;
+                const isTyping = message.isTyping;
+                return (
+                  <div key={message.id} className={`flex ${isBot ? 'justify-start' : 'justify-end'} group`}>
+                    {isBot && (
+                      <div className="mr-2 mt-1 text-lg select-none">🤖</div>
+                    )}
+                    <div
+                      className={`relative max-w-[75%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm border transition-colors ${
+                        isBot ? 'bg-gray-50 border-gray-200 text-gray-800' : 'bg-blue-600 border-blue-600 text-white'
+                      }`}
+                    >
+                      <div className="whitespace-pre-wrap">{isBot ? (
+                        <span>{renderMessageWithLinks(message.text, navigate)}{isTyping && <span className="animate-pulse">▋</span>}</span>
+                      ) : message.text}</div>
+                      <div className={`mt-1 text-[10px] tracking-wide ${isBot ? 'text-gray-500' : 'text-blue-100'}`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                      {isBot && isTyping && (
+                        <button
+                          onClick={skipTyping}
+                          className="absolute -bottom-5 left-0 text-[10px] text-blue-500 hover:underline"
+                        >Skip</button>
+                      )}
+                    </div>
+                    {!isBot && (
+                      <div className="ml-2 mt-1 text-lg select-none">🙋</div>
                     )}
                   </div>
-                  <p className={`text-xs mt-1 ${
-                    message.isBot ? 'text-gray-500' : 'text-blue-100'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
 
           {/* Input */}
-          <div className="p-4 border-t">
-            <div className="flex space-x-2">
-              <textarea
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask about products or report an issue..."
-                className="flex-1 p-2 border rounded-lg resize-none h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="1"
-                disabled={loading || typingMessage}
-              />
+          <div className="p-3 border-t bg-gray-50">
+            <div className="flex items-end space-x-2">
+              <div className="flex-1 relative">
+                <textarea
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+                  }}
+                  placeholder={typingMessage ? 'Wait for the assistant to finish...' : 'Ask about products or pricing...'}
+                  className="w-full p-3 pr-10 border rounded-xl resize-none h-12 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm disabled:bg-gray-100"
+                  rows="1"
+                  disabled={loading || typingMessage}
+                />
+                <span className="absolute right-2 bottom-2 text-[10px] text-gray-400">Enter ↵</span>
+              </div>
               <button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || loading || typingMessage}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors"
+                className="h-12 aspect-square flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-xl transition-colors shadow"
+                title="Send"
               >
-                <Send size={18} />
+                {loading ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Send size={18} />}
               </button>
             </div>
+            {typingMessage && (
+              <div className="mt-2 text-[11px] text-gray-500 flex items-center gap-1"><span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />Assistant is typing...</div>
+            )}
           </div>
         </div>
       )}
