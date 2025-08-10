@@ -3,8 +3,6 @@ import json
 import re
 import logging
 from datetime import datetime
-from groq import Groq
-import google.generativeai as genai
 from huggingface_hub import InferenceClient
 from mem0 import MemoryClient
 from django.conf import settings
@@ -18,9 +16,8 @@ class ChatbotService:
     def __init__(self):
         # Check fallback configuration - disable fallback by default to use APIs
         self.use_local_fallback = os.getenv('USE_LOCAL_FALLBACK', 'False').lower() == 'true'
-        self.enable_api_fallback = os.getenv('ENABLE_API_FALLBACK', 'True').lower() == 'true'
         
-        # Initialize Hugging Face InferenceClient with Groq provider (Primary choice)
+        # Initialize ONLY Hugging Face InferenceClient (No fallbacks)
         hf_token = os.getenv('HF_TOKEN')
         if hf_token and not self.use_local_fallback:
             try:
@@ -37,51 +34,13 @@ class ChatbotService:
                 self.llm_client = 'huggingface'
             except Exception as e:
                 logger.error(f"Failed to initialize Hugging Face client: {e}")
-                logger.warning("Falling back to Groq client")
+                logger.error("No fallback LLM configured - HuggingFace is required")
                 self.hf_client = None
                 self.llm_client = None
         else:
             logger.warning("No HF_TOKEN found or local fallback enabled")
             self.hf_client = None
             self.llm_client = None
-        
-        # Initialize Groq client as secondary fallback
-        groq_api_key = os.getenv('GROQ_API_KEY')
-        if groq_api_key and not self.use_local_fallback:
-            try:
-                self.groq_client = Groq(api_key=groq_api_key)
-                logger.info("Groq client initialized successfully as backup")
-                # If no primary LLM is set, use Groq
-                if not self.llm_client:
-                    self.llm_client = 'groq'
-            except Exception as e:
-                logger.error(f"Failed to initialize Groq client: {e}")
-                self.groq_client = None
-        else:
-            logger.warning("No Groq API key found or local fallback enabled")
-            self.groq_client = None
-        
-        # Initialize Gemini client as tertiary fallback
-        gemini_api_key = os.getenv('GEMINI_API_KEY')
-        if gemini_api_key and not self.use_local_fallback:
-            try:
-                genai.configure(api_key=gemini_api_key)
-                # Use faster flash model to avoid rate limits
-                self.gemini_model = genai.GenerativeModel('gemini-2.5-pro')
-                logger.info("Gemini 2.5 Pro client initialized successfully as tertiary backup")
-                # If no primary LLM is set, use Gemini
-                if not self.llm_client:
-                    self.llm_client = 'gemini'
-            except Exception as e:
-                logger.error(f"Failed to initialize Gemini client: {e}")
-                self.gemini_model = None
-        else:
-            logger.warning("No Gemini API key found or local fallback enabled")
-            self.gemini_model = None
-        
-        # Set final LLM client if not set yet
-        if not self.llm_client:
-            logger.warning("No LLM client available, using local fallback")
         
         # Initialize mem0 client with API key  
         mem0_api_key = os.getenv('MEM0_API_KEY')
@@ -107,12 +66,15 @@ class ChatbotService:
             
         # Always initialize local memory as fallback
         self.local_memory = {}
+        
+        # Backward compatibility: alias memory_client to memory
+        self.memory_client = self.memory
     
     def generate_llm_response(self, messages, temperature=0.7, max_tokens=5000):
-        """Generate response using available LLM (HuggingFace primary, Groq/Gemini fallback)"""
+        """Generate response using ONLY HuggingFace InferenceClient (No fallbacks)"""
         try:
             if self.llm_client == 'huggingface' and self.hf_client:
-                # Use Hugging Face InferenceClient with openai/gpt-oss-120b
+                # Use ONLY Hugging Face InferenceClient with openai/gpt-oss-120b
                 response = self.hf_client.chat_completion(
                     messages=messages,
                     temperature=temperature,
@@ -123,115 +85,17 @@ class ChatbotService:
                 
                 # Debug empty responses from HuggingFace
                 if not result:
-                    print(f"⚠️ HuggingFace returned empty response, trying Groq fallback")
-                    logger.warning("HuggingFace returned empty response, falling back to Groq")
-                    raise Exception("Empty HuggingFace response")
-                
-                return result
-                
-            elif self.llm_client == 'groq' and self.groq_client:
-                # Use Groq as fallback
-                response = self.groq_client.chat.completions.create(
-                    messages=messages,
-                    model="llama-3.3-70b-versatile",
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-                return response.choices[0].message.content.strip()
-                
-            elif self.llm_client == 'gemini' and self.gemini_model:
-                # Convert messages to Gemini format
-                prompt_parts = []
-                for msg in messages:
-                    role = msg.get('role', 'user')
-                    content = msg.get('content', '')
-                    if role == 'system':
-                        prompt_parts.append(f"System: {content}")
-                    elif role == 'user':
-                        prompt_parts.append(f"User: {content}")
-                    elif role == 'assistant':
-                        prompt_parts.append(f"Assistant: {content}")
-                
-                prompt = "\n".join(prompt_parts)
-                
-                # Generate response with Gemini
-                response = self.gemini_model.generate_content(
-                    prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature,
-                        max_output_tokens=max_tokens,
-                    )
-                )
-                
-                result = response.text.strip() if response.text else ""
-                
-                # Debug empty responses from Gemini
-                if not result:
-                    print(f"⚠️ Gemini returned empty response, trying Groq fallback")
-                    logger.warning("Gemini returned empty response, falling back to Groq")
-                    raise Exception("Empty Gemini response")
+                    logger.error("HuggingFace returned empty response")
+                    return "I'm sorry, I couldn't generate a response. Please try rephrasing your question."
                 
                 return result
             
             else:
-                logger.error("No LLM client available")
+                logger.error("HuggingFace LLM client not available")
                 return "I'm sorry, I'm currently unavailable. Please try again later."
                 
         except Exception as e:
-            logger.error(f"Error generating LLM response: {e}")
-            # Try fallback chain: HF -> Groq -> Gemini
-            if self.llm_client == 'huggingface' and self.groq_client:
-                try:
-                    logger.info("Falling back to Groq after HuggingFace failure")
-                    response = self.groq_client.chat.completions.create(
-                        messages=messages,
-                        model="llama-3.3-70b-versatile",
-                        temperature=temperature,
-                        max_tokens=max_tokens
-                    )
-                    return response.choices[0].message.content.strip()
-                except Exception as groq_error:
-                    logger.error(f"Groq fallback also failed: {groq_error}")
-                    if self.gemini_model:
-                        try:
-                            logger.info("Falling back to Gemini after Groq failure")
-                            prompt_parts = []
-                            for msg in messages:
-                                role = msg.get('role', 'user')
-                                content = msg.get('content', '')
-                                if role == 'system':
-                                    prompt_parts.append(f"System: {content}")
-                                elif role == 'user':
-                                    prompt_parts.append(f"User: {content}")
-                                elif role == 'assistant':
-                                    prompt_parts.append(f"Assistant: {content}")
-                            
-                            prompt = "\n".join(prompt_parts)
-                            response = self.gemini_model.generate_content(prompt)
-                            return response.text.strip() if response.text else "I'm sorry, I'm having trouble processing your request."
-                        except Exception as gemini_error:
-                            logger.error(f"All LLM clients failed: {gemini_error}")
-            
-            elif self.llm_client == 'groq' and self.gemini_model:
-                try:
-                    logger.info("Falling back to Gemini after Groq failure")
-                    prompt_parts = []
-                    for msg in messages:
-                        role = msg.get('role', 'user')
-                        content = msg.get('content', '')
-                        if role == 'system':
-                            prompt_parts.append(f"System: {content}")
-                        elif role == 'user':
-                            prompt_parts.append(f"User: {content}")
-                        elif role == 'assistant':
-                            prompt_parts.append(f"Assistant: {content}")
-                    
-                    prompt = "\n".join(prompt_parts)
-                    response = self.gemini_model.generate_content(prompt)
-                    return response.text.strip() if response.text else "I'm sorry, I'm having trouble processing your request."
-                except Exception as gemini_error:
-                    logger.error(f"Gemini fallback also failed: {gemini_error}")
-                    
+            logger.error(f"Error generating HuggingFace LLM response: {e}")
             return "I'm sorry, I'm currently experiencing technical difficulties. Please try again later."
 
     def get_user_memory_context(self, user_id, current_message, limit=5):
@@ -934,7 +798,7 @@ confidence: [high/medium/low]"""
         """Extract product name from user message using LLM with memory context support"""
         print(f"\n=== PRODUCT NAME EXTRACTION DEBUG ===")
         print(f"Input message: '{message}'")
-        print(f"Memory context: '{memory_context[:200]}...' " if memory_context else "No memory context")
+        print(f"Memory context: '{memory_context}' " if memory_context else "No memory context")
         
         if not self.llm_client:
             print("No LLM client available, returning None")
@@ -1109,6 +973,7 @@ RULES:
 - For "over/greater than $X": return min_price: X, max_price: 9999
 - For "between $X and $Y": return min_price: X, max_price: Y
 - For "budget is $X": return min_price: 0, max_price: X
+- For X-Y range: return min_price: X, max_price: Y
 - Use NUMBERS ONLY (no "infinity" or text)
 
 RESPONSE FORMAT (exact format required):
@@ -1188,7 +1053,7 @@ If no price found: none"""
         
         # PRIORITY 2: Fallback to enhanced regex patterns
         print("Using regex fallback for price extraction...")
-        return self._extract_price_range_regex(message)
+        # return self._extract_price_range_regex(message)
     
     def _extract_price_range_regex(self, message):
         """Fallback regex-based price range extraction with enhanced patterns"""
@@ -1276,7 +1141,7 @@ If no price found: none"""
         try:
             # Use provided memory context
             if memory_context:
-                logger.info(f"Product search using memory context: {memory_context[:50]}...")
+                logger.info(f"Product search using memory context: {memory_context}...")
             
             # Enhanced product search with memory context awareness - NO price range extraction
             category = self.extract_category_from_message(message)
@@ -1370,7 +1235,7 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
         try:
             # Use provided memory context  
             if memory_context:
-                logger.info(f"Product specific using memory context: {memory_context[:50]}...")
+                logger.info(f"Product specific using memory context: {memory_context}...")
             
             import re
             
@@ -1460,7 +1325,7 @@ Keep it professional and under 80 words. NO markdown."""
         try:
             # Use provided memory context
             if memory_context:
-                logger.info(f"Category browse using memory context: {memory_context[:50]}...")
+                logger.info(f"Category browse using memory context: {memory_context}...")
             
             category = self.extract_category_from_message(message)
             
@@ -1559,7 +1424,7 @@ Keep it conversational and under 100 words. NO markdown."""
         try:
             # Use provided memory context
             if memory_context:
-                logger.info(f"Issue report using memory context: {memory_context[:50]}...")
+                logger.info(f"Issue report using memory context: {memory_context}...")
             
             # Enhanced issue context extraction using memory
             issue_context = ""
@@ -1635,7 +1500,7 @@ Keep it conversational and under 100 words. NO markdown."""
         try:
             # Use provided memory context
             if memory_context:
-                logger.info(f"General chat using memory context: {memory_context[:50]}...")
+                logger.info(f"General chat using memory context: {memory_context}...")
             
             # Enhanced context analysis for better responses
             context_analysis = ""
@@ -1710,7 +1575,7 @@ RESPOND naturally and contextually:"""
         try:
             # Use provided memory context
             if memory_context:
-                logger.info(f"Price range search using memory context: {memory_context[:50]}...")
+                logger.info(f"Price range search using memory context: {memory_context}...")
             
             # DEBUG: Print original message
             print(f"\n=== PRICE RANGE SEARCH DEBUG ===")
