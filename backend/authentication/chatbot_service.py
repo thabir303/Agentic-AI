@@ -430,19 +430,35 @@ USER MESSAGE: "{message}"
 CONVERSATION CONTEXT: {user_context if user_context else "New conversation"}
 
 INTENT ANALYSIS:
-Identify the user's primary intent:
+Identify the user's primary intent by carefully checking for price indicators FIRST:
 
-product_search: Discovering products based on needs
+CRITICAL INSTRUCTION: Look beyond the provided examples. Use semantic understanding, context clues, synonyms, and variations to detect related patterns that fall under each intent category, even if not explicitly listed in examples.
 
-product_specific: Inquiring about a specific product
+price_range_search: **PRIORITY INTENT** - Any message mentioning price/budget/cost constraints
+  - Keywords: "above $X", "below $X", "under $X", "over $X", "between $X and $Y", "around $X", "budget", "cost","affordable", "price", "$X to $Y", "within $X", "less than $X", "more than $X", "up to $X", "maximum $X", "minimum $X" and so on...
+  - Examples: "wireless mouse above $40", "books under 20 dollars", "laptop within my budget of $800"
+
+product_search: General product discovery/asking WITHOUT price constraints
+  - Only if NO price/budget/cost mentioned
+  - Examples: "show me wireless gaming mouse", "good books", "laptop recommendations"
+  - DETECT BEYOND EXAMPLES: Any product requests, recommendations, suggestions, discovery queries, or "find me" type messages without price constraints
+
+product_specific: Inquiring about a specific product with product id
+  - Examples: "product 154", "show me product id 23"
+  - DETECT BEYOND EXAMPLES: Any reference to specific product numbers, IDs, codes, or direct product identification
 
 category_browse: Exploring product categories
-
-price_range_search: Searching within a price range
+  - Categories: books, electronics, clothing, home & kitchen, toys & games
+  - Examples: "show electronics", "browse books and clothing"
+  - DETECT BEYOND EXAMPLES: Any requests to explore, view, browse, discover, or navigate product categories, sections, departments, or groups
 
 general_chat: Casual conversation or help requests
+  - Examples: "hello", "how are you", "thank you"
+  - DETECT BEYOND EXAMPLES: Any greetings, casual talk, gratitude, general questions, conversational exchanges, or non-shopping related chat
 
 issue_report: Reporting problems or service issues
+  - Examples: "I have a problem", "this is broken", "complaint"
+  - DETECT BEYOND EXAMPLES: Any complaints, problems, issues, concerns, dissatisfaction, bugs, errors, or service-related difficulties
 
 CONTEXTUAL MEMORY ANALYSIS:
 Does the message depend on previous conversations?
@@ -459,10 +475,8 @@ ENHANCED MEMORY DETECTION:
 - Personal requests ("my order", "my preference") need context
 
 SUGGESTIONS:
-
-Use past preferences if available to tailor responses.
-
-If no preferences are provided, offer relevant suggestions based on the query.
+- Use past preferences if available to tailor responses.
+- If no preferences, offer relevant suggestions based on the query.
 
 OUTPUT FORMAT:
 intent: [intent_name]
@@ -475,14 +489,10 @@ confidence: [high/medium/low]"""
                 temperature=0.2,
                 max_tokens=2000
             )
-            
             print(f"LLM response: '{response_text}'")
-            
-            # Parse simple text response
             try:
                 lines = response_text.strip().split('\n')
                 result = {}
-                
                 for line in lines:
                     if ':' in line:
                         key, value = line.split(':', 1)
@@ -646,16 +656,20 @@ confidence: [high/medium/low]"""
 MESSAGE: "{message}"{context_info}
 
 INTELLIGENT EXTRACTION RULES:
+- Extract complete product descriptions with modifiers/adjectives (e.g., "philosophy books", "gaming laptop", "wireless headphones")
+- Keep important descriptive words that specify the type/category (philosophy, gaming, wireless, etc.)
 - If current message mentions price/budget and context shows product preferences, extract from context
 - For "budget is $X" with previous product mentions, return the products from context
-- Extract main product types: laptop, books, led tv, headphones, etc.
 - For gift scenarios: use recipient preferences from context if available
 - Return "none" only if no product type can be determined from message OR context
 - Prioritize context-based products for budget/price-only messages
 
+Look beyond the provided examples. Use semantic understanding, context clues, synonyms, and variations to detect related patterns that fall under each intent category, even if not explicitly listed in examples.
 EXAMPLES:
+- Message: "I want Philosophy Book" → Return: "philosophy books"
 - Message: "budget is $30" + Context: "likes books and jewelry" → Return: "books jewelry"
-- Message: "I want laptop" → Return: "laptop"
+- Message: "I want gaming laptop" → Return: "gaming laptop"
+- Message: "wireless headphones" → Return: "wireless headphones"
 - Message: "something nice" + No context → Return: "none"
 
 RESPOND WITH ONLY THE PRODUCT NAME(S):"""
@@ -683,12 +697,9 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
             product_name = product_name.replace('result:', '').strip()
             product_name = product_name.replace('extracted product:', '').strip()
             
-            # If response is too verbose (more than 50 chars), try to extract the actual product name
             if len(product_name) > 50:
-                # Look for actual product name at the end or in specific patterns
                 lines = product_name.split('\n')
                 for line in reversed(lines):
-                    # Look for lines that contain actual product names
                     if ':' in line and len(line.split(':')[-1].strip()) < 30:
                         extracted_part = line.split(':')[-1].strip()
                         if extracted_part and extracted_part != "none":
@@ -698,13 +709,11 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
                         product_name = line.strip()
                         break
                 
-                # If still too long, return None
                 if len(product_name) > 50:
                     print(f"✗ LLM response too verbose, returning None")
                     print(f"=== END PRODUCT NAME DEBUG ===\n")
                     return None
             
-            # Clean up response
             if product_name and product_name != "none" and len(product_name) > 1:
                 # Remove any extra quotation marks or formatting
                 product_name = product_name.replace('"', '').replace("'", '').strip()
@@ -747,14 +756,16 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
                 prompt = f"""Extract the price range from the user's message. Return exact numbers only.
 
 MESSAGE: "{message}"
-
-RULES:
-- For "under/below $X": return min_price: 0, max_price: X
-- For "around $X": return min_price: (X-50), max_price: (X+50)  
-- For "over/greater than $X": return min_price: X, max_price: 9999
-- For "between $X and $Y": return min_price: X, max_price: Y
-- For "budget is $X": return min_price: 0, max_price: X
-- For X-Y range: return min_price: X, max_price: Y
+Look beyond the provided examples. Use semantic understanding, context clues, synonyms, and variations to detect related patterns that fall under each intent category, even if not explicitly listed in examples.
+EXAMPLES:
+-For "under/below $X": return min_price: 0, max_price: X
+-For "around $X": return min_price: (X-50), max_price: (X+50)
+-For "over/greater than $X": return min_price: X, max_price: 9999
+-For "between $X and $Y": return min_price: X, max_price: Y
+-For "budget is $X": return min_price: 0, max_price: X
+-For X-Y range: return min_price: X, max_price: Y
+-For any other form of price mention (like $X, "$X to $Y", "$X range", or similar): use the best guess for price extraction.
+-For queries with no specific price mentioned (like “affordable t-shirts” or vague references to price), provide an estimated price range based on typical market rates for similar products (e.g., affordable t-shirts typically range from $10 to $50).
 - Use NUMBERS ONLY (no "infinity" or text)
 
 RESPONSE FORMAT (exact format required):
@@ -835,14 +846,12 @@ If no price found: none"""
         # Use enhanced regex patterns
         print("Using regex for price extraction...")
         return self._extract_price_range_regex(message)
-    
 
+    # Filters the relevant products based on the user's query and a maximum number of products to return.
     def filter_relevant_products(self, products, query, max_products=3):
-        """Simple product filtering"""
         return products[:max_products] if products else []
 
     def handle_product_search(self, message, user_id=None, username=None, memory_context=""):
-        """Smart product search with enhanced LLM prompting and memory-aware product filtering"""
         try:
             # Use provided memory context
             if memory_context:
@@ -870,16 +879,19 @@ If no price found: none"""
                             product_name = memory_products
                             logger.info(f"Extracted product preferences from memory: '{product_name}'")
             
-            # Regular product search with memory context enhanced query
-            search_query = message
+            # Use extracted product name for cleaner vector search, fallback to original message
+            search_query = product_name if product_name and product_name != "none" else message
+            
+            # Enhance with memory preferences if available
             if memory_context and "likes" in memory_context.lower():
-                # Extract product preferences from memory for better search
                 import re
                 likes_match = re.search(r'likes\s+([^|]+)', memory_context.lower())
                 if likes_match:
                     preferences = likes_match.group(1).strip()
                     search_query += f" {preferences}"
                     logger.info(f"Enhanced search query with preferences: {search_query}")
+            
+            logger.info(f"Vector search query: '{search_query}' (extracted from: '{message}')")
             
             # Search products without price filtering (price range is handled by separate intent)
             products = get_vector_service().search_products(search_query, k=5, category_filter=category)
@@ -921,7 +933,7 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
                 bot_response = f"I found {len(products)} products for '{message}':\n\n{products_text}\n\nWould you like more details about any of these?"
             
             # Add product links
-            product_links = "\n".join([f"🔗 http://localhost:5173/products/{p['id']}" for p in products[:3]])
+            product_links = "\n".join([f"🔗 http://localhost:5173/products/{p['id']}" for p in products])
             bot_response += f"\n\nProduct Links:\n{product_links}"
             
             if user_id:
@@ -944,7 +956,6 @@ Keep it conversational, helpful, and under 100 words. NO markdown formatting."""
             
             import re
             
-            # Extract product ID from message
             product_id_patterns = [
                 r'product\s+(\d+)',
                 r'product\s+id\s+(\d+)',
@@ -1200,6 +1211,83 @@ Keep it conversational and under 100 words. NO markdown."""
                 "intent": "issue_report"
             }
     
+    def _extract_price_range_regex(self, message):
+        """Fallback regex-based price range extraction with enhanced patterns"""
+        import re
+        
+        price_range_patterns = [
+            # Explicit range indicators
+            (r'under\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'below\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'less\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'cheaper\s+than\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            
+            # Greater than patterns (NEW)
+            (r'over\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'above\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'greater\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'more\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'higher\s+than\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'at\s+least\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            (r'minimum\s+\$?(\d+)', lambda m: (int(m.group(1)), 9999)),
+            
+            # Range patterns  
+            (r'between\s+\$?(\d+)\s*(?:and|to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            (r'\$?(\d+)\s*(?:to|-)\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            (r'from\s+\$?(\d+)\s*to\s*\$?(\d+)', lambda m: (int(m.group(1)), int(m.group(2)))),
+            
+            # Around patterns (ENHANCED)
+            (r'around\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'approximately\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'roughly\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            (r'about\s+\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            
+            # Budget patterns
+            (r'budget\s+of\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'price\s+range\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            
+            # Enhanced budget patterns for natural language
+            (r'(?:my\s+)?budget\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?budget\s*[:=]\s*\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:i\s+have\s+)?(?:a\s+)?budget\s+(?:of\s+)?\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?price\s+limit\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?maximum\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?max\s+is\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'can\s+(?:only\s+)?spend\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'afford\s+up\s+to\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
+            (r'looking\s+(?:for\s+)?(?:something\s+)?(?:around\s+)?\$?(\d+)', lambda m: (max(0, int(m.group(1)) - 50), int(m.group(1)) + 50)),
+            
+            # Handle dollar/dollars at the end
+            (r'budget\s+is\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'budget\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'(\d+)\s+dollars?\s+budget', lambda m: (0, int(m.group(1)))),
+            (r'(?:my\s+)?maximum\s+(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            (r'(?:up\s+to\s+)?(\d+)\s+dollars?', lambda m: (0, int(m.group(1)))),
+            
+            # Greater than with dollars at end
+            (r'over\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'above\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'greater\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'more\s+than\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+            (r'at\s+least\s+(\d+)\s+dollars?', lambda m: (int(m.group(1)), 9999)),
+        ]
+        
+        message_lower = message.lower()
+        for pattern, extractor in price_range_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                try:
+                    min_price, max_price = extractor(match)
+                    print(f"✓ Regex extracted price range: ({min_price}, {max_price})")
+                    print(f"=== END PRICE RANGE DEBUG ===\n")
+                    return (min_price, max_price)
+                except (ValueError, IndexError):
+                    continue
+        
+        print(f"✗ No price range found in message")
+        print(f"=== END PRICE RANGE DEBUG ===\n")
+        return None
+
     def handle_general_chat(self, message, user_id=None, username=None, memory_context=""):
         """Pure LLM-based general conversation with smart context understanding"""
         try:
@@ -1492,7 +1580,7 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
             return "New conversation"
 
     def process_message(self, message, user_id=None, user_email=None, username=None):
-        """Smart message processing with enhanced LLM responses and memory management"""
+
         try:
             if not message or not message.strip():
                 return {"response": "Please send me a message and I'll help you!", "intent": "general_chat"}
@@ -1539,12 +1627,7 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
                         # For other intents that don't need memory, keep minimal context
                         memory_context = memory_context[:30] + "..." if len(memory_context) > 30 else memory_context
             
-            # # Check for memory-specific queries first
-            # if self.detect_memory_query(message):
-            #     logger.info("Memory query detected - using dedicated handler")
-            #     return self.handle_memory_query(message, user_id, username, memory_context)
-            
-            # Route to handlers with intelligent memory context
+
             if intent == "product_search":
                 return self.handle_product_search(message, user_id, username, memory_context)
             elif intent == "product_specific":
