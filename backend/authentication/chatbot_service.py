@@ -1397,46 +1397,43 @@ RESPOND naturally and contextually:"""
             
             # Search for products in price range with product name filter
             if product_name and product_name != "none":
-                print(f"Searching with product name: '{product_name}'")
+                print(f"Searching with full product name: '{product_name}'")
                 
-                # Handle multiple product types (like "books jewelry")
-                product_types = product_name.lower().split()
-                all_filtered_products = []
+                # Search with the complete product name (not split into separate words)
+                products = get_vector_service().search_products(product_name, k=20)
+                print(f"Found {len(products)} products for '{product_name}'")
                 
-                for product_type in product_types:
-                    if len(product_type) > 2:  # Skip very short words
-                        print(f"  Searching for product type: '{product_type}'")
-                        # Search by each product type
-                        products = get_vector_service().search_products(product_type, k=20)
-                        print(f"  Found {len(products)} products for '{product_type}'")
+                # Filter by price range and relevance
+                filtered_products = []
+                for product in products:
+                    price = float(product.get('price', 0))
+                    
+                    # Check if product is within price range
+                    if min_price <= price <= max_price:
+                        product_name_lower = product['name'].lower()
+                        category_lower = product.get('category', '').lower()
+                        search_query_lower = product_name.lower()
                         
-                        # Filter by relevance and price range
-                        for product in products:
-                            price = float(product.get('price', 0))
-                            product_name_lower = product['name'].lower()
-                            category_lower = product.get('category', '').lower()
-                            
-                            # Check relevance - product name or category should contain keywords
-                            relevance_score = 0
-                            if product_type in product_name_lower:
-                                relevance_score += 3  # Highest score for name match
-                            elif product_type in category_lower:
-                                relevance_score += 2  # Medium score for category match
-                            elif any(keyword in product_name_lower for keyword in [product_type[:4]]):  # Partial match
-                                relevance_score += 1
-                            
-                            # Only include if relevant AND within price range AND not already added
-                            if (relevance_score > 0 and min_price <= price <= max_price and 
-                                not any(p['id'] == product['id'] for p in all_filtered_products)):
-                                product['relevance_score'] = relevance_score
-                                product['matched_type'] = product_type
-                                all_filtered_products.append(product)
-                                print(f"    ✓ {product['name']} - ${price} (relevance: {relevance_score}, type: {product_type})")
+                        # Calculate relevance score based on how well it matches the search
+                        relevance_score = 0
+                        search_words = search_query_lower.split()
+                        
+                        # Count how many search words appear in product name
+                        name_matches = sum(1 for word in search_words if word in product_name_lower)
+                        category_matches = sum(1 for word in search_words if word in category_lower)
+                        
+                        # Higher score for more word matches
+                        relevance_score = name_matches * 3 + category_matches * 2
+                        
+                        if relevance_score > 0:  # Only include relevant products
+                            product['relevance_score'] = relevance_score
+                            filtered_products.append(product)
+                            print(f"    ✓ {product['name']} - ${price} (relevance: {relevance_score})")
                 
-                # Sort by relevance score and price
-                all_filtered_products.sort(key=lambda x: (x.get('relevance_score', 0), -x.get('price', 0)), reverse=True)
-                products = all_filtered_products[:10]  # Limit to 10 results
-                print(f"Final filtered products across all types: {len(products)}")
+                # Sort by relevance score, then by price
+                filtered_products.sort(key=lambda x: (x.get('relevance_score', 0), -x.get('price', 0)), reverse=True)
+                products = filtered_products[:10]  # Limit to 10 results
+                print(f"Final filtered products: {len(products)}")
                 
             else:
                 print("No specific product name found, searching by price range only")
