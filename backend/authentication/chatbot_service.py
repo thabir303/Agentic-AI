@@ -75,7 +75,15 @@ class ChatbotService:
                     max_tokens=max_tokens
                 )
                 
-                result = response.choices[0].message.content.strip()
+                # Safely extract content with proper null checking
+                if response and hasattr(response, 'choices') and response.choices:
+                    content = response.choices[0].message.content
+                    if content is not None:
+                        result = content.strip()
+                    else:
+                        result = ""
+                else:
+                    result = ""
                 
                 # Debug empty responses from HuggingFace
                 if not result:
@@ -667,9 +675,13 @@ INTELLIGENT EXTRACTION RULES:
 Look beyond the provided examples. Use semantic understanding, context clues, synonyms, and variations to detect related patterns that fall under each intent category, even if not explicitly listed in examples.
 EXAMPLES:
 - Message: "I want Philosophy Book" → Return: "philosophy books"
+- Message: "some affordable sci-fi novel" → Return: "sci-fi novel"
+- Message: "affordable Sci-Fi Adventure Novel" → Return: "sci-fi adventure novel"
 - Message: "budget is $30" + Context: "likes books and jewelry" → Return: "books jewelry"
 - Message: "I want gaming laptop" → Return: "gaming laptop"
 - Message: "wireless headphones" → Return: "wireless headphones"
+- Message: "cheap electronics" → Return: "electronics"
+- Message: "budget kitchen items" → Return: "kitchen items"
 - Message: "something nice" + No context → Return: "none"
 
 RESPOND WITH ONLY THE PRODUCT NAME(S):"""
@@ -684,12 +696,25 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
             print(f"LLM response: '{response_text}'")
             
             # Check if response is empty or None
-            if not response_text or response_text.strip() == "":
-                print(f"✗ Empty LLM response, returning None")
+            if not response_text:
+                print(f"✗ Empty/None LLM response, returning None")
                 print(f"=== END PRODUCT NAME DEBUG ===\n")
                 return None
             
-            product_name = response_text.strip().lower()
+            # Convert to string if not already and check if it's a valid response
+            response_text = str(response_text).strip()
+            if not response_text or response_text == "":
+                print(f"✗ Empty LLM response after processing, returning None")
+                print(f"=== END PRODUCT NAME DEBUG ===\n")
+                return None
+            
+            # Check for error messages
+            if "sorry" in response_text.lower() or "technical difficulties" in response_text.lower():
+                print(f"✗ LLM returned error message, returning None")
+                print(f"=== END PRODUCT NAME DEBUG ===\n")
+                return None
+            
+            product_name = response_text.lower()
             
             # Clean up response and remove common prefixes
             product_name = product_name.replace('product name:', '').strip()
@@ -735,7 +760,56 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
         except Exception as e:
             print(f"✗ LLM extraction failed: {e}")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
-            return None
+            
+            # Fallback: Simple regex-based product extraction
+            return self._extract_product_name_regex(message)
+
+    def _extract_product_name_regex(self, message):
+        """Fallback regex-based product name extraction"""
+        import re
+        
+        # Common product patterns
+        product_patterns = [
+            r'(?:suggest|find|show|get|want|need|looking for|search)\s+(?:me\s+)?(?:some\s+)?(?:affordable\s+|cheap\s+|budget\s+)?(.*?)(?:\s+under|\s+below|\s+around|\s+for|\s*$)',
+            r'(?:affordable|cheap|budget|inexpensive)\s+(.*?)(?:\s+under|\s+below|\s+around|\s+for|\s*$)',
+            r'(.*?)\s+(?:under|below|around|for)\s+\$?\d+',
+            r'(.*?)\s+(?:book|novel|laptop|phone|headphone|game|toy|clothing|shirt|dress)',
+            # Specific pattern for sci-fi variants
+            r'(?:sci-fi|science fiction|sci fiction|scifi)\s+(.*?)(?:\s|$)',
+            r'(.*?)\s+(?:sci-fi|science fiction|sci fiction|scifi)(?:\s|$)',
+        ]
+        
+        message_lower = message.lower().strip()
+        
+        for pattern in product_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                extracted = match.group(1).strip()
+                # Clean up common words
+                extracted = re.sub(r'\b(some|any|good|best|nice|great)\b', '', extracted).strip()
+                if extracted and len(extracted) > 2:
+                    print(f"✓ Regex extracted product name: '{extracted}'")
+                    return extracted
+        
+        # If no pattern matches, try to extract nouns (basic approach)
+        words = message_lower.split()
+        product_keywords = ['book', 'novel', 'laptop', 'phone', 'headphone', 'game', 'toy', 'clothing', 'shirt', 'dress', 'electronics', 'kitchen', 'sci-fi', 'scifi', 'science', 'fiction']
+        
+        for keyword in product_keywords:
+            if keyword in message_lower:
+                # Look for descriptive words before the keyword
+                for i, word in enumerate(words):
+                    if keyword in word:
+                        if i > 0:
+                            product_name = f"{words[i-1]} {keyword}"
+                            print(f"✓ Keyword-based extraction: '{product_name}'")
+                            return product_name
+                        else:
+                            print(f"✓ Keyword-based extraction: '{keyword}'")
+                            return keyword
+        
+        print(f"✗ No product name found via regex")
+        return None
 
     def extract_category_from_message(self, message):
         """Extract category from user message"""
@@ -756,14 +830,25 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
                 prompt = f"""Extract the price range from the user's message. Return exact numbers only.
 
 MESSAGE: "{message}"
-Look beyond the provided examples. Use semantic understanding, context clues, synonyms, and variations to detect related patterns that fall under each intent category, even if not explicitly listed in examples.
-EXAMPLES:
+
+IMPORTANT: If the message contains words like "affordable", "cheap", "budget", "inexpensive", "low cost" WITHOUT specific numbers, provide appropriate price ranges based on the product category:
+
+AFFORDABILITY GUIDELINES:
+- Books/Novels: affordable = $5-$25, cheap = $5-$15, budget = $5-$20
+- Electronics/Gadgets: affordable = $15-$100, cheap = $10-$50, budget = $20-$80  
+- Clothing: affordable = $10-$50, cheap = $5-$30, budget = $10-$40
+- Home/Kitchen: affordable = $10-$75, cheap = $5-$40, budget = $15-$60
+- Toys/Games: affordable = $5-$30, cheap = $3-$20, budget = $8-$25
+- General/Unknown category: affordable = $10-$50, cheap = $5-$30, budget = $10-$40
+
+SPECIFIC PRICE EXAMPLES:
 -For "under/below $X": return min_price: 0, max_price: X
 -For "around $X": return min_price: (X-50), max_price: (X+50)
 -For "over/greater than $X": return min_price: X, max_price: 9999
 -For "between $X and $Y": return min_price: X, max_price: Y
 -For "budget is $X": return min_price: 0, max_price: X
 -For X-Y range: return min_price: X, max_price: Y
+-For "affordable Sci-Fi Adventure Novel": return min_price: 5, max_price: 25
 -For any other form of price mention (like $X, "$X to $Y", "$X range", or similar): use the best guess for price extraction.
 -For queries with no specific price mentioned (like “affordable t-shirts” or vague references to price), provide an estimated price range based on typical market rates for similar products (e.g., affordable t-shirts typically range from $10 to $50).
 - Use NUMBERS ONLY (no "infinity" or text)
@@ -1216,6 +1301,24 @@ Keep it conversational and under 100 words. NO markdown."""
         import re
         
         price_range_patterns = [
+            # Affordable and budget-friendly patterns (NEW)
+            (r'affordable.*(?:book|novel|fiction)', lambda m: (5, 25)),
+            (r'affordable.*(?:electronic|gadget|device)', lambda m: (15, 100)),
+            (r'affordable.*(?:cloth|shirt|pant|dress)', lambda m: (10, 50)),
+            (r'affordable.*(?:kitchen|home)', lambda m: (10, 75)),
+            (r'affordable.*(?:toy|game)', lambda m: (5, 30)),
+            (r'(?:cheap|budget|inexpensive|low.?cost).*(?:book|novel|fiction)', lambda m: (5, 25)),
+            (r'(?:cheap|budget|inexpensive|low.?cost).*(?:electronic|gadget|device)', lambda m: (15, 100)),
+            (r'(?:cheap|budget|inexpensive|low.?cost).*(?:cloth|shirt|pant|dress)', lambda m: (10, 50)),
+            (r'(?:cheap|budget|inexpensive|low.?cost).*(?:kitchen|home)', lambda m: (10, 75)),
+            (r'(?:cheap|budget|inexpensive|low.?cost).*(?:toy|game)', lambda m: (5, 30)),
+            # Generic affordable (fallback)
+            (r'affordable', lambda m: (10, 50)),
+            (r'cheap', lambda m: (5, 30)),
+            (r'budget(?:\s+friendly)?', lambda m: (10, 60)),
+            (r'inexpensive', lambda m: (10, 50)),
+            (r'low.?cost', lambda m: (5, 40)),
+            
             # Explicit range indicators
             (r'under\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
             (r'below\s+\$?(\d+)', lambda m: (0, int(m.group(1)))),
