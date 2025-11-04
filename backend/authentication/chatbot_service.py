@@ -429,13 +429,15 @@ class ChatbotService:
         # DEBUG: Print intent detection process
         print(f"\n=== INTENT DETECTION DEBUG ===")
         print(f"Original message: '{message}'")
-        print(f"User context: '{user_context[:100]}...' " if user_context else "No user context")
-        
-        
+        print(f"User context: '{user_context[:400]}...' " if user_context and len(user_context) > 400 else f"User context: '{user_context}'" if user_context else "No user context")
+
         prompt = f"""You are an intelligent AI assistant with deep e-commerce knowledge. Analyze the user's message to determine their intent and memory context.
 
 USER MESSAGE: "{message}"
 CONVERSATION CONTEXT: {user_context if user_context else "New conversation"}
+
+CRITICAL MEMORY DETECTION RULE:
+- If the message is ONLY about budget/price ("My budget is...", "Under $X") AND there is CONVERSATION CONTEXT, then needs_memory = true
 
 INTENT ANALYSIS:
 Identify the user's primary intent by carefully checking for price indicators FIRST:
@@ -471,12 +473,20 @@ issue_report: Reporting problems or service issues
 CONTEXTUAL MEMORY ANALYSIS:
 Does the message depend on previous conversations?
 
-needs_memory: true: References or builds on past conversations (mentions "that", "it", "them", "my budget", "for her", "gift", follow-up questions, continuation words)
+needs_memory: true: 
+- Budget mentions ("my budget", "budget is", "under $X", "within budget") when previous context exists
+- Gift scenarios ("for my sister", "for her", "gift") that reference previous product discussions
+- Follow-up questions ("tell me more", "what about", "how about")
+- Pronoun references ("it", "that product", "those", "them")
+- Continuation words ("also", "and", "additionally")
+- Personal requests ("my order", "my preference") 
+- Price-only messages that need product context from previous conversations
 
-needs_memory: false: Independent request with no prior context required
+needs_memory: false: Independent request with complete information and no prior context required
 
 ENHANCED MEMORY DETECTION:
 - Budget/gift scenarios often need previous product preferences
+- "My budget is under $30" NEEDS MEMORY if previous conversation mentioned products
 - Follow-up questions ("tell me more", "what about") need context
 - Pronoun references ("it", "that product", "those") need context  
 - Continuation words ("also", "and", "additionally") need context
@@ -666,7 +676,7 @@ MESSAGE: "{message}"{context_info}
 INTELLIGENT EXTRACTION RULES:
 - Extract complete product descriptions with modifiers/adjectives (e.g., "philosophy books", "gaming laptop", "wireless headphones")
 - Keep important descriptive words that specify the type/category (philosophy, gaming, wireless, etc.)
-- If current message mentions price/budget and context shows product preferences, extract from context
+- CRITICAL: If current message mentions only price/budget AND context contains product preferences, extract products from context
 - For "budget is $X" with previous product mentions, return the products from context
 - For gift scenarios: use recipient preferences from context if available
 - Return "none" only if no product type can be determined from message OR context
@@ -755,14 +765,91 @@ RESPOND WITH ONLY THE PRODUCT NAME(S):"""
             
             print(f"✗ No valid product name found in LLM response: '{product_name}'")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
+            # Try memory context extraction if available
+            if memory_context:
+                return self._extract_product_from_memory_context(memory_context)
             return None
             
         except Exception as e:
             print(f"✗ LLM extraction failed: {e}")
             print(f"=== END PRODUCT NAME DEBUG ===\n")
             
+            # Try memory context extraction first if available
+            if memory_context:
+                memory_result = self._extract_product_from_memory_context(memory_context)
+                if memory_result:
+                    return memory_result
+            
             # Fallback: Simple regex-based product extraction
             return self._extract_product_name_regex(message)
+
+    def _extract_product_from_memory_context(self, memory_context):
+        """Extract product names from memory context when current message fails"""
+        if not memory_context:
+            return None
+        
+        print(f"✓ Trying to extract products from memory context...")
+        print(f"Memory context: '{memory_context}'")
+        import re
+        
+        # Look for product mentions in the last few messages
+        product_keywords = [
+            'books?', 'novel', 'story', 'stories', 'fiction', 'literature',
+            'jewelry', 'necklace', 'ring', 'bracelet', 'earring', 'chain',
+            'electronics?', 'laptop', 'phone', 'headphone', 'computer', 'tablet',
+            'game', 'toy', 'toys', 'gaming', 'console', 
+            'clothing', 'shirt', 'dress', 'pant', 'jacket', 'clothes',
+            'kitchen', 'cookware', 'utensil', 'appliance',
+            'sci-fi', 'scifi', 'science fiction', 'fantasy',
+            'watch', 'accessory', 'accessories', 'gift', 'present'
+        ]
+        
+        found_products = []
+        memory_lower = memory_context.lower()
+        
+        # Extract product mentions from memory
+        for keyword in product_keywords:
+            pattern = rf'\b{keyword}\b'
+            if re.search(pattern, memory_lower):
+                # Clean up the keyword
+                clean_keyword = keyword.replace('?', '').replace('s?', 's')
+                if clean_keyword not in found_products:
+                    found_products.append(clean_keyword)
+        
+        # Look for common phrases that indicate product interests
+        interest_patterns = [
+            r'likes?\s+([\w\s]+?)(?:\s+and\s+([\w\s]+?))?(?:\.|$|\s+for|\s+as)',
+            r'interested?\s+in\s+([\w\s]+?)(?:\s+and\s+([\w\s]+?))?(?:\.|$|\s+for|\s+as)',
+            r'wants?\s+([\w\s]+?)(?:\s+and\s+([\w\s]+?))?(?:\.|$|\s+for|\s+as)',
+            r'looking\s+for\s+([\w\s]+?)(?:\s+and\s+([\w\s]+?))?(?:\.|$|\s+for|\s+as)',
+            r'prefer\s+([\w\s]+?)(?:\s+and\s+([\w\s]+?))?(?:\.|$|\s+for|\s+as)'
+        ]
+        
+        for pattern in interest_patterns:
+            matches = re.findall(pattern, memory_lower)
+            for match in matches:
+                for item in match:
+                    if item and len(item.strip()) > 2:
+                        item_cleaned = item.strip()
+                        # Check if it contains product-related words
+                        if any(keyword in item_cleaned for keyword in ['book', 'novel', 'jewelry', 'electronic', 'game', 'toy', 'clothing', 'kitchen']):
+                            found_products.append(item_cleaned)
+        
+        # Also look for explicit product combinations like "books and jewelry"
+        product_combinations = re.findall(r'((?:books?|jewelry|electronics?|laptop|phone|headphone|game|toys?|clothing|shirt|dress|kitchen|sci-fi|scifi|science fiction|fiction|watch|ring|necklace|bracelet)(?:\s+and\s+(?:books?|jewelry|electronics?|laptop|phone|headphone|game|toys?|clothing|shirt|dress|kitchen|sci-fi|scifi|science fiction|fiction|watch|ring|necklace|bracelet))*)', memory_lower)
+        
+        if product_combinations:
+            # Use the most recent/complete combination
+            latest_combination = product_combinations[-1]
+            print(f"✓ Memory context extracted: '{latest_combination}'")
+            return latest_combination
+        elif found_products:
+            result = ' '.join(found_products[:3])  # Limit to top 3 products
+            print(f"✓ Memory context extracted: '{result}'")
+            return result
+        
+        print(f"✗ No products found in memory context")
+        return None
 
     def _extract_product_name_regex(self, message):
         """Fallback regex-based product name extraction"""
@@ -1711,11 +1798,11 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
                 if needs_memory and memory_context:
                     # Analyze memory importance for this specific query
                     memory_importance = self._analyze_memory_importance(message, memory_context)
-                    logger.info(f"Memory importance: {memory_importance} | Context: {memory_context[:50]}...")
+                    logger.info(f"Memory importance: {memory_importance} | Context: {memory_context[:100]}...")
                     
                     # If memory is not important for this query, use minimal context
                     if memory_importance == "low":
-                        memory_context = memory_context[:50] + "..." if memory_context else ""
+                        memory_context = memory_context[:150] + "..." if len(memory_context) > 150 else memory_context
                     elif memory_importance == "none":
                         memory_context = ""
                         logger.info("Memory context determined as not needed, clearing it")
@@ -1724,8 +1811,8 @@ Keep it conversational, helpful, and under 80 words. NO markdown formatting."""
                     if intent == "general_chat":
                         logger.info("General chat with available memory context for personalization")
                     else:
-                        # For other intents that don't need memory, keep minimal context
-                        memory_context = memory_context[:30] + "..." if len(memory_context) > 30 else memory_context
+                        # For other intents that don't need memory, keep moderate context
+                        memory_context = memory_context[:100] + "..." if len(memory_context) > 100 else memory_context
             
 
             if intent == "product_search":
